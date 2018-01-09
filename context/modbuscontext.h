@@ -15,14 +15,14 @@ typedef enum {
 	MBContextFcodeX10 = 0x10,
 }MBContextFcodeType;
 typedef struct {
-	uint8_t mac;
+	uint8_t buffer[255];
 	uint8_t index;
-	uint8_t buffer[256];
+	uint8_t master;
 }MBContext;
 
 void MBContextInit(MBContext*);
 void MBContextPush(MBContext*, uint8_t);
-void MBContextSetMac(MBContext*, uint8_t);
+void MBContextSetMaster(MBContext*, uint8_t);
 uint8_t MBContextCheckRequest(MBContext*);
 uint8_t MBContextCheckResponse(MBContext*);
 uint8_t MBContextGetLength(MBContext*);

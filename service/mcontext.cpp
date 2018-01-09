@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "mcontext.h"
 
 Mcontext::Mcontext(void)
@@ -8,13 +9,27 @@ void Mcontext::Init(void)
 {
 	MBContextInit(&context);
 }
-void Mcontext::Push(unsigned char c)	
+void Mcontext::SetMaster(uint8_t master)
+{
+	MBContextSetMaster(&context, master);
+}
+void Mcontext::Show(void)
+{
+	printf("[");
+	for(int i = 0; i < GetLength(); i++)
+	{
+		printf("%02X ", context.buffer[i]);
+	}
+	printf("\b]\n");
+}
+void Mcontext::Push(uint8_t c)	
 {
 	MBContextPush(&context, c);
 }
-void Mcontext::SetMac(unsigned char c)
+void Mcontext::PushW(uint16_t w)
 {
-	MBContextSetMac(&context, c);
+	MBContextPush(&context, (w >> 8));
+	MBContextPush(&context, (w >> 0));
 }
 bool Mcontext::CheckRequest(void)
 {
@@ -23,6 +38,10 @@ bool Mcontext::CheckRequest(void)
 bool Mcontext::CheckResponse(void)
 {
 	return MBContextCheckResponse(&context);
+}
+uint8_t*Mcontext::GetData(void)
+{
+	return context.buffer;
 }
 uint8_t Mcontext::GetLength(void)
 {
@@ -49,6 +68,7 @@ X10Response& Mcontext::GetX10Response(void)
 	return *(X10Response*)this;
 }
 
+//xX03Request
 bool X03Request::Check(void)
 {
 	return (X03RequestCheck((X03RequestContext*)&context) == 1);
@@ -99,9 +119,11 @@ void X03Request::SetCount(uint16_t count)
 }
 void X03Request::SetCrc(uint16_t crc)
 {
-	X03RequestSetCount((X03RequestContext*)&context, crc);
+	context.index = X03Request::GetLength();
+	X03RequestSetCrc((X03RequestContext*)&context, crc);
 }
 
+//xX03Response
 bool X03Response::Check(void)
 {
 	return (X03ResponseCheck((X03ResponseContext*)&context) == 1);
@@ -152,9 +174,11 @@ void X03Response::SetData(uint8_t i, uint16_t data)
 }
 void X03Response::SetCrc(uint16_t crc)
 {
+	context.index = X03Response::GetLength();
 	X03ResponseSetCrc((X03ResponseContext*)&context, crc);
 }
 
+//xX10Request
 bool X10Request::Check(void)
 {
 	return (X10RequestCheck((X10RequestContext*)&context) == 1);
@@ -221,9 +245,11 @@ void X10Request::SetData(uint8_t i, uint16_t data)
 }
 void X10Request::SetCrc(uint16_t crc)
 {
+	context.index = X10Request::GetLength();
 	X10RequestSetCrc((X10RequestContext*)&context, crc);
 }
 
+//xX10Response
 bool X10Response::Check(void)
 {
 	return (X10ResponseCheck((X10ResponseContext*)&context) == 1);
@@ -274,5 +300,6 @@ void X10Response::SetCount(uint16_t count)
 }
 void X10Response::SetCrc(uint16_t crc)
 {
+	context.index = X10Response::GetLength();
 	X10ResponseSetCrc((X10ResponseContext*)&context, crc);
 }

@@ -5,7 +5,6 @@
 
 void MBContextInit(MBContext* m)
 {
-	m->mac = 0;
 	m->index = 0;
 }
 void MBContextPush(MBContext* m, uint8_t c)
@@ -15,9 +14,9 @@ void MBContextPush(MBContext* m, uint8_t c)
 		m->buffer[ m->index++ ] = c;
 	}
 }
-void MBContextSetMac(MBContext *m, uint8_t c)
+void MBContextSetMaster(MBContext *m, uint8_t c)
 {
-	m->mac = c;
+	m->master = c;
 }
 uint8_t MBContextCheckX03Request(MBContext* m)
 {
@@ -117,7 +116,7 @@ uint8_t MBContextCheckRequest(MBContext* m)
 	{
 		return 0;
 	}
-	if( m->mac != m->buffer[ MBContextIndexSlave ] )
+	if( m->master != m->buffer[ MBContextIndexSlave ] )
 	{
 		m->index--;
 		memmove(m->buffer, m->buffer + 1, m->index);
@@ -141,7 +140,7 @@ uint8_t MBContextCheckResponse(MBContext* m)
 	{
 		return 0;
 	}
-	if( m->mac != m->buffer[ MBContextIndexSlave ] )
+	if( m->master != m->buffer[ MBContextIndexSlave ] )
 	{
 		m->index--;
 		memmove(m->buffer, m->buffer + 1, m->index);
@@ -185,13 +184,13 @@ uint8_t MBContextGetFcode(MBContext* m)
 }
 
 #ifdef TEST_CONTEXT
-int CheckRequest(uint8_t mac, uint8_t *data, int len)
+int CheckRequest(uint8_t master, uint8_t *data, int len)
 {
 	int i = 0;
 	MBContext context;
 
 	MBContextInit(&context);
-	MBContextSetMac(&context, mac);
+	MBContextSetMaster(&context, master);
 
 	for(i = 0; data && i < len; i++)
 	{
@@ -206,13 +205,13 @@ int CheckRequest(uint8_t mac, uint8_t *data, int len)
 	}
 	return i;
 }
-int CheckResponse(uint8_t mac, uint8_t *data, int len)
+int CheckResponse(uint8_t master, uint8_t *data, int len)
 {
 	int i = 0;
 	MBContext context;
 
 	MBContextInit(&context);
-	MBContextSetMac(&context, mac);
+	MBContextSetMaster(&context, master);
 
 	for(i = 0; data && i < len; i++)
 	{

@@ -16,11 +16,14 @@ public:
 	Mcontext(void);
 
 public:
+	void Show(void);
 	void Init(void);
-	void Push(unsigned char);	
-	void SetMac(unsigned char);
+	void Push(uint8_t);	
+	void PushW(uint16_t);	
+	void SetMaster(uint8_t);	
 	bool CheckRequest(void);
 	bool CheckResponse(void);
+	virtual uint8_t* GetData(void);
 	virtual uint8_t GetLength(void);
 	virtual uint8_t GetFcode(void);
 	X03Request& GetX03Request(void);

@@ -18,8 +18,10 @@ public:
 	bool Init(const string& dev, int baud, int parity, int bsize, int stop);
 
 public:
-	bool GetRequest(Mcontext&);
-	bool GetResponse(Mcontext&);
+	bool RecvRequest(Mcontext&);
+	bool RecvResponse(Mcontext&);
+	bool SendRequest(Mcontext&);
+	bool SendResponse(Mcontext&);
 };
 
 #endif//__MODBUS_H__
