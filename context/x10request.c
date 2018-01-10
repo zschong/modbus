@@ -147,7 +147,7 @@ void X10RequestShowContext(X10RequestContext* ctx)
 	{
 		printf("%02X ", ctx->data[i]);
 	}
-	printf("\b].check(%d)\n", X10RequestCheck(ctx));
+	printf("\b].%s\n", X10RequestCheck(ctx) == 1 ? "ok" : "xxxx");
 }
 
 #ifdef TEST_X10REQUEST

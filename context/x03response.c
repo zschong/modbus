@@ -112,7 +112,7 @@ void X03ResponseShowContext(X03ResponseContext* ctx)
 	{
 		printf("%02X ", ctx->data[i]);
 	}
-	printf("\b].check(%d)\n", X03ResponseCheck(ctx));
+	printf("\b].%s\n", X03ResponseCheck(ctx) == 1 ? "ok" : "xxxx");
 }
 
 #ifdef TEST_X03RESPONSE

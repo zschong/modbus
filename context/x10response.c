@@ -94,7 +94,7 @@ void X10ResponseShowContext(X10ResponseContext* ctx)
 	{
 		printf("%02X ", ctx->data[i]);
 	}
-	printf("\b].check(%d)\n", X10ResponseCheck(ctx));
+	printf("\b].%s\n", X10ResponseCheck(ctx) == 1 ? "ok" : "xxxx");
 
 
 }

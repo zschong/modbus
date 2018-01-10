@@ -99,7 +99,7 @@ void X03RequestShowContext(X03RequestContext* ctx)
 	{
 		printf("%02X ", ctx->data[i]);
 	}
-	printf("\b].check(%d)\n", X03RequestCheck(ctx));
+	printf("\b].%s\n", X03RequestCheck(ctx) == 1 ? "ok" : "xxxx");
 }
 
 #ifdef TEST_X03REQUEST

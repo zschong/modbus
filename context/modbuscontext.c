@@ -18,6 +18,36 @@ void MBContextSetMaster(MBContext *m, uint8_t c)
 {
 	m->master = c;
 }
+
+/****************CheckReust*******************/
+uint8_t MBContextCheckX01Request(MBContext* m)
+{
+	if( m->index < X01RequestIndexMax )
+	{
+		return 0;
+	}
+	if( X01RequestCheck( (X01RequestContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX02Request(MBContext* m)
+{
+	if( m->index < X02RequestIndexMax )
+	{
+		return 0;
+	}
+	if( X02RequestCheck( (X02RequestContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
 uint8_t MBContextCheckX03Request(MBContext* m)
 {
 	if( m->index < X03RequestIndexMax )
@@ -32,24 +62,55 @@ uint8_t MBContextCheckX03Request(MBContext* m)
 	}
 	return 1;
 }
-uint8_t MBContextCheckX03Response(MBContext* m)
+uint8_t MBContextCheckX04Request(MBContext* m)
 {
-	if( m->index < X03ResponseIndexData )
+	if( m->index < X04RequestIndexMax )
 	{
 		return 0;
 	}
-	uint8_t bcount = X03ResponseGetBcount( (X03ResponseContext*)m->buffer );
-	if( bcount < X03ResponseBcountMin || bcount > X03ResponseBcountMax )
+	if( X04RequestCheck( (X04RequestContext*)m->buffer ) == 0 )
 	{
 		m->index--;
 		memmove(m->buffer, m->buffer + 1, m->index);
 		return 0;
 	}
-	if( m->index < (X03ResponseIndexData + bcount + 2) )
+	return 1;
+}
+uint8_t MBContextCheckX05Request(MBContext* m)
+{
+	if( m->index < X05RequestIndexMax )
 	{
 		return 0;
 	}
-	if( X03ResponseCheck( (X03ResponseContext*)m->buffer ) == 0 )
+	if( X05RequestCheck( (X05RequestContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX06Request(MBContext* m)
+{
+	if( m->index < X06RequestIndexMax )
+	{
+		return 0;
+	}
+	if( X06RequestCheck( (X06RequestContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX0fRequest(MBContext* m)
+{
+	if( m->index < X0fRequestIndexData )
+	{
+		return 0;
+	}
+	if( X0fRequestCheck( (X0fRequestContext*)m->buffer ) == 0 )
 	{
 		m->index--;
 		memmove(m->buffer, m->buffer + 1, m->index);
@@ -89,27 +150,6 @@ uint8_t MBContextCheckX10Request(MBContext* m)
 	}
 	return 1;
 }
-uint8_t MBContextCheckX10Response(MBContext* m)
-{
-	if( m->index < X10ResponseIndexMax )
-	{
-		return 0;
-	}
-	uint8_t count = X10ResponseGetCount( (X10ResponseContext*)m->buffer );
-	if( count < X10ResponseCountMin || count > X10ResponseCountMax )
-	{
-		m->index--;
-		memmove(m->buffer, m->buffer + 1, m->index);
-		return 0;
-	}
-	if( X10ResponseCheck( (X10ResponseContext*)m->buffer ) == 0 )
-	{
-		m->index--;
-		memmove(m->buffer, m->buffer + 1, m->index);
-		return 0;
-	}
-	return 1;
-}
 uint8_t MBContextCheckRequest(MBContext* m)
 {
 	if( m->index < 2)
@@ -133,6 +173,171 @@ uint8_t MBContextCheckRequest(MBContext* m)
 	m->index--;
 	memmove(m->buffer, m->buffer + 1, m->index);
 	return 0;
+}
+
+/***************CheckResponse*****************/
+uint8_t MBContextCheckX01Response(MBContext* m)
+{
+	if( m->index < X01ResponseIndexData )
+	{
+		return 0;
+	}
+	uint8_t bcount = X01ResponseGetBcount( (X01ResponseContext*)m->buffer );
+	if( bcount < X01ResponseBcountMin || bcount > X01ResponseBcountMax )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	if( m->index < (X01ResponseIndexData + bcount + 2) )
+	{
+		return 0;
+	}
+	if( X01ResponseCheck( (X01ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX02Response(MBContext* m)
+{
+	if( m->index < X02ResponseIndexData )
+	{
+		return 0;
+	}
+	uint8_t bcount = X02ResponseGetBcount( (X02ResponseContext*)m->buffer );
+	if( bcount < X02ResponseBcountMin || bcount > X02ResponseBcountMax )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	if( m->index < (X02ResponseIndexData + bcount + 2) )
+	{
+		return 0;
+	}
+	if( X02ResponseCheck( (X02ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX03Response(MBContext* m)
+{
+	if( m->index < X03ResponseIndexData )
+	{
+		return 0;
+	}
+	uint8_t bcount = X03ResponseGetBcount( (X03ResponseContext*)m->buffer );
+	if( bcount < X03ResponseBcountMin || bcount > X03ResponseBcountMax )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	if( m->index < (X03ResponseIndexData + bcount + 2) )
+	{
+		return 0;
+	}
+	if( X03ResponseCheck( (X03ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX04Response(MBContext* m)
+{
+	if( m->index < X04ResponseIndexData )
+	{
+		return 0;
+	}
+	uint8_t bcount = X04ResponseGetBcount( (X04ResponseContext*)m->buffer );
+	if( bcount < X04ResponseBcountMin || bcount > X04ResponseBcountMax )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	if( m->index < (X04ResponseIndexData + bcount + 2) )
+	{
+		return 0;
+	}
+	if( X04ResponseCheck( (X04ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX05Response(MBContext* m)
+{
+	if( m->index < X05ResponseIndexMax )
+	{
+		return 0;
+	}
+	if( X05ResponseCheck( (X05ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX06Response(MBContext* m)
+{
+	if( m->index < X06ResponseIndexMax )
+	{
+		return 0;
+	}
+	if( X06ResponseCheck( (X06ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX0fResponse(MBContext* m)
+{
+	if( m->index < X0fResponseIndexMax )
+	{
+		return 0;
+	}
+	if( X0fResponseCheck( (X0fResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
+}
+uint8_t MBContextCheckX10Response(MBContext* m)
+{
+	if( m->index < X10ResponseIndexMax )
+	{
+		return 0;
+	}
+	uint8_t count = X10ResponseGetCount( (X10ResponseContext*)m->buffer );
+	if( count < X10ResponseCountMin || count > X10ResponseCountMax )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	if( X10ResponseCheck( (X10ResponseContext*)m->buffer ) == 0 )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
+	return 1;
 }
 uint8_t MBContextCheckResponse(MBContext* m)
 {
@@ -158,17 +363,43 @@ uint8_t MBContextCheckResponse(MBContext* m)
 	memmove(m->buffer, m->buffer + 1, m->index);
 	return 0;
 }
+
+X01RequestContext* MBContextGetX01RequestContext(MBContext* m)
+{
+	return (X01RequestContext*)m->buffer;
+}
+X02RequestContext* MBContextGetX02RequestContext(MBContext* m)
+{
+	return (X02RequestContext*)m->buffer;
+}
 X03RequestContext* MBContextGetX03RequestContext(MBContext* m)
 {
 	return (X03RequestContext*)m->buffer;
 }
-X03ResponseContext* MBContextGetX03ResponseContext(MBContext* m)
+X04RequestContext* MBContextGetX04RequestContext(MBContext* m)
 {
-	return (X03ResponseContext*)m->buffer;
+	return (X04RequestContext*)m->buffer;
+}
+X05RequestContext* MBContextGetX05RequestContext(MBContext* m)
+{
+	return (X05RequestContext*)m->buffer;
+}
+X06RequestContext* MBContextGetX06RequestContext(MBContext* m)
+{
+	return (X06RequestContext*)m->buffer;
+}
+X0fRequestContext* MBContextGetX0fRequestContext(MBContext* m)
+{
+	return (X0fRequestContext*)m->buffer;
 }
 X10RequestContext* MBContextGetX10RequestContext(MBContext* m)
 {
 	return (X10RequestContext*)m->buffer;
+}
+
+X03ResponseContext* MBContextGetX03ResponseContext(MBContext* m)
+{
+	return (X03ResponseContext*)m->buffer;
 }
 X10ResponseContext* MBContextGetX10ResponseContext(MBContext* m)
 {
