@@ -13,12 +13,14 @@ OBJ := $(COBJ) $(XOBJ)
 modbus.exe: $(OBJ)
 	@$(CC) $+ -o $@
 	@$(STRIP) $@
-	@ls -slh $@
+	@ls -sh $@
 
 .c.o:
-	$(CC) $(CFLAGS) -c $*.c -o $@
+	@$(CC) $(CFLAGS) -c $*.c -o $@
+	@echo 'cc $*.c => $@'
 .cpp.o:
-	$(CC) $(CFLAGS) -c $*.cpp -o $@
+	@$(CC) $(CFLAGS) -c $*.cpp -o $@
+	@echo 'cc $*.cpp => $@'
 
 clean:
-	rm -rfv $(OBJ) *.exe
+	@rm -rfv $(OBJ) *.exe

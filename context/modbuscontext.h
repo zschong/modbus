@@ -36,11 +36,13 @@ typedef struct {
 	uint8_t buffer[255];
 	uint8_t index;
 	uint8_t master;
+	uint8_t service_fcode;
 }MBContext;
 
 void MBContextInit(MBContext*);
 void MBContextPush(MBContext*, uint8_t);
 void MBContextSetMaster(MBContext*, uint8_t);
+void MBContextSetServiceFcode(MBContext*, uint8_t);
 uint8_t MBContextCheckRequest(MBContext*);
 uint8_t MBContextCheckResponse(MBContext*);
 

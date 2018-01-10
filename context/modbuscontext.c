@@ -18,6 +18,10 @@ void MBContextSetMaster(MBContext *m, uint8_t c)
 {
 	m->master = c;
 }
+void MBContextSetServiceFcode(MBContext *m, uint8_t c)
+{
+	m->service_fcode = c;
+}
 
 /****************CheckReust*******************/
 uint8_t MBContextCheckX01Request(MBContext* m)
@@ -162,16 +166,31 @@ uint8_t MBContextCheckRequest(MBContext* m)
 		memmove(m->buffer, m->buffer + 1, m->index);
 		return 0;
 	}
+	if( m->service_fcode != m->buffer[ MBContextIndexFcode] )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
 	switch( m->buffer[ MBContextIndexFcode ] )
 	{
+		case MBContextFcodeX01:
+			return MBContextCheckX01Request(m);
+		case MBContextFcodeX02:
+			return MBContextCheckX02Request(m);
 		case MBContextFcodeX03:
 			return MBContextCheckX03Request(m);
-
+		case MBContextFcodeX04:
+			return MBContextCheckX04Request(m);
+		case MBContextFcodeX05:
+			return MBContextCheckX05Request(m);
+		case MBContextFcodeX06:
+			return MBContextCheckX06Request(m);
+		case MBContextFcodeX0f:
+			return MBContextCheckX0fRequest(m);
 		case MBContextFcodeX10:
 			return MBContextCheckX10Request(m);
 	}
-	m->index--;
-	memmove(m->buffer, m->buffer + 1, m->index);
 	return 0;
 }
 
@@ -351,16 +370,31 @@ uint8_t MBContextCheckResponse(MBContext* m)
 		memmove(m->buffer, m->buffer + 1, m->index);
 		return 0;
 	}
+	if( m->service_fcode != m->buffer[ MBContextIndexFcode] )
+	{
+		m->index--;
+		memmove(m->buffer, m->buffer + 1, m->index);
+		return 0;
+	}
 	switch( m->buffer[ MBContextIndexFcode ] )
 	{
+		case MBContextFcodeX01:
+			return MBContextCheckX01Response(m);
+		case MBContextFcodeX02:
+			return MBContextCheckX02Response(m);
 		case MBContextFcodeX03:
 			return MBContextCheckX03Response(m);
-
+		case MBContextFcodeX04:
+			return MBContextCheckX04Response(m);
+		case MBContextFcodeX05:
+			return MBContextCheckX05Response(m);
+		case MBContextFcodeX06:
+			return MBContextCheckX06Response(m);
+		case MBContextFcodeX0f:
+			return MBContextCheckX0fResponse(m);
 		case MBContextFcodeX10:
 			return MBContextCheckX10Response(m);
 	}
-	m->index--;
-	memmove(m->buffer, m->buffer + 1, m->index);
 	return 0;
 }
 
