@@ -160,12 +160,6 @@ uint8_t MBContextCheckRequest(MBContext* m)
 	{
 		return 0;
 	}
-	if( m->master != m->buffer[ MBContextIndexSlave ] )
-	{
-		m->index--;
-		memmove(m->buffer, m->buffer + 1, m->index);
-		return 0;
-	}
 	if( m->service_fcode != m->buffer[ MBContextIndexFcode] )
 	{
 		m->index--;
@@ -362,12 +356,6 @@ uint8_t MBContextCheckResponse(MBContext* m)
 {
 	if( m->index < 2)
 	{
-		return 0;
-	}
-	if( m->master != m->buffer[ MBContextIndexSlave ] )
-	{
-		m->index--;
-		memmove(m->buffer, m->buffer + 1, m->index);
 		return 0;
 	}
 	if( m->service_fcode != m->buffer[ MBContextIndexFcode] )

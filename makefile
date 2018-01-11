@@ -9,18 +9,24 @@ CPP += $(wildcard uart/*.cpp)
 COBJ:= $(patsubst %.c, %.o, $(SRC))
 XOBJ:= $(patsubst %.cpp, %.o, $(CPP))
 OBJ := $(COBJ) $(XOBJ)
+TARGET:= modbus.exe
+
+all: $(TARGET)
+	@echo -n "\033[32;4m"
+	@echo -n "$(STRIP) $(TARGET) => "
+	@ls -sh $(TARGET)
+	@echo -n "\033[0m"
 
 modbus.exe: $(OBJ)
 	@$(CC) $+ -o $@
 	@$(STRIP) $@
-	@ls -sh $@
 
 .c.o:
 	@$(CC) $(CFLAGS) -c $*.c -o $@
-	@echo 'cc $*.c => $@'
+	@echo '$(CC) $*.c => $@'
 .cpp.o:
 	@$(CC) $(CFLAGS) -c $*.cpp -o $@
-	@echo 'cc $*.cpp => $@'
+	@echo '$(CC) $*.cpp => $@'
 
 clean:
 	@rm -rfv $(OBJ) *.exe

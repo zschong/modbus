@@ -116,18 +116,23 @@ void X10RequestSetBcount(X10RequestContext* ctx, uint8_t c)
 }
 void X10RequestSetData(X10RequestContext* ctx, uint8_t i, uint16_t s)
 {
-	uint8_t bcount = ((i - 1) * 2);
+	uint8_t bcount = (i * 2);
 
-	if( i < X10RequestCountMin )
+	if( bcount < X10RequestCountMin )
 	{
 		return;
 	}
-	else if( i > X10RequestCountMax )
+	else if( bcount > X10RequestCountMax )
 	{
 		return;
 	}
-	ctx->data[ (X10RequestIndexData + bcount + 0) ] = (s >> 8);
-	ctx->data[ (X10RequestIndexData + bcount + 1) ] = (s >> 0);
+	if( bcount > X10RequestGetBcount(ctx) )
+	{
+		X10RequestSetCount(ctx, bcount/2);
+		X10RequestSetBcount(ctx, bcount);
+	}
+	ctx->data[ (X10RequestIndexData + (bcount-2)) ] = (s >> 8);
+	ctx->data[ (X10RequestIndexData + (bcount-1)) ] = (s >> 0);
 }
 void X10RequestSetCrc(X10RequestContext* ctx, uint16_t s)
 {
@@ -155,12 +160,15 @@ int main(void)
 {
 	X10RequestContext ctx;
 
-	X10RequestSetSlave(&ctx, 0x01);
-	X10RequestSetFcode(&ctx, 0x10);
-	X10RequestSetOffset(&ctx, 0x0001);
-	X10RequestSetCount(&ctx, 0x0001);
-	X10RequestSetBcount(&ctx, 0x02);
-	X10RequestSetData(&ctx, 1, 0x1234);
+	X10RequestSetSlave(&ctx, 1);
+	X10RequestSetFcode(&ctx, 16);
+	X10RequestSetOffset(&ctx, 0);
+	X10RequestSetCount(&ctx, 1);
+	for(int i = 1; i < 11; i++)
+	{
+		X10RequestSetData(&ctx, i, i);
+	}
+	//X10RequestSetData(&ctx, 1, 9);
 	X10RequestSetCrc(&ctx, X10RequestCalcCrc(&ctx));
 
 	X10RequestShowContext(&ctx);

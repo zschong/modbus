@@ -112,6 +112,10 @@ void X0fRequestSetCoil(X0fRequestContext* ctx, uint16_t i, uint8_t status)
 	{
 		return;
 	}
+	if( X0fRequestGetCount(ctx) < i )
+	{
+		X0fRequestSetCount(ctx, i);
+	}
 	if( (byte + 1) > X0fRequestGetBcount(ctx) )
 	{
 		X0fRequestSetBcount(ctx, byte + 1);

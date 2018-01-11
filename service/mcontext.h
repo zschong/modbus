@@ -41,6 +41,7 @@ public:
 	uint8_t GetMaster(void);
 	uint8_t GetServiceFcode(void);
 
+	virtual bool Check(void);
 	virtual uint8_t* GetData(void);
 	virtual uint8_t GetLength(void);
 	virtual uint8_t GetFcode(void);
@@ -67,14 +68,15 @@ public:
 class X01Request: public Mcontext
 {
 public:
+	X01Request(void);
+	X01Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
 	uint8_t GetFcode(void);
 	uint16_t GetOffset(void);
 	uint16_t GetCount(void);
-	uint16_t GetBcount(void);
-	uint16_t GetCoil(uint16_t);
 	uint16_t CalcCrc(void);
 	uint16_t GetCrc(void);
 	uint8_t GetLength(void);
@@ -83,21 +85,21 @@ public:
 	void SetFcode(uint8_t);
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
-	void SetBcount(uint8_t);
-	void SetCoil(uint16_t, uint8_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X02Request: public Mcontext
 {
 public:
+	X02Request(void);
+	X02Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
 	uint8_t GetFcode(void);
 	uint16_t GetOffset(void);
 	uint16_t GetCount(void);
-	uint16_t GetBcount(void);
-	uint16_t GetCoil(uint16_t);
 	uint16_t CalcCrc(void);
 	uint16_t GetCrc(void);
 	uint8_t GetLength(void);
@@ -106,13 +108,15 @@ public:
 	void SetFcode(uint8_t);
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
-	void SetBcount(uint8_t);
-	void SetCoil(uint16_t, uint8_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X03Request: public Mcontext
 {
 public:
+	X03Request(void);
+	X03Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -128,10 +132,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X04Request: public Mcontext
 {
 public:
+	X04Request(void);
+	X04Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -147,10 +155,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X05Request: public Mcontext
 {
 public:
+	X05Request(void);
+	X05Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -166,10 +178,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetValue(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X06Request: public Mcontext
 {
 public:
+	X06Request(void);
+	X06Request(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -185,9 +201,12 @@ public:
 	void SetOffset(uint16_t);
 	void SetValue(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X0fRequest: public Mcontext
 {
+public:
+	X0fRequest(void);
 public:
 	bool Check(void);
 public:
@@ -211,6 +230,8 @@ public:
 };
 class X10Request: public Mcontext
 {
+public:
+	X10Request(void);
 public:
 	bool Check(void);
 public:
@@ -236,6 +257,8 @@ public:
 class X01Response: public Mcontext
 {
 public:
+	X01Response(void);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -254,6 +277,8 @@ public:
 };
 class X02Response: public Mcontext
 {
+public:
+	X02Response(void);
 public:
 	bool Check(void);
 public:
@@ -274,6 +299,8 @@ public:
 class X03Response: public Mcontext
 {
 public:
+	X03Response(void);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -292,6 +319,8 @@ public:
 };
 class X04Response: public Mcontext
 {
+public:
+	X04Response(void);
 public:
 	bool Check(void);
 public:
@@ -312,6 +341,9 @@ public:
 class X05Response: public Mcontext
 {
 public:
+	X05Response(void);
+	X05Response(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -327,10 +359,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetValue(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X06Response: public Mcontext
 {
 public:
+	X06Response(void);
+	X06Response(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -346,10 +382,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetValue(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X0fResponse: public Mcontext
 {
 public:
+	X0fResponse(void);
+	X0fResponse(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -365,10 +405,14 @@ public:
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 class X10Response: public Mcontext
 {
 public:
+	X10Response(void);
+	X10Response(uint8_t, uint8_t, uint16_t, uint16_t);
+public:
 	bool Check(void);
 public:
 	uint8_t GetSlave(void);
@@ -384,6 +428,7 @@ public:
 	void SetOffset(uint16_t);
 	void SetCount(uint16_t);
 	void SetCrc(uint16_t);
+	void Set(uint8_t, uint8_t, uint16_t, uint16_t);
 };
 
 #endif//__MCONTEXT_H__

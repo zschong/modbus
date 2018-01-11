@@ -16,7 +16,8 @@ void Mcontext::Show(void)
 	{
 		printf("%02X ", context.buffer[i]);
 	}
-	printf("\b]\n");
+	printf("\b].%s\n", Check() ? "ok" : "xx");
+	fflush(stdout);
 }
 void Mcontext::Push(uint8_t c)	
 {
@@ -26,6 +27,10 @@ void Mcontext::PushW(uint16_t w)
 {
 	MBContextPush(&context, (w >> 8));
 	MBContextPush(&context, (w >> 0));
+}
+bool Mcontext::Check(void)
+{
+	return false;
 }
 bool Mcontext::CheckRequest(void)
 {
@@ -133,6 +138,14 @@ X10Response& Mcontext::GetX10Response(void)
 }
 
 //X01Request
+X01Request::X01Request(void)
+{
+	context.service_fcode = 0x01;
+}
+X01Request::X01Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X01Request::Check(void)
 {
 	context.service_fcode = 0x01;
@@ -186,8 +199,24 @@ void X01Request::SetCrc(uint16_t crc)
 {
 	return X01RequestSetCrc((X01RequestContext*)&context, crc);
 }
+void X01Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
+}
 
 //X02Request
+X02Request::X02Request(void)
+{
+	context.service_fcode = 0x02;
+}
+X02Request::X02Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X02Request::Check(void)
 {
 	context.service_fcode = 0x02;
@@ -241,8 +270,24 @@ void X02Request::SetCrc(uint16_t crc)
 {
 	return X02RequestSetCrc((X02RequestContext*)&context, crc);
 }
+void X02Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
+}
 
 //xX03Request
+X03Request::X03Request(void)
+{
+	context.service_fcode = 0x03;
+}
+X03Request::X03Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X03Request::Check(void)
 {
 	context.service_fcode = 0x03;
@@ -297,9 +342,25 @@ void X03Request::SetCrc(uint16_t crc)
 	context.index = X03Request::GetLength();
 	X03RequestSetCrc((X03RequestContext*)&context, crc);
 }
+void X03Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
+}
 
 
 //X04Request
+X04Request::X04Request(void)
+{
+	context.service_fcode = 0x04;
+}
+X04Request::X04Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X04Request::Check(void)
 {
 	context.service_fcode = 0x04;
@@ -354,8 +415,24 @@ void X04Request::SetCrc(uint16_t crc)
 	context.index = GetLength();
 	X03RequestSetCrc((X03RequestContext*)&context, crc);
 }
+void X04Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
+}
 
 //X05Request
+X05Request::X05Request(void)
+{
+	context.service_fcode = 0x05;
+}
+X05Request::X05Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X05Request::Check(void)
 {
 	context.service_fcode = 0x05;
@@ -409,8 +486,24 @@ void X05Request::SetCrc(uint16_t crc)
 {
 	X05RequestSetCrc((X05RequestContext*)&context, crc);
 }
+void X05Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t value)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetValue(value);
+	SetCrc( CalcCrc() );
+}
 
 //X06Request
+X06Request::X06Request(void)
+{
+	context.service_fcode = 0x06;
+}
+X06Request::X06Request(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X06Request::Check(void)
 {
 	context.service_fcode = 0x06;
@@ -464,8 +557,20 @@ void X06Request::SetCrc(uint16_t crc)
 {
 	X06RequestSetCrc((X06RequestContext*)&context, crc);
 }
+void X06Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t value)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetValue(value);
+	SetCrc( CalcCrc() );
+}
 
 //X0fRequest
+X0fRequest::X0fRequest(void)
+{
+	context.service_fcode = 0x0f;
+}
 bool X0fRequest::Check(void)
 {
 	context.service_fcode = 0x0f;
@@ -537,8 +642,13 @@ void X0fRequest::SetCrc(uint16_t crc)
 }
 
 //X10Request
+X10Request::X10Request(void)
+{
+	context.service_fcode = 0x10;
+}
 bool X10Request::Check(void)
 {
+	context.service_fcode = 0x10;
 	return (X10RequestCheck((X10RequestContext*)&context) == 1);
 }
 uint8_t X10Request::GetSlave(void)
@@ -608,6 +718,10 @@ void X10Request::SetCrc(uint16_t crc)
 }
 
 //X01Response
+X01Response::X01Response(void)
+{
+	context.service_fcode = 0x01;
+}
 bool X01Response::Check(void)
 {
 	context.service_fcode = 0x01;
@@ -663,6 +777,10 @@ void X01Response::SetCrc(uint16_t crc)
 }
 
 //X02Response
+X02Response::X02Response(void)
+{
+	context.service_fcode = 0x02;
+}
 bool X02Response::Check(void)
 {
 	context.service_fcode = 0x02;
@@ -718,8 +836,13 @@ void X02Response::SetCrc(uint16_t crc)
 }
 
 //xX03Response
+X03Response::X03Response(void)
+{
+	context.service_fcode = 0x03;
+}
 bool X03Response::Check(void)
 {
+	context.service_fcode = 0x03;
 	return (X03ResponseCheck((X03ResponseContext*)&context) == 1);
 }
 uint8_t X03Response::GetSlave(void)
@@ -773,8 +896,13 @@ void X03Response::SetCrc(uint16_t crc)
 }
 
 //X04Response
+X04Response::X04Response(void)
+{
+	context.service_fcode = 0x04;
+}
 bool X04Response::Check(void)
 {
+	context.service_fcode = 0x04;
 	return (X04ResponseCheck((X04ResponseContext*)&context) == 1);
 }
 uint8_t X04Response::GetSlave(void)
@@ -828,6 +956,14 @@ void X04Response::SetCrc(uint16_t crc)
 }
 
 //X05Response
+X05Response::X05Response(void)
+{
+	context.service_fcode = 0x06;
+}
+X05Response::X05Response(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X05Response::Check(void)
 {
 	context.service_fcode = 0x06;
@@ -881,8 +1017,24 @@ void X05Response::SetCrc(uint16_t crc)
 {
 	X05ResponseSetCrc((X05ResponseContext*)&context, crc);
 }
+void X05Response::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t value)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetValue(value);
+	SetCrc( CalcCrc() );
+}
 
 //X06Response
+X06Response::X06Response(void)
+{
+	context.service_fcode = 0x06;
+}
+X06Response::X06Response(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X06Response::Check(void)
 {
 	context.service_fcode = 0x06;
@@ -936,8 +1088,24 @@ void X06Response::SetCrc(uint16_t crc)
 {
 	X06ResponseSetCrc((X06ResponseContext*)&context, crc);
 }
+void X06Response::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t value)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetValue(value);
+	SetCrc( CalcCrc() );
+}
 
 //X0fResponse
+X0fResponse::X0fResponse(void)
+{
+	context.service_fcode = 0x0f;
+}
+X0fResponse::X0fResponse(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X0fResponse::Check(void)
 {
 	context.service_fcode = 0x0f;
@@ -991,8 +1159,24 @@ void X0fResponse::SetCrc(uint16_t crc)
 {
 	X0fResponseSetCrc((X0fResponseContext*)&context, crc);
 }
+void X0fResponse::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
+}
 
-//xX10Response
+//X10Response
+X10Response::X10Response(void)
+{
+	context.service_fcode = 0x10;
+}
+X10Response::X10Response(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	Set(slave, fcode, offset, count);
+}
 bool X10Response::Check(void)
 {
 	context.service_fcode = 0x10;
@@ -1046,4 +1230,12 @@ void X10Response::SetCrc(uint16_t crc)
 {
 	context.index = X10Response::GetLength();
 	X10ResponseSetCrc((X10ResponseContext*)&context, crc);
+}
+void X10Response::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t count)
+{
+	SetSlave(slave);
+	SetFcode(fcode);
+	SetOffset(offset);
+	SetCount(count);
+	SetCrc( CalcCrc() );
 }
