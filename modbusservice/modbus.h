@@ -9,6 +9,7 @@ class Modbus
 {
 protected:
 	ComPort com;
+
 public:
 	X01Request x01request;
 	X02Request x02request;

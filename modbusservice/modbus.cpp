@@ -4,6 +4,8 @@
 
 Modbus::Modbus(void)
 {
+	InitRequest();
+	InitResponse();
 }
 Modbus::~Modbus(void)
 {
@@ -234,7 +236,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	uint16_t count = 0;
+	uint16_t offset = 0;
 	X03Response x03res;
 	TimeOperator timer;
 
@@ -242,12 +244,12 @@ int main(int argc, char **argv)
 	{
 		if( timer.sdiff() != 0 )
 		{
-			X03Request x03request(1, 3, count++, 1);
+			X03Request x03request(1, 3, offset, 1);
 			modbus.SendRequest(x03request);
 			timer.init();
 			printf("\nsend:");
 			x03request.Show();
-			count %= 12;
+			++offset %= 12;
 		}
 		uint8_t ret = modbus.RecvResponse();
 		if( 0 != ret )
