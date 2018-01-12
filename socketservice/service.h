@@ -2,9 +2,14 @@
 #define __SERVICE_H__
 #include <map>
 #include <string>
-#include "packet.h"
 #include "unix-udp.h"
 using namespace std;
+
+#ifndef uint8_t
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+#endif//uint8_t
 
 class Service
 {
