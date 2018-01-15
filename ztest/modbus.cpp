@@ -1,3 +1,4 @@
+#include <map>
 #include <time.h>
 #include "modbus.h"
 #include "timeoperator.h"

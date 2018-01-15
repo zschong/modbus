@@ -93,6 +93,11 @@ class X10ResponsePacket
 
 class ModbusPacket
 {
+	typedef enum
+	{
+		IndexPacketType = 0,	
+		IndexPacketBody = 1	
+	}IndexType;
 protected:
 	unsigned char buffer[128];
 
