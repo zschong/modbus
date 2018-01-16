@@ -1,10 +1,11 @@
+#include <stdio.h>
 #include "varconfig.h"
 
 VarConfig::VarConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-VarConfig::VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value)
+VarConfig::VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value, int interval)
 {
 	SetComName(comname);
 	SetCommand(cmd);
@@ -12,25 +13,25 @@ VarConfig::VarConfig(const string& comname, int cmd, int slave, int fcode, int o
 	SetFcode(fcode);
 	SetOffset(offset);
 	SetValue(value);
+	SetInterval(interval);
 }
-const string VarConfig::GetComName(void)
+const string VarConfig::GetComName(void)const
 {
-	buffer[ IndexComNameZ ] = 0;
 	return (char*)buffer;
 }
-const int VarConfig::GetCommand(void)
+const int VarConfig::GetCommand(void)const
 {
 	return (int)buffer[ IndexCommand ];
 }
-const int VarConfig::GetSlave(void)
+const int VarConfig::GetSlave(void)const
 {
 	return (int)buffer[ IndexSlave ];
 }
-const int VarConfig::GetFcode(void)
+const int VarConfig::GetFcode(void)const
 {
 	return (int)buffer[ IndexFcode ];
 }
-const int VarConfig::GetOffset(void)
+const int VarConfig::GetOffset(void)const
 {
 	int offset = 0;
 
@@ -39,7 +40,16 @@ const int VarConfig::GetOffset(void)
 
 	return offset;
 }
-const int VarConfig::GetValue(void)
+const int VarConfig::GetCount(void)const
+{
+	int count = 0;
+
+	count += (buffer[ IndexValue0 ] << 8);
+	count += (buffer[ IndexValue1 ] << 0);
+
+	return count;
+}
+const int VarConfig::GetValue(void)const
 {
 	int value = 0;
 
@@ -47,6 +57,10 @@ const int VarConfig::GetValue(void)
 	value += (buffer[ IndexValue1 ] << 0);
 
 	return value;
+}
+const int VarConfig::GetInterval(void)const
+{
+	return (int)buffer[ IndexInterval ];
 }
 
 void VarConfig::SetComName(const string& comname)
@@ -73,10 +87,17 @@ void VarConfig::SetOffset(const int offset)
 	buffer[ IndexOffset0 ] = 0xff & (offset >> 8);
 	buffer[ IndexOffset1 ] = 0xff & (offset >> 0);
 }
+void VarConfig::SetCount(const int count)
+{
+	buffer[ IndexValue0 ] = 0xff & (count >> 8);
+	buffer[ IndexValue1 ] = 0xff & (count >> 0);
+}
 void VarConfig::SetValue(const int value)
 {
 	buffer[ IndexValue0 ] = 0xff & (value >> 8);
 	buffer[ IndexValue1 ] = 0xff & (value >> 0);
 }
-
-
+void VarConfig::SetInterval(const int interval)
+{
+	buffer[ IndexInterval ] = 0xff & (interval >> 0);
+}

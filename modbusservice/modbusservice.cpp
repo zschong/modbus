@@ -4,7 +4,7 @@ ModbusService::ModbusService(void)
 {
 	timeout = 0;
 }
-bool ModbusService::ComConfig(ComConfig& c)
+bool ModbusService::SetComConfig(const ComConfig& c)
 {
 	return modbus.Init(c.GetComName(), 
 					   c.GetBaudRate(),
@@ -12,16 +12,9 @@ bool ModbusService::ComConfig(ComConfig& c)
 					   c.GetByteSize(),
 					   c.GetStopBit());
 }
-void ModbusService::AddVarConfig(int offset, int count)
+void ModbusService::AddVarConfig(int first, int second)
 {
-	switch( offset >> 16 )
-	{
-		case 0x01:
-		case 0x02:
-		case 0x03:
-		case 0x04:
-			varconfigmap[offset] = count;
-	}
+	varconfigmap[first] = second;
 }
 void ModbusService::DelVarConfig(int offset, int count)
 {
@@ -31,11 +24,13 @@ bool ModbusService::SendX01Request(int first, int second)
 {
 	X01Request request;
 
-	request.SetSlave((uint8_t)offset >> 24);
-	request.SetFcode((uint8_t)offset >> 16);
-	request.SetOffset((uint16_t)offset >> 0);
-	request.SetCount((uint16_t)count >> 16);
+	request.SetSlave( (uint8_t)(first >> 24) );
+	request.SetFcode( (uint8_t)(first >> 16) );
+	request.SetOffset( (uint16_t)(first >> 0) );
+	request.SetCount( (uint16_t)(second >> 16) );
 	request.SetCrc( request.CalcCrc() );
+	printf("\nx01request:");
+	request.Show();
 
 	return modbus.SendRequest(request);
 }
@@ -43,11 +38,13 @@ bool ModbusService::SendX02Request(int first, int second)
 {
 	X02Request request;
 
-	request.SetSlave((uint8_t)offset >> 24);
-	request.SetFcode((uint8_t)offset >> 16);
-	request.SetOffset((uint16_t)offset >> 0);
-	request.SetCount((uint16_t)count >> 16);
+	request.SetSlave( (uint8_t)(first >> 24) );
+	request.SetFcode( (uint8_t)(first >> 16) );
+	request.SetOffset( (uint16_t)(first >> 0) );
+	request.SetCount( (uint16_t)(second >> 16) );
 	request.SetCrc( request.CalcCrc() );
+	printf("\nx02request:");
+	request.Show();
 
 	return modbus.SendRequest(request);
 }
@@ -55,11 +52,13 @@ bool ModbusService::SendX03Request(int first, int second)
 {
 	X03Request request;
 
-	request.SetSlave((uint8_t)offset >> 24);
-	request.SetFcode((uint8_t)offset >> 16);
-	request.SetOffset((uint16_t)offset >> 0);
-	request.SetCount((uint16_t)count >> 16);
+	request.SetSlave( (uint8_t)(first >> 24) );
+	request.SetFcode( (uint8_t)(first >> 16) );
+	request.SetOffset( (uint16_t)(first >> 0) );
+	request.SetCount( (uint16_t)(second >> 16) );
 	request.SetCrc( request.CalcCrc() );
+	//printf("\nx03request:");
+	//request.Show();
 
 	return modbus.SendRequest(request);
 }
@@ -67,11 +66,13 @@ bool ModbusService::SendX04Request(int first, int second)
 {
 	X04Request request;
 
-	request.SetSlave((uint8_t)offset >> 24);
-	request.SetFcode((uint8_t)offset >> 16);
-	request.SetOffset((uint16_t)offset >> 0);
-	request.SetCount((uint16_t)count >> 16);
+	request.SetSlave( (uint8_t)(first >> 24) );
+	request.SetFcode( (uint8_t)(first >> 16) );
+	request.SetOffset( (uint16_t)(first >> 0) );
+	request.SetCount( (uint16_t)(second >> 16) );
 	request.SetCrc( request.CalcCrc() );
+	printf("\nx04request:");
+	request.Show();
 
 	return modbus.SendRequest(request);
 }
@@ -112,13 +113,102 @@ bool ModbusService::GetValue(map<int,int>& values)
 	{
 		SendRequest();
 	}
-	int ret modbus.RecvResponse();
-	if( 0 != ret )
+	int ret = modbus.RecvResponse();
+	switch(ret)
 	{
-		modbus.ResponseShow(ret);
-		modbus.InitResponse();
+		case 0x01:
+			GetX01Response(values);
+			break;
+		case 0x02:
+			GetX02Response(values);
+			break;
+		case 0x03:
+			GetX03Response(values);
+			break;
+		case 0x04:
+			GetX04Response(values);
+			break;
+		case 0x05:
+			GetX05Response(values);
+			break;
+		case 0x06:
+			GetX06Response(values);
+			break;
+		case 0x0f:
+			GetX0fResponse(values);
+			break;
+		case 0x10:
+			GetX10Response(values);
+			break;
+		default:
+			return false;
 	}
+	modbus.InitResponse();
+	return true;
 }
 bool ModbusService::SetValue(map<int,int>& values)
 {
+}
+bool ModbusService::GetX01Response(map<int,int>& values)
+{
+	printf("%d(ms) x01response:", timer.mdiff());
+	modbus.x01response.Show();
+	return false;
+}
+bool ModbusService::GetX02Response(map<int,int>& values)
+{
+	printf("%d(ms) x02response:", timer.mdiff());
+	modbus.x02response.Show();
+	return false;
+}
+bool ModbusService::GetX03Response(map<int,int>& values)
+{
+	X03Request &x = modbus.GetContext().GetX03Request();
+	int slave = x.GetSlave();
+	int fcode = x.GetFcode();
+	int offset = x.GetOffset();
+	int count = x.GetCount();
+
+	values.clear();
+	for(int i = 0; i < count; i++)
+	{
+		int first = (slave << 24) | (fcode << 16) | (offset);
+		int second = (modbus.x03response.GetData(i+1) << 16);
+		values[first] = second;
+	}
+	//printf("%d(ms) x03response:", timer.mdiff());
+	//modbus.x03response.Show();
+
+	return (values.begin() != values.end());
+}
+bool ModbusService::GetX04Response(map<int,int>& values)
+{
+	printf("%d(ms) x04response:", timer.mdiff());
+	modbus.x04response.Show();
+	return false;
+}
+bool ModbusService::GetX05Response(map<int,int>& values)
+{
+	printf("%d(ms) x05response:", timer.mdiff());
+	modbus.x05response.Show();
+	return false;
+}
+bool ModbusService::GetX06Response(map<int,int>& values)
+{
+	printf("%d(ms) x06response:", timer.mdiff());
+	modbus.x06response.Show();
+	return false;
+}
+bool ModbusService::GetX0fResponse(map<int,int>& values)
+{
+	printf("%d(ms) x0fresponse:", timer.mdiff());
+	modbus.x0fresponse.Show();
+	return false;
+}
+bool ModbusService::GetX10Response(map<int,int>& values)
+{
+	printf("%d(ms) x10response:", timer.mdiff());
+	modbus.x0fresponse.Show();
+	modbus.x0fresponse.Show();
+	return false;
 }

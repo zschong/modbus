@@ -1,29 +1,39 @@
 #include <stdio.h>
-#include <map>
-#include "modbus.h"
-#include "service.h"
-#include "timeoperator.h"
-#include "modbusconfig.h"
+#include <unistd.h>
+#include "modbusmanager.h"
 
 
+void ShowValue(map<int,int>& values)
+{
+	for(map<int,int>::iterator i = values.begin(); i != values.end(); i++)
+	{
+		printf("\tvalue(%08X, %08X)=%d\n", i->first, i->second, i->second >> 16);
+	}
+}
 int main(void)
 {
-	Modbus modbus;
-	ComConfig com("/dev/ttySX0", 9600, 0, 8, 1);
-	VarConfig var("/dev/ttySX0", 0, 1, 5, 0, 1);
+	ModbusManager manager;
+	map<string,map<int,int> > values;
+	map<string,map<int,int> >::iterator it;
 
-	printf("com.GetComName(%s)\n", com.GetComName().data());
-	printf("com.GetBaudRate(%d)\n", com.GetBaudRate());
-	printf("com.GetParity(%d)\n", com.GetParity());
-	printf("com.GetByteSize(%d)\n", com.GetByteSize());
-	printf("com.GetStopBit(%d)\n", com.GetStopBit());
-
-	printf("var.GetComName(%s)\n", var.GetComName().data());
-	printf("var.GetCommand(%d)\n", var.GetCommand());
-	printf("var.GetSlave(%d)\n", var.GetSlave());
-	printf("var.GetFcode(%d)\n", var.GetFcode());
-	printf("var.GetOffset(%d)\n", var.GetOffset());
-	printf("var.GetValue(%d)\n", var.GetValue());
+	manager.SetComConfig( ComConfig("/dev/ttySX0", 9600, 0, 8, 1) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 0, 1, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 1, 1, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 2, 1, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 3, 1, 80) );
+                                                                              
+	while(1)
+	{
+		if( manager.GetValue(values) )
+		{
+			for(it = values.begin(); it != values.end(); it++)
+			{
+				printf("values from(%s):\n", it->first.data());
+				ShowValue(it->second);
+			}
+		}
+		usleep(100);
+	}
 
 	return 0;
 }

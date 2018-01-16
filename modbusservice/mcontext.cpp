@@ -349,6 +349,8 @@ void X03Request::Set(uint8_t slave, uint8_t fcode, uint16_t offset, uint16_t cou
 	SetOffset(offset);
 	SetCount(count);
 	SetCrc( CalcCrc() );
+	printf("%d,%d,%d,%d\n", slave, fcode, offset, count);
+	Show();
 }
 
 

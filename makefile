@@ -4,14 +4,15 @@ CC := $(ARCH)g++
 AR := $(ARCH)ar
 ARFLAG := -rc
 STRIP := $(ARCH)strip
-CFLAGS := $(patsubst %, -I%, $(shell find [a-y]* -type d))
 INCS := $(wildcard [a-y]*/*.h)
 OBJS := $(patsubst %.c, %.o, $(wildcard [a-y]*/*.c))
 OBJS += $(patsubst %.cpp, %.o, $(wildcard [a-y]*/*.cpp))
+CFLAGS := $(patsubst %, -I%, $(shell find [a-y]* -type d))
 LIB_TARGET := thislib.a
 EXE_TARGET := modbus.exe
 EXE_TARGET += service_server.exe
 EXE_TARGET += service_client.exe
+EXE_TARGET += modbus_service.exe
 
 all: $(EXE_TARGET)
 	@echo -n "\033[33;4m"
@@ -21,12 +22,19 @@ all: $(EXE_TARGET)
 	@echo -n "\033[0m"
 
 modbus.exe: ztest/modbus.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/modbus.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 service_server.exe: ztest/service_server.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/service_server.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 service_client.exe: ztest/service_client.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/service_client.cpp => $@"
+	@$(CC) $(CFLAGS) $+ -o $@
+	@$(STRIP) $@
+modbus_service.exe: ztest/modbus_service.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/modbus_service.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 thislib.a:$(OBJS)

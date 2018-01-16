@@ -9,6 +9,7 @@ class Modbus
 {
 protected:
 	ComPort com;
+	Mcontext ctx;
 
 public:
 	X01Request x01request;
@@ -48,6 +49,7 @@ public:
 public:
 	void RequestShow(uint8_t);
 	void ResponseShow(uint8_t);
+	Mcontext& GetContext(void);
 };
 
 #endif//__MODBUS_H__

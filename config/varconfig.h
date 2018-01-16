@@ -1,7 +1,7 @@
 #ifndef __VAR_CONFIG_H__
 #define __VAR_CONFIG_H__
-#include <string.h>
 #include <string>
+#include <string.h>
 using namespace std;
 
 typedef enum
@@ -9,7 +9,7 @@ typedef enum
 	VarCmdGet = 0,
 	VarCmdSet = 1,
 	VarCmdAdd = 2,
-	VarCmdDel = 3,
+	VarCmdDel = 3
 }CommandType;
 
 class VarConfig
@@ -17,34 +17,39 @@ class VarConfig
 	typedef enum
 	{
 		IndexComNameA = 0,
-		IndexComNameZ = 120,
-		IndexCommand  = 121,
-		IndexSlave    = 122,
-		IndexFcode    = 123,
-		IndexOffset0  = 124,
-		IndexOffset1  = 125,
-		IndexValue0   = 126,
-		IndexValue1   = 127,
+		IndexComNameZ = 110,
+		IndexCommand  = 111,
+		IndexSlave    = 112,
+		IndexFcode    = 113,
+		IndexOffset0  = 114,
+		IndexOffset1  = 115,
+		IndexValue0   = 116,
+		IndexValue1   = 117,
+		IndexInterval = 118,
 	}IndexTypeDefine;
 protected:
 	unsigned char buffer[128];
 
 public:
 	VarConfig(void);
-	VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value);
+	VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value, int interval);
 public:
-	const string GetComName(void);
-	const int GetCommand(void);
-	const int GetSlave(void);
-	const int GetFcode(void);
-	const int GetOffset(void);
-	const int GetValue(void);
+	const string GetComName(void)const;
+	const int GetCommand(void)const;
+	const int GetSlave(void)const;
+	const int GetFcode(void)const;
+	const int GetOffset(void)const;
+	const int GetCount(void)const;
+	const int GetValue(void)const;
+	const int GetInterval(void)const;
 public:
 	void SetComName(const string& comname);
 	void SetCommand(const int cmd);
 	void SetSlave(const int slave);
 	void SetFcode(const int fcode);
 	void SetOffset(const int offset);
+	void SetCount(const int count);
 	void SetValue(const int value);
+	void SetInterval(const int interval);
 };
 #endif//__VAR_CONFIG_H__

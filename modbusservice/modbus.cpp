@@ -217,11 +217,17 @@ bool Modbus::RecvResponse(Mcontext& context)
 }
 bool Modbus::SendRequest(Mcontext& context)
 {
-	return (com.Send(context.GetData(), context.GetLength()) == context.GetLength());
+	ctx = context;
+	return (com.Send(ctx.GetData(), ctx.GetLength()) == ctx.GetLength());
 }
 bool Modbus::SendResponse(Mcontext& context)
 {
-	return (com.Send(context.GetData(), context.GetLength()) == context.GetLength());
+	ctx = context;
+	return (com.Send(ctx.GetData(), ctx.GetLength()) == ctx.GetLength());
+}
+Mcontext& Modbus::GetContext(void)
+{
+	return ctx;
 }
 
 #ifdef TEST_MODBUS

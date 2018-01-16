@@ -1,4 +1,7 @@
+#include <stdio.h>
 #include "comconfig.h"
+
+
 ComConfig::ComConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
@@ -11,12 +14,11 @@ ComConfig::ComConfig(const string& com, int baud, int parity, int bsize, int sto
 	SetByteSize(bsize);
 	SetStopBit(stop);
 }
-const string ComConfig::GetComName(void)
+const string ComConfig::GetComName(void)const
 {
-	buffer[ IndexComNameZ ] = 0;
 	return (char*)buffer;
 }
-const int ComConfig::GetBaudRate(void)
+const int ComConfig::GetBaudRate(void)const
 {
 	unsigned int baud = 0;
 
@@ -27,15 +29,15 @@ const int ComConfig::GetBaudRate(void)
 
 	return baud;
 }
-const int ComConfig::GetParity(void)
+const int ComConfig::GetParity(void)const
 {
 	return (int)(buffer[ IndexParity ]);
 }
-const int ComConfig::GetByteSize(void)
+const int ComConfig::GetByteSize(void)const
 {
 	return (int)(buffer[ IndexByteSize ]);
 }
-const int ComConfig::GetStopBit(void)
+const int ComConfig::GetStopBit(void)const
 {
 	return (int)(buffer[ IndexStopBit ]);
 }

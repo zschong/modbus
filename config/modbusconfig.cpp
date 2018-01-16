@@ -1,5 +1,6 @@
 #include "modbusconfig.h"
 
+
 ConfigPacket::ConfigPacket(void)
 {
 	memset(buffer, 0, sizeof(buffer));

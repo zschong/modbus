@@ -1,7 +1,7 @@
 #ifndef __COM_CONFIG_H__
 #define __COM_CONFIG_H__
-#include <string.h>
 #include <string>
+#include <string.h>
 using namespace std;
 
 class ComConfig
@@ -21,14 +21,14 @@ class ComConfig
 protected:
 	unsigned char buffer[128];
 public:
-	ComConfig(void)
-	ComConfig(const string& com, int baud, int parity, int bsize, int stop)
+	ComConfig(void);
+	ComConfig(const string& com, int baud, int parity, int bsize, int stop);
 public:
-	const string GetComName(void);
-	const int GetBaudRate(void);
-	const int GetParity(void);
-	const int GetByteSize(void);
-	const int GetStopBit(void);
+	const string GetComName(void)const;
+	const int GetBaudRate(void)const;
+	const int GetParity(void)const;
+	const int GetByteSize(void)const;
+	const int GetStopBit(void)const;
 public:
 	void SetComName(const string& comname);
 	void SetBaudRate(const int baud);
