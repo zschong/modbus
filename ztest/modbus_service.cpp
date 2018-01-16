@@ -18,9 +18,9 @@ int main(void)
 
 	manager.SetComConfig( ComConfig("/dev/ttySX0", 9600, 0, 8, 1) );
 	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 0, 1, 80) );
-	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 1, 1, 80) );
-	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 2, 1, 80) );
-	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 3, 1, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 1, 2, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 2, 3, 80) );
+	manager.SetVarConfig( VarConfig("/dev/ttySX0", VarCmdAdd, 1, 3, 3, 4, 80) );
                                                                               
 	while(1)
 	{

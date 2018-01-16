@@ -172,10 +172,11 @@ bool ModbusService::GetX03Response(map<int,int>& values)
 	values.clear();
 	for(int i = 0; i < count; i++)
 	{
-		int first = (slave << 24) | (fcode << 16) | (offset);
+		int first = (slave << 24) | (fcode << 16) | (offset + i);
 		int second = (modbus.x03response.GetData(i+1) << 16);
 		values[first] = second;
 	}
+	printf("request to response cost %d ms\n", timer.mdiff());
 	//printf("%d(ms) x03response:", timer.mdiff());
 	//modbus.x03response.Show();
 
