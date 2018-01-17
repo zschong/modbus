@@ -51,5 +51,7 @@ public:
 	void SetCount(const int count);
 	void SetValue(const int value);
 	void SetInterval(const int interval);
+public:
+	VarConfig& operator=(const VarConfig& var);
 };
 #endif//__VAR_CONFIG_H__

@@ -8,7 +8,7 @@ int TimeOperator::init(void)
 {
 	return gettimeofday(&t, 0);
 }
-int TimeOperator::sdiff(void)
+const int TimeOperator::sdiff(void)const
 {
 	struct timeval n;
 
@@ -18,7 +18,7 @@ int TimeOperator::sdiff(void)
 	}
 	return n.tv_sec - t.tv_sec;
 }
-int TimeOperator::mdiff(void)
+const int TimeOperator::mdiff(void)const
 {
 	struct timeval n;
 
@@ -28,7 +28,7 @@ int TimeOperator::mdiff(void)
 	}
 	return (n.tv_sec - t.tv_sec) * 1000 + (n.tv_usec - t.tv_usec) / 1000;
 }
-int TimeOperator::udiff(void)
+const int TimeOperator::udiff(void) const
 {
 	struct timeval n;
 

@@ -9,10 +9,13 @@ OBJS := $(patsubst %.c, %.o, $(wildcard [a-y]*/*.c))
 OBJS += $(patsubst %.cpp, %.o, $(wildcard [a-y]*/*.cpp))
 CFLAGS := $(patsubst %, -I%, $(shell find [a-y]* -type d))
 LIB_TARGET := thislib.a
-EXE_TARGET := modbus.exe
-EXE_TARGET += service_server.exe
+EXE_TARGET := service_server.exe
 EXE_TARGET += service_client.exe
-EXE_TARGET += modbus_service.exe
+EXE_TARGET += modbus_server.exe
+EXE_TARGET += modbus_client.exe
+
+fast_make:
+	make -f makefile all -j8 
 
 all: $(EXE_TARGET)
 	@echo -n "\033[33;4m"
@@ -21,10 +24,6 @@ all: $(EXE_TARGET)
 	@ls -1sh $+ $(LIB_TARGET)
 	@echo -n "\033[0m"
 
-modbus.exe: ztest/modbus.cpp $(LIB_TARGET)
-	@echo "$(CC) ztest/modbus.cpp => $@"
-	@$(CC) $(CFLAGS) $+ -o $@
-	@$(STRIP) $@
 service_server.exe: ztest/service_server.cpp $(LIB_TARGET)
 	@echo "$(CC) ztest/service_server.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
@@ -33,8 +32,12 @@ service_client.exe: ztest/service_client.cpp $(LIB_TARGET)
 	@echo "$(CC) ztest/service_client.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
-modbus_service.exe: ztest/modbus_service.cpp $(LIB_TARGET)
-	@echo "$(CC) ztest/modbus_service.cpp => $@"
+modbus_server.exe: ztest/modbus_server.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/modbus_server.cpp => $@"
+	@$(CC) $(CFLAGS) $+ -o $@
+	@$(STRIP) $@
+modbus_client.exe: ztest/modbus_client.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/modbus_client.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 thislib.a:$(OBJS)

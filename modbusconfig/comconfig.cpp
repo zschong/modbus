@@ -67,3 +67,8 @@ void ComConfig::SetStopBit(const int stop)
 {
 	buffer[ IndexStopBit ] = 0xFF & stop;
 }
+ComConfig& ComConfig::operator=(const ComConfig& com)
+{
+	memcpy(buffer, com.buffer, sizeof(buffer));
+	return *this;
+}

@@ -101,3 +101,8 @@ void VarConfig::SetInterval(const int interval)
 {
 	buffer[ IndexInterval ] = 0xff & (interval >> 0);
 }
+VarConfig& VarConfig::operator=(const VarConfig& var)
+{
+	memcpy(buffer, var.buffer, sizeof(var.buffer));
+	return *this;
+}

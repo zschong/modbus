@@ -35,6 +35,8 @@ public:
 	void SetParity(const int parity);
 	void SetByteSize(const int bsize);
 	void SetStopBit(const int stop);
+public:
+	ComConfig& operator=(const ComConfig& com);
 };
 
 #endif//__COM_CONFIG_H__

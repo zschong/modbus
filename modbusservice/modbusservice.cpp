@@ -143,6 +143,7 @@ bool ModbusService::GetValue(map<int,int>& values)
 		default:
 			return false;
 	}
+	timeout = 0;
 	modbus.InitResponse();
 	return true;
 }
@@ -176,7 +177,6 @@ bool ModbusService::GetX03Response(map<int,int>& values)
 		int second = (modbus.x03response.GetData(i+1) << 16);
 		values[first] = second;
 	}
-	printf("request to response cost %d ms\n", timer.mdiff());
 	//printf("%d(ms) x03response:", timer.mdiff());
 	//modbus.x03response.Show();
 

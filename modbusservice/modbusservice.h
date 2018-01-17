@@ -3,8 +3,9 @@
 #include <map>
 #include <string>
 #include "modbus.h"
-#include "comconfig.h"
+#include "varname.h"
 #include "varconfig.h"
+#include "comconfig.h"
 #include "timeoperator.h"
 using namespace std;
 

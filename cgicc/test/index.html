@@ -1,0 +1,72 @@
+<html>
+<head>
+
+<style>
+body
+{
+	text-align:center;
+}
+
+#divA, #divB
+{
+	margin: 100px auto;
+	width:300px;
+	height:300px;
+	border:solid 1px red;
+}
+</style>
+
+<script src="js/jquery-3.2.1.min.js"></script>
+<script>
+$(document).ready(function(){
+
+	$("p").click(function(){
+		$(this).hide();
+	});
+
+	$("button").click(function(){
+		$.ajax({
+			type: "GET",
+			url: "time.txt",
+			cache:false,
+			async:true,
+			success: function(result){
+				$("#divB").html("<h1>" + result + "</h1>");
+			}
+		});
+	});
+
+	var oldid = "0";
+	setInterval(function(){
+		$.ajax({
+			type: "GET",
+			url: "time.txt",
+			cache:false,
+			async:true,
+			success: function(result){
+				if( oldid != result )
+				{
+					oldid = result;
+					$("#divB").append("<h1>" + result + "</h1>");
+				}
+			}
+		});
+	}, 1000);
+
+});
+
+</script>
+</head>
+<body>
+<div id="divA">	
+<p> this is A </p>
+<p> this is B </p>
+<p> this is C </p>
+<p> this is D </p>
+<button>gettime</button>
+</div>
+<div id="divB">	
+<p> this is E </p>
+</div>
+</body>
+</html>

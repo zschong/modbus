@@ -11,9 +11,9 @@ public:
 
 public:
 	int init(void);
-	int sdiff(void);
-	int mdiff(void);
-	int udiff(void);
+	const int sdiff(void)const;
+	const int mdiff(void)const;
+	const int udiff(void)const;
 };
 
 #endif//__TIME_OPERATOR_H__

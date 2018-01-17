@@ -56,16 +56,30 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	}
 	return true;
 }
-bool ModbusManager::GetValue(map<string, map<int, int> >& values)
+bool ModbusManager::SetVarName(const VarName& var)
 {
-	values.clear();
+	return cache.SetName(var.GetComName(), var.GetSlave(), var.GetFcode(), var.GetOffset(), var.GetVarName());
+}
+void ModbusManager::RunLoop(void)
+{
 	for(Iterator i = modbusmap.begin(); i != modbusmap.end(); i++)
 	{
-		map<int,int> vii;
-		if( i->second.GetValue(vii) )
+		map<int,int> vmap;
+		map<int,int>::iterator v;
+		if( i->second.GetValue(vmap) )
 		{
-			values[i->first] = vii;
+			for(v = vmap.begin(); v != vmap.end(); v++)
+			{
+				cache.SetValue(i->first, v->first, v->second);
+			}
 		}
 	}
-	return (values.begin() != values.end());
+}
+void ModbusManager::GetValue( void(*getvalue)(const Value&) )
+{
+	cache.GetValue(getvalue);
+}
+bool ModbusManager::GetValue(list<Value>& vlist)
+{
+	return cache.GetValue(vlist);
 }
