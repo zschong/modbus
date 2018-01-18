@@ -72,3 +72,12 @@ ComConfig& ComConfig::operator=(const ComConfig& com)
 	memcpy(buffer, com.buffer, sizeof(buffer));
 	return *this;
 }
+void ComConfig::Show(void)
+{
+	printf("ComConfig");
+	printf(".com(%s)", GetComName().data());
+	printf(".baud(%d)", GetBaudRate());
+	printf(".parity(%d)", GetParity());
+	printf(".bsize(%d)", GetByteSize());
+	printf(".stop(%d)\n", GetStopBit());
+}

@@ -106,3 +106,14 @@ VarConfig& VarConfig::operator=(const VarConfig& var)
 	memcpy(buffer, var.buffer, sizeof(var.buffer));
 	return *this;
 }
+void VarConfig::Show(void)
+{
+	printf("VarConfig");
+	printf(".com(%s)", GetComName().data());
+	printf(".cmd(%d)", GetCommand());
+	printf(".slave(%d)", GetSlave());
+	printf(".fcode(%d)", GetFcode());
+	printf(".offset(%d)", GetOffset());
+	printf(".count(%d)", GetCount());
+	printf(".interval(%d)\n", GetInterval());
+}

@@ -7,23 +7,34 @@
 
 void MakeValueFile(list<Value>& v)
 {
-	FILE *fp = fopen("value.html", "w");
-	if( NULL == fp )
+	FILE *fp = NULL; 
+
+	if( v.empty() )
 	{
 		return;
 	}
+	if( (fp = fopen("var/data.txt", "w"))  == NULL )
+	{
+		return;
+	}
+	fwrite("[", 1, 1, fp);
 	for(list<Value>::iterator i = v.begin(); i != v.end(); i++)
 	{
-		char buf[1024];
-		snprintf(buf, sizeof(buf), "<p>[%s][%s][%08X][%04X][%-4d][t=%d]</p>", 
+		char buf[256];
+		snprintf(buf, sizeof(buf), 
+				"{\"name\":\"%s\","
+				"\"com\":\"%s\","
+				"\"id\":\"%08X\","
+				"\"value\":\"%d\","
+				"\"cost\":\"%d\"},",
 				i->GetName().data(),
 				i->GetCom().data(), 
 				i->GetId(), 
 				i->GetValue(),
-				i->GetValue(),
 				i->mdiff());
 		fwrite(buf, string(buf).length(), 1, fp);
 	}
+	fwrite("{}]", 3, 1, fp);
 	fclose(fp);
 }
 void ShowValue(const Value& value)
@@ -43,7 +54,7 @@ int main(void)
 	TimeOperator timer;
 	TimeOperator ftimer;
 	ModbusManager manager;
-	string server_path = ".modbus.service";
+	string server_path = "/home/user/var/.modbus.service";
 
 #if 0
 	manager.SetComConfig( ComConfig("/dev/ttySX0", 9600, 0, 8, 1) );
@@ -72,23 +83,20 @@ int main(void)
 			switch(p.GetPacketType())
 			{
 				case TypeVarName:
+					p.GetVarName().Show();
 					manager.SetVarName( p.GetVarName() );
 					break;
 				case TypeVarConfig:
+					p.GetVarConfig().Show();
 					manager.SetVarConfig( p.GetVarConfig() );
 					break;
 				case TypeComConfig:
+					p.GetComConfig().Show();
 					manager.SetComConfig( p.GetComConfig() );
 					break;
 			}
 		}
 		manager.RunLoop();
-		if( timer.mdiff() > 300 )
-		{
-			system("clear");
-			manager.GetValue(ShowValue);
-			timer.init();
-		}
 		if( ftimer.sdiff() > 0 )
 		{
 			list<Value> v;

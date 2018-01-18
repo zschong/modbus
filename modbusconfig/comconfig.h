@@ -37,6 +37,8 @@ public:
 	void SetStopBit(const int stop);
 public:
 	ComConfig& operator=(const ComConfig& com);
+public:
+	void Show(void);
 };
 
 #endif//__COM_CONFIG_H__

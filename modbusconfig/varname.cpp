@@ -5,7 +5,7 @@ VarName::VarName(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-VarName::VarName(const string& comname, const string& varname, int slave, int fcode, int offset)
+VarName::VarName(const string& varname, const string& comname, int slave, int fcode, int offset)
 {
 	SetComName(comname);
 	SetVarName(varname);
@@ -13,13 +13,13 @@ VarName::VarName(const string& comname, const string& varname, int slave, int fc
 	SetFcode(fcode);
 	SetOffset(offset);
 }
-const string VarName::GetComName(void)const
-{
-	return (char*)(&buffer[IndexComNameA]);
-}
 const string VarName::GetVarName(void)const
 {
 	return (char*)(&buffer[IndexVarNameA]);
+}
+const string VarName::GetComName(void)const
+{
+	return (char*)(&buffer[IndexComNameA]);
 }
 const int VarName::GetSlave(void)const
 {
@@ -39,18 +39,18 @@ const int VarName::GetOffset(void)const
 	return offset;
 }
 
-void VarName::SetComName(const string& comname)
-{
-	if( comname.empty() == false )
-	{
-		snprintf((char*)buffer, IndexComNameZ, "%s", comname.data());
-	}
-}
 void VarName::SetVarName(const string& varname)
 {
 	if( varname.empty() == false )
 	{
 		snprintf((char*)(&buffer[IndexVarNameA]), IndexVarNameZ, "%s", varname.data());
+	}
+}
+void VarName::SetComName(const string& comname)
+{
+	if( comname.empty() == false )
+	{
+		snprintf((char*)buffer, IndexComNameZ, "%s", comname.data());
 	}
 }
 void VarName::SetSlave(const int slave)
@@ -70,4 +70,13 @@ VarName& VarName::operator=(const VarName& var)
 {
 	memcpy(buffer, var.buffer, sizeof(var.buffer));
 	return *this;
+}
+void VarName::Show(void)
+{
+	printf("VarName");
+	printf(".name(%s)", GetVarName().data());
+	printf(".com(%s)", GetComName().data());
+	printf(".slave(%d)", GetSlave());
+	printf(".fcode(%d)", GetFcode());
+	printf(".offset(%d)\n", GetOffset());
 }

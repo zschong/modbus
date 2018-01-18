@@ -22,7 +22,7 @@ protected:
 
 public:
 	VarName(void);
-	VarName(const string& comname, const string& varname, int slave, int fcode, int offset);
+	VarName(const string& varname, const string& comname, int slave, int fcode, int offset);
 public:
 	const string GetComName(void)const;
 	const string GetVarName(void)const;
@@ -39,5 +39,7 @@ public:
 	void SetCount(const int count);
 public:
 	VarName& operator=(const VarName& var);
+public:
+	void Show(void);
 };
 #endif//__VAR_NAME_H__

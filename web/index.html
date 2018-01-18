@@ -1,0 +1,94 @@
+<html>
+	<title>
+		comserver
+	</title>
+	<head>
+		<script type="text/javascript" src="/js/vue.min.js"></script>
+		<script type="text/javascript" src="/js/axios.min.js"></script>
+		<script type="text/javascript" src="/js/jquery.min.js"></script>
+		<style>
+			#td-name,#td-com,#td-id,#td-value,#td-cost
+			{
+				border:solid 1px gray;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<table>
+				<tr>
+					<th>name</th>
+					<th>com</th>
+					<th>id</th>
+					<th>value</th>
+					<th>ms</th>
+				</tr>
+				<ul>
+				<tr v-for="i in message" >
+					<td id="td-name" >{{ i.name }}</td>
+					<td id="td-com" >{{ i.com }}</td>
+					<td id="td-id" >{{ i.id }}</td>
+					<td id="td-value" >{{ i.value}}</td>
+					<td id="td-cost" >{{ i.cost }}</td>
+				</tr>
+			</table>
+		</div>
+		<div id="link">
+			<form action="/exe/modbus_varconfig.cgi" method="get">
+				<table>
+					<tr>
+						<th>name</th>
+						<td><input type="text" name="name" value="1IN1"></td>
+					</tr>
+					<tr>
+						<th>com</th>
+						<td><input type="text" name="com" value="/dev/ttySX0"></td>
+					</tr>
+					<tr>
+						<th>slave</th>
+						<td><input type="text" name="slave" value="1"></td>
+					</tr>
+					<tr>
+						<th>fcode</th>
+						<td><input type="text" name="fcode" value="3"></td>
+					</tr>
+					<tr>
+						<th>offset</th>
+						<td><input type="text" name="offset" value="0"></td>
+					</tr>
+					<tr>
+						<th>count</th>
+						<td><input type="text" name="count" value="1"></td>
+					</tr>
+					<tr>
+						<th>interval</th>
+						<td><input type="text" name="interval" value="80"></td>
+					</tr>
+					<tr>
+						<td><input type="submit" value="submit"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+	<script>
+		var app = new Vue({
+			el:"#app",
+			data:{
+				message:"this is vue."
+			}
+		});
+		function getdata()
+		{
+			axios.get("/var/data.txt")
+				.then(function(r){
+					app.message = r.data;
+				})
+				.catch(function(e){
+					app.message = "failed to get /var/data.txt"
+				});
+		}
+		setInterval("getdata()", 1000);
+		//$("#first").html("this is the first");
+	</script>
+</ tml>
