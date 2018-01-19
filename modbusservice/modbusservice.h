@@ -9,6 +9,7 @@
 #include "timeoperator.h"
 using namespace std;
 
+
 class ModbusService
 {
 protected:

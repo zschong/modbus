@@ -3,4 +3,5 @@
 *.so
 *.swp
 *.exe
+*.cgi
 tags

@@ -97,7 +97,7 @@ int main(void)
 			}
 		}
 		manager.RunLoop();
-		if( ftimer.sdiff() > 0 )
+		if( ftimer.mdiff() > 1017 )
 		{
 			list<Value> v;
 			manager.GetValue(v);
