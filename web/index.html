@@ -9,11 +9,50 @@
 		<style>
 			#td-name,#td-com,#td-id,#td-value,#td-cost
 			{
-				border:solid 1px gray;
+				padding:5px;
+				margin:0px;
+				border:none;
+				background-color:#fafafa;
+			}
+			#td-cost{
+				width:50px;
+			}
+			table,tr,th,td{
+				border: none;
+				margin: none;
+				padding: none;
+			}
+			table, tr, th{
+				border:solid 1px;
+				background-color:#999999;
 			}
 		</style>
 	</head>
 	<body>
+		<div id="config-div">
+			<table>
+				<tr>
+					<th>name</th>
+					<th>com</th>
+					<th>slave</th>
+					<th>fcode</th>
+					<th>offset</th>
+					<th>count</th>
+					<th>interval</th>
+					<th>access</th>
+				</tr>
+				<tr>
+					<td><input type="text" name="name" value="1IN1"></td>
+					<td><input type="text" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" name="slave" value="1"></td>
+					<td><input type="text" name="fcode" value="3"></td>
+					<td><input type="text" name="offset" value="0"></td>
+					<td><input type="text" name="count" value="1"></td>
+					<td><input type="text" name="interval" value="80"></td>
+					<td><button onclick="sendconfig(this)">send</button></td>
+				</tr>
+			</table>
+		</div>
 		<div id="app">
 			<table>
 				<tr>
@@ -21,63 +60,72 @@
 					<th>com</th>
 					<th>id</th>
 					<th>value</th>
-					<th>ms</th>
+					<th>cost</th>
+					<th>access</th>
 				</tr>
 				<ul>
-				<tr v-for="i in message" >
-					<td id="td-name" >{{ i.name }}</td>
-					<td id="td-com" >{{ i.com }}</td>
-					<td id="td-id" >{{ i.id }}</td>
-					<td id="td-value" >{{ i.value}}</td>
-					<td id="td-cost" >{{ i.cost }}</td>
+				<tr v-for="i in message" v-if="i.com" >
+					<td name="name"  id="td-name" >{{ i.name }}</td>
+					<td name="com"   id="td-com" >{{ i.com }}</td>
+					<td name="id"    id="td-id" >{{ i.id }}</td>
+					<td name="value" id="td-value" >{{ i.value}}</td>
+					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
+					<td name="access" id="td-access" >
+						<button onclick="delnode(this)">delete</button>
+					</td>
 				</tr>
 			</table>
 		</div>
-		<div id="link">
-			<form action="/exe/modbus_varconfig.cgi" method="get">
-				<table>
-					<tr>
-						<th>name</th>
-						<td><input type="text" name="name" value="1IN1"></td>
-					</tr>
-					<tr>
-						<th>com</th>
-						<td><input type="text" name="com" value="/dev/ttySX0"></td>
-					</tr>
-					<tr>
-						<th>slave</th>
-						<td><input type="text" name="slave" value="1"></td>
-					</tr>
-					<tr>
-						<th>fcode</th>
-						<td><input type="text" name="fcode" value="3"></td>
-					</tr>
-					<tr>
-						<th>offset</th>
-						<td><input type="text" name="offset" value="0"></td>
-					</tr>
-					<tr>
-						<th>count</th>
-						<td><input type="text" name="count" value="1"></td>
-					</tr>
-					<tr>
-						<th>interval</th>
-						<td><input type="text" name="interval" value="80"></td>
-					</tr>
-					<tr>
-						<td><input type="submit" value="submit"></td>
-					</tr>
-				</table>
-			</form>
-		</div>
+		<div id="status"></div>
+		
 	</body>
 	<script>
 		var app = new Vue({
 			el:"#app",
 			data:{
-				message:"this is vue."
+				message:""
 			}
 		});
+		function sendconfig(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var input0 = t.eq(0).children("input");
+			var input1 = t.eq(1).children("input");
+			var input2 = t.eq(2).children("input");
+			var input3 = t.eq(3).children("input");
+			var input4 = t.eq(4).children("input");
+			var input5 = t.eq(5).children("input");
+			var input6 = t.eq(6).children("input");
+			var url	= window.location.href
+				+ "modbus_varconfig.cgi?"
+				+ input0.attr("name") + "=" + input0.val() + "&" 
+				+ input1.attr("name") + "=" + input1.val() + "&"
+				+ input2.attr("name") + "=" + input2.val() + "&"
+				+ input3.attr("name") + "=" + input3.val() + "&"
+				+ input4.attr("name") + "=" + input4.val() + "&"
+				+ input5.attr("name") + "=" + input5.val() + "&"
+				+ input6.attr("name") + "=" + input6.val(); 
+			$("#status").html('<p id="fadeout">' + url + '</p>'); 
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(8000);
+		}
+		function delnode(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var url = window.location.href
+					+ "test.cgi?"
+					+ "com=" + t.eq(1).text()
+					+ "&id=" + t.eq(2).text()
+					+ "&cmd=delete";
+			$("#status").html('<p id="fadeout">' + url + '</p>');
+			$("#fadeout").fadeOut(5000);
+		}
 		function getdata()
 		{
 			axios.get("/var/data.txt")
@@ -88,7 +136,17 @@
 					app.message = "failed to get /var/data.txt"
 				});
 		}
+		function initconfig()
+		{
+			$("input[name='name']").css("width", "5em");
+			$("input[name='com']").css("width", "8em");
+			$("input[name='slave']").css("width", "5em");
+			$("input[name='fcode']").css("width", "5em");
+			$("input[name='offset']").css("width", "5em");
+			$("input[name='count']").css("width", "5em");
+			$("input[name='interval']").css("width", "5em");
+		}
 		setInterval("getdata()", 1000);
-		//$("#first").html("this is the first");
+		initconfig();
 	</script>
 </ tml>
