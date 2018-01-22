@@ -4,6 +4,7 @@
 #include <string>
 #include "modbus.h"
 #include "varname.h"
+#include "idcount.h"
 #include "varconfig.h"
 #include "comconfig.h"
 #include "timeoperator.h"

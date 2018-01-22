@@ -16,11 +16,13 @@ bool ModbusService::SetComConfig(const ComConfig& c)
 }
 void ModbusService::AddVarConfig(int first, int second)
 {
-	varconfigmap[first] = second;
+	IdCount().Add(varconfigmap, first, second);
+	//varconfigmap[first] = second;
 }
-void ModbusService::DelVarConfig(int offset, int count)
+void ModbusService::DelVarConfig(int first, int second)
 {
-	varconfigmap.erase(offset);
+	IdCount().Del(varconfigmap, first, second);
+	//varconfigmap.erase(offset);
 }
 bool ModbusService::SendX01Request(int first, int second)
 {
