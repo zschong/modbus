@@ -119,7 +119,7 @@ void IdCount::Merge(map<int,int>& m, int key, int value)
 		switch( GetABCD(A, B, C, D) )
 		{
 			case ABCD:
-				if( (B + 1) == C )
+				if( (B + 1) == C || (B == C) )
 				{
 					o.SetCount(D - A + 1);
 					m.erase(o.GetKey());
@@ -138,7 +138,7 @@ void IdCount::Merge(map<int,int>& m, int key, int value)
 				return;
 
 			case CDAB:
-				if( (D + 1) == A )
+				if( (D + 1) == A || (D == A) )
 				{
 					m.erase(o.GetKey());
 					n.SetCount(B - C + 1);

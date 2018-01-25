@@ -1,43 +1,61 @@
 <html>
-	<title>
-		comserver
-	</title>
 	<head>
-		<script type="text/javascript" src="/js/vue.min.js"></script>
-		<script type="text/javascript" src="/js/axios.min.js"></script>
-		<script type="text/javascript" src="/js/jquery.min.js"></script>
-		<style>
-			#td-name,#td-com,#td-id,#td-value,#td-cost
-			{
-				padding:5px;
-				margin:0px;
-				border:none;
-				background-color:#fafafa;
-			}
-			#td-cost{
-				width:50px;
-			}
-			table,tr,th,td{
-				border: none;
-				margin: none;
-				padding: none;
-			}
-			table, tr, th{
-				border:solid 1px;
-				background-color:#999999;
-			}
-		</style>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>ModbusWebServer</title>
 	</head>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+	<script type="text/javascript" src="/js/axios.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<style>
+		#content-div{
+			margin: 50px auto;
+			width:500px;
+		}
+		#td-name,#td-com,#td-id,#td-value,#td-cost
+		{
+			padding:5px;
+			margin:0px;
+			border:none;
+			width:50px;
+			background-color:#fafafa;
+		}
+		#td-access{
+			border-bottom:solid 1px;
+		}
+		table,tr,th,td{
+			border: none;
+			margin: none;
+			padding: none;
+		}
+		table, tr, th{
+			color:#333333;
+			border-left:solid 1px;
+			border-bottom:solid 1px;
+			background-color:#BBC7BB;
+		}
+		button{
+			color:#111999;
+			background-color:#BBC7BB;
+		}
+		button:hover{
+			color:#DD1111;
+			cursor:pointer;
+		}
+		body{
+			text-align:center;
+		}
+	</style>
 	<body>
+		<div id="content-div">
 		<div id="setcom-div">
 			<table>
 				<tr>
-					<th>com</th>
-					<th>baud</th>
-					<th>parity</th>
-					<th>bsize</th>
-					<th>stop</th>
-					<th>access</th>
+					<th>串口名</th>
+					<th>波特率</th>
+					<th>校验</th>
+					<th>字长</th>
+					<th>停止位</th>
+					<th>操作</th>
 				</tr>
 				<tr>
 					<td><input type="text" id="setcom-com" name="com" value="/dev/ttySX0"></td>
@@ -45,43 +63,42 @@
 					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
 					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
 					<td><input type="text" id="setcom-stop" name="stop" value="1"></td>
-					<td><button onclick="setcom(this)">send</button></td>
+					<td><button onclick="setcom(this)">设置</button></td>
 				</tr>
 			</table>
 		</div>
+		<p>
 		<div id="addvar-div">
 			<table>
 				<tr>
-					<th>name</th>
-					<th>com</th>
-					<th>slave</th>
-					<th>fcode</th>
-					<th>offset</th>
-					<th>count</th>
-					<th>interval</th>
-					<th>access</th>
+					<th>串口名</th>
+					<th>从地址</th>
+					<th>功能码</th>
+					<th>地址</th>
+					<th>长度</th>
+					<th>超时</th>
+					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" name="name" value="1IN1"></td>
 					<td><input type="text" name="com" value="/dev/ttySX0"></td>
 					<td><input type="text" name="slave" value="1"></td>
 					<td><input type="text" name="fcode" value="3"></td>
 					<td><input type="text" name="offset" value="0"></td>
 					<td><input type="text" name="count" value="1"></td>
 					<td><input type="text" name="interval" value="80"></td>
-					<td><button onclick="addvar(this)">send</button></td>
+					<td><button onclick="addvar(this)">添加</button></td>
 				</tr>
 			</table>
 		</div>
 		<div id="app">
 			<table>
 				<tr>
-					<th>name</th>
-					<th>com</th>
-					<th>id</th>
-					<th>value</th>
-					<th>cost</th>
-					<th>access</th>
+					<th>变量名</th>
+					<th>串口名</th>
+					<th>变量ID</th>
+					<th>实时值</th>
+					<th>帧时长</th>
+					<th>操作</th>
 				</tr>
 				<ul>
 				<tr v-for="i in message" v-if="i.com" >
@@ -91,13 +108,13 @@
 					<td name="value" id="td-value" >{{ i.value}}</td>
 					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
 					<td name="access" id="td-access" >
-						<button onclick="delvar(this)">delete</button>
+						<button onclick="delvar(this)">删除</button>
 					</td>
 				</tr>
 			</table>
 		</div>
 		<div id="status"></div>
-		
+		</div>	
 	</body>
 	<script>
 		var app = new Vue({
@@ -114,8 +131,9 @@
 			var input2 = t.eq(2).children("input");
 			var input3 = t.eq(3).children("input");
 			var input4 = t.eq(4).children("input");
-			var url	= window.location.href
-				+ "modbus_varconfig.cgi?"
+			var url	= "http://"
+				+ window.location.host
+				+ "/modbus_varconfig.cgi?"
 				+ input0.attr("name") + "=" + input0.val() + "&" 
 				+ input1.attr("name") + "=" + input1.val() + "&"
 				+ input2.attr("name") + "=" + input2.val() + "&"
@@ -131,7 +149,6 @@
 					$("#status").css("color", "red");
 				});
 			$("#fadeout").fadeOut(8000);
-
 		}
 		function addvar(node)
 		{
@@ -143,8 +160,9 @@
 			var input4 = t.eq(4).children("input");
 			var input5 = t.eq(5).children("input");
 			var input6 = t.eq(6).children("input");
-			var url	= window.location.href
-				+ "modbus_varconfig.cgi?"
+			var url	= "http://"
+				+ window.location.host
+				+ "/modbus_varconfig.cgi?"
 				+ input0.attr("name") + "=" + input0.val() + "&" 
 				+ input1.attr("name") + "=" + input1.val() + "&"
 				+ input2.attr("name") + "=" + input2.val() + "&"
@@ -166,8 +184,9 @@
 		function delvar(node)
 		{
 			var t = $(node).parents("tr").children("td");
-			var url = window.location.href
-					+ "modbus_varconfig.cgi"  + "?"
+			var url	= "http://"
+				+ window.location.host
+					+ "/modbus_varconfig.cgi"  + "?"
 					+ "com=" + t.eq(1).text() + "&"
 					+ "id=" + t.eq(2).text()  + "&"
 					+ "cmd=delvar";
@@ -193,18 +212,17 @@
 		}
 		function initconfig()
 		{
-			$("input[name='com']").css("width", "8em");
-			$("input[name='baud']").css("width", "5em");
+			$("input[name='com']").css("width", "6em");
+			$("input[name='baud']").css("width", "5.4em");
 			$("input[name='parity']").css("width", "5em");
 			$("input[name='bsize']").css("width", "5em");
 			$("input[name='stop']").css("width", "5em");
-			$("input[name='name']").css("width", "5em");
-			$("input[name='com']").css("width", "8em");
-			$("input[name='slave']").css("width", "5em");
-			$("input[name='fcode']").css("width", "5em");
-			$("input[name='offset']").css("width", "5em");
-			$("input[name='count']").css("width", "5em");
-			$("input[name='interval']").css("width", "5em");
+			$("input[name='com']").css("width", "6em");
+			$("input[name='slave']").css("width", "4em");
+			$("input[name='fcode']").css("width", "4em");
+			$("input[name='offset']").css("width", "4em");
+			$("input[name='count']").css("width", "4em");
+			$("input[name='interval']").css("width", "4em");
 		}
 		setInterval("getdata()", 1000);
 		initconfig();
