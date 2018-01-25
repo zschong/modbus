@@ -6,13 +6,18 @@ using namespace std;
 
 typedef enum
 {
-	RangeCDAB = 1,
-	RangeCADB = 2,
-	RangeCABD = 3,
-	RangeACDB = 4,
-	RangeACBD = 5,
-	RangeABCD = 6,
-}RangeType;
+	CountX03 = 125,
+	CountX01 = 2000,
+}CountType;
+typedef enum
+{
+	ABCD,//A <= B <= C <= D
+	ACBD,//A <= C <= B <= D
+	ACDB,//A <= C <= D <= B
+	CDAB,//C <= D <= A <= B
+	CADB,//C <= A <= D <= B
+	CABD,//C <= A <= B <= D
+}ABCDType;                   
 
 class IdCount
 {
@@ -44,8 +49,13 @@ public:
 public:
 	void Add(map<int,int> &m, int id, int count);
 	void Del(map<int,int> &m, int id, int count);
+protected:
+	void Delx(map<int,int> &m, int id, int count);
+	void Merge(map<int,int> &m, int id, int count);
+	void Merge(map<int,int> &m);
+	void Split(map<int,int> &m);
 public:
-	int CalcRange(int A, int B, int C, int D);
+	int GetABCD(int A, int B, int C, int D);
 	string RangeToString(int range);
 	
 };

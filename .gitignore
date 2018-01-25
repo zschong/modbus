@@ -4,4 +4,6 @@
 *.swp
 *.exe
 *.cgi
+*.c\+\+
 tags
+a.out

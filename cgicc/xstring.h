@@ -113,18 +113,11 @@ public:
 	{
 		int len = length();
 
-		if( len < 1 )
-		{
-			return 0;
-		}
-		if( len < 3 )
-		{
-			return strtol(data(), 0, 16);
-		}
-		if( data()[2] == 'x' )
+		if( len > 2 & '0' == data()[0] && 'x' == data()[1] )
 		{
 			return strtol(data()+2, 0, 16);
 		}
+		return strtol(data(), 0, 16);
 	}
 	xstring operator+(const xstring& s)
 	{

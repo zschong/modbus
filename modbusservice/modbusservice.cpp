@@ -14,15 +14,22 @@ bool ModbusService::SetComConfig(const ComConfig& c)
 					   c.GetByteSize(),
 					   c.GetStopBit());
 }
-void ModbusService::AddVarConfig(int first, int second)
+void ModbusService::AddVarConfig(int key, int value)
 {
-	IdCount().Add(varconfigmap, first, second);
-	//varconfigmap[first] = second;
+	IdCount().Add(varconfigmap, key, value);
+	for(map<int,int>::iterator i = varconfigmap.begin(); i != varconfigmap.end(); i++)
+	{
+		printf("%s<%08X, %08X>\n", __func__, i->first, i->second);
+	}
 }
-void ModbusService::DelVarConfig(int first, int second)
+void ModbusService::DelVarConfig(int key, int value)
 {
-	IdCount().Del(varconfigmap, first, second);
-	//varconfigmap.erase(offset);
+	IdCount().Del(varconfigmap, key, value);
+	printf("ModbusService::%s(%08X, %08X)\n", __func__, key, value);
+	for(map<int,int>::iterator i = varconfigmap.begin(); i != varconfigmap.end(); i++)
+	{
+		printf("%s<%08X, %08X>\n", __func__, i->first, i->second);
+	}
 }
 bool ModbusService::SendX01Request(int first, int second)
 {
@@ -177,9 +184,8 @@ bool ModbusService::GetX03Response(map<int,int>& values)
 	values.clear();
 	for(int i = 0; i < count; i++)
 	{
-		int first = (slave << 24) | (fcode << 16) | (offset + i);
-		int second = (modbus.x03response.GetData(i+1) << 16);
-		values[first] = second;
+		IdCount x(slave, fcode, (offset + i), modbus.x03response.GetData(i+1), 0);
+		values[x.GetKey()] = x.GetValue();
 	}
 	//printf("%d(ms) x03response:", timer.mdiff());
 	//modbus.x03response.Show();

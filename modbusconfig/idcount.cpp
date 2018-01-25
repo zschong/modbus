@@ -2,11 +2,21 @@
 #include "idcount.h"
 
 
+void Show(map<int,int>& m)
+{
+	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	{
+		IdCount x(i->first, i->second);
+		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());
+	}
+}
 IdCount::IdCount(void):key(0),value(0)
 {
+	SetInterval(255);
 }
 IdCount::IdCount(int i, int c):key(i),value(c)
 {
+	SetInterval(255);
 }
 IdCount::IdCount(int slave, int fcode, int offset, int count, int interval):key(0),value(0)
 {
@@ -80,11 +90,20 @@ int IdCount::GetValue(void)
 
 void IdCount::Add(map<int,int>& m, int key, int value)
 {
+	Merge(m, key, value);
+	Split(m);
+}
+void IdCount::Merge(map<int,int>& m, int key, int value)
+{
 	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount n(key, value);
 		IdCount o(i->first, i->second);
 
+		if( n.GetCount() < 1 )
+		{
+			continue;
+		}
 		if( n.GetSlave() != o.GetSlave() )
 		{
 			continue;
@@ -94,37 +113,123 @@ void IdCount::Add(map<int,int>& m, int key, int value)
 			continue;
 		}
 		int A = o.GetOffset();
-		int B = A + o.GetCount();
+		int B = A + o.GetCount() - 1;
 		int C = n.GetOffset();
-		int D = C + n.GetCount();
-		switch( CalcRange(A, B, C, D) )
+		int D = C + n.GetCount() - 1;
+		switch( GetABCD(A, B, C, D) )
 		{
-			case RangeCADB:
+			case ABCD:
+				if( (B + 1) == C )
+				{
+					o.SetCount(D - A + 1);
+					m.erase(o.GetKey());
+					Merge(m, o.GetKey(), o.GetValue());
+					return;
+				}
+				break;
+
+			case ACBD:
+				o.SetCount(D - A + 1);
 				m.erase(o.GetKey());
-				n.SetCount(B - C);
-				m[n.GetKey()] = o.GetValue();
+				Merge(m, o.GetKey(), o.GetValue());
 				return;
-			case RangeCABD:
+
+			case ACDB:
+				return;
+
+			case CDAB:
+				if( (D + 1) == A )
+				{
+					m.erase(o.GetKey());
+					n.SetCount(B - C + 1);
+					Merge(m, n.GetKey(), n.GetValue());
+					return;
+				}
+				break;
+
+			case CADB:
 				m.erase(o.GetKey());
-				m[n.GetKey()] = n.GetValue();
+				n.SetCount(B - C + 1);
+				Merge(m, n.GetKey(), n.GetValue());
 				return;
-			case RangeACDB:
-				return;
-			case RangeACBD:
-				o.SetCount(D - A);
-				m[o.GetKey()] = o.GetValue();
+
+			case CABD:
+				m.erase(o.GetKey());
+				Merge(m, n.GetKey(), n.GetValue());
 				return;
 		}
 	}
 	m[key] = value;
+}
+void IdCount::Merge(map<int,int>& m)
+{
+	map<int,int> tmp;
+	for(map<int,int>::iterator i = tmp.begin(); i != tmp.end(); i++)
+	{
+		Merge(m, i->first, i->second);
+	}
+}
+void IdCount::Split(map<int,int>& m)
+{
+	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	{
+		IdCount o(i->first, i->second);
+
+		switch(o.GetFcode())
+		{
+			case 0x01:
+			case 0x02:
+				if( o.GetCount() > CountX01 )
+				{
+					IdCount x(o.GetKey(), o.GetValue());
+					x.SetCount(CountX01);
+					x.SetInterval(255);
+					m[x.GetKey()] = x.GetValue();
+					x.SetOffset(x.GetOffset() + CountX01);
+					x.SetCount(o.GetCount() - CountX01);
+					m[x.GetKey()] = x.GetValue();
+					Split(m);
+					continue;
+				}
+				break;
+			case 0x03:
+			case 0x04:
+				if( o.GetCount() > CountX03 )
+				{
+					IdCount x(o.GetKey(), o.GetValue());
+					x.SetCount(CountX03);
+					x.SetInterval(255);
+					m[x.GetKey()] = x.GetValue();
+					x.SetOffset(x.GetOffset() + CountX03);
+					x.SetCount(o.GetCount() - CountX03);
+					m[x.GetKey()] = x.GetValue();
+					Split(m);
+					continue;
+				}
+				break;
+		}
+	}
 }
 void IdCount::Del(map<int,int>& m, int key, int value)
 {
+	Delx(m, key, value);
+	if( m.empty() == false )
+	{
+		Merge(m);
+		Split(m);
+	}
+}
+void IdCount::Delx(map<int,int>& m, int key, int value)
+{
 	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount n(key, value);
 		IdCount o(i->first, i->second);
 
+		if( n.GetCount() < 1 )
+		{
+			return;
+		}
 		if( n.GetSlave() != o.GetSlave() )
 		{
 			continue;
@@ -134,69 +239,111 @@ void IdCount::Del(map<int,int>& m, int key, int value)
 			continue;
 		}
 		int A = o.GetOffset();
-		int B = A + o.GetCount();
+		int B = A + o.GetCount() - 1;
 		int C = n.GetOffset();
-		int D = C + n.GetCount();
-		printf("%s,%d:A(%d), B(%d), C(%d), D(%d)\n", __func__, __LINE__, A, B, C, D);
-		switch( CalcRange(A, B, C, D) )
+		int D = C + n.GetCount() - 1;
+		switch( GetABCD(A, B, C, D) )
 		{
-			case RangeCADB:
+			case ABCD:
+				if( B == C )
+				{
+					m.erase(o.GetKey());
+					if( (B - A) > 0 )
+					{
+						o.SetCount(B - A);
+						Add(m, o.GetKey(), o.GetValue());
+					}
+					Delx(m, key, value);
+					return;
+				}
+				break;
+
+			case ACBD:
 				m.erase(o.GetKey());
-				o.SetOffset(D);
-				o.SetCount(B - D);
-				m[o.GetKey()] = o.GetValue();
+				if( (C - A) > 0 )
+				{
+					o.SetCount(C - A + 1);
+					Add(m, o.GetKey(), o.GetValue());
+				}
+				Delx(m, key, value);
 				return;
-			case RangeCABD:
+
+			case ACDB:
 				m.erase(o.GetKey());
+				if( (C - A) > 0 )
+				{
+					o.SetCount(C - A);
+					m[o.GetKey()] = o.GetValue();
+				}
+				if( (B - D) > 0 )
+				{
+					n.SetOffset(D + 1);
+					n.SetCount(B - D);
+					Add(m, n.GetKey(), n.GetValue());
+					Delx(m, key, value);
+					return;
+				}
+				Delx(m, key, value);
 				return;
-			case RangeACDB:
+
+			case CDAB:
+				if( D == A )
+				{
+					m.erase(o.GetKey());
+					if( (B - A) > 0 )
+					{
+						o.SetOffset(A + 1);
+						o.SetCount(B - A);
+						Add(m, o.GetKey(), o.GetValue());
+					}
+					Delx(m, key, value);
+					return;
+				}
+				break;
+
+			case CADB:
 				m.erase(o.GetKey());
-				o.SetCount(C - A);
-				printf("%s,%d:o.GetOffset(%d), o.GetCount(%d)\n", __func__, __LINE__, o.GetOffset(), o.GetCount());
-				n.SetOffset(D);
-				n.SetCount(B - D);
-				m[o.GetKey()] = o.GetValue();
-				m[n.GetKey()] = n.GetValue();
+				if( (B - D) > 0 )
+				{
+					o.SetOffset(D + 1);
+					o.SetCount(B - D);
+					Add(m, o.GetKey(), o.GetValue());
+				}
+				Delx(m, key, value);
 				return;
-			case RangeACBD:
+
+			case CABD:
 				m.erase(o.GetKey());
-				o.SetCount(C - A);
-				m[o.GetKey()] = o.GetValue();
+				Delx(m, key, value);
 				return;
 		}
 	}
-	m[key] = value;
 }
-int IdCount::CalcRange(int A, int B, int C, int D)
+int IdCount::GetABCD(int A, int B, int C, int D)
 {
-	if( (C <= D) && (D <= A) && (A <= B) )
-	{
-		return RangeCDAB;
-	}
-
-	if( (C <= A) && (A <= D) && (D <= B) )
-	{
-		return RangeCADB;
-	}
-
-	if( (C <= A) && (A <= B) && (B <= D) )
-	{
-		return RangeCABD;
-	}
-
-	if( (A <= C) && (C <= D) && (D <= B) )
-	{
-		return RangeACDB;
-	}
-
-	if( (A <= C) && (C <= B) && (B <= D) )
-	{
-		return RangeACBD;
-	}
-
 	if( (A <= B) && (B <= C) && (C <= D) )
 	{
-		return RangeABCD;
+		return ABCD;
+	}
+	if( (A <= C) && (C <= B) && (B <= D) )
+	{
+		return ACBD;
+	}
+	if( (A <= C) && (C <= D) && (D <= B) )
+	{
+		return ACDB;
+	}
+	if( (C <= D) && (D <= A) && (A <= B) )
+	{
+		return CDAB;
+	}
+	if( (C <= A) && (A <= D) && (D <= B) )
+	{
+		return CADB;
+	}
+	if( (C <= A) && (A <= B) && (B <= D) )
+	{
+		return CABD;
 	}
 	return 0;
 }
@@ -204,78 +351,45 @@ string IdCount::RangeToString(int range)
 {
 	switch(range)
 	{
-		case RangeCDAB:
-			return "CDAB";
-		case RangeCADB:
-			return "CADB";
-		case RangeCABD:
-			return "CABD";
-		case RangeACDB:
-			return "ACDB";
-		case RangeACBD:
-			return "ACBD";
-		case RangeABCD:
+		case ABCD:
 			return "ABCD";
+		case ACBD:
+			return "ACBD";
+		case ACDB:
+			return "ACDB";
+		case CDAB:
+			return "CDAB";
+		case CADB:
+			return "CADB";
+		case CABD:
+			return "CABD";
 	}
-	return "UNKONW";
+	return "abcd";
 }
-#ifdef TEST_IDCOUNT
-int mainA(void)
-{
-	IdCount c;
-	int A = 1;
-	int B = 1;
-	int C = 1;
-	int D = 1;
 
-	//CDAB
-	C = 1, D = 5, A = 6, B = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	//CADB
-	C = 1, A = 5, D = 6, B = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	//CABD
-	C = 1, A = 5, B = 6, D = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	//ACDB
-	A = 1, C = 5, D = 6, B = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	//ACBD
-	A = 1, C = 5, B = 6, D = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	//ABCD
-	A = 1, B = 5, C = 6, D = 9;
-	printf("%s\n", c.RangeToString(c.CalcRange(A, B, C, D)).data());
-
-	return 0;
-}
+#if 0
 int main(void)
 {
 	map<int,int> m;
-	IdCount a(1, 3, 0, 7, 100);
-	IdCount b(1, 3, 3, 6, 100);
-	IdCount c(1, 3, 5, 9, 100);
+	IdCount a(1, 3, 0, 10, 100);
+	IdCount b(1, 3, 20, 3, 100);
+	IdCount c(1, 3, 0, 200, 100);
+	IdCount d(1, 3, 3, 1, 100);
 
-	c.Add(m, a.GetKey(), a.GetValue());
-	c.Add(m, b.GetKey(), b.GetValue());
-	c.Add(m, c.GetKey(), c.GetValue());
-
-	c.Del(m, b.GetKey(), b.GetValue());
-	c.Add(m, b.GetKey(), b.GetValue());
-	//c.Del(m, a.GetKey(), a.GetValue());
-	c.Del(m, c.GetKey(), c.GetValue());
+	IdCount().Add(m, a.GetKey(), a.GetValue());
+	IdCount().Add(m, b.GetKey(), b.GetValue());
+	IdCount().Add(m, c.GetKey(), c.GetValue());
+	IdCount().Del(m, b.GetKey(), b.GetValue());
+	IdCount().Del(m, d.GetKey(), d.GetValue());
+	//IdCount().Add(m, b.GetKey(), b.GetValue());
 
 
 	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
 	{
-		printf("<%08X, %08X>\n", i->first, i->second);
+		IdCount x(i->first, i->second);
+		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());
 	}
 
 	return 0;
 }
-#endif//TEST_IDCOUNT
+#endif

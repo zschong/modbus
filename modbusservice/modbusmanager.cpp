@@ -32,24 +32,19 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	int offset = var.GetOffset();
 	int count = var.GetCount();
 	int interval = var.GetInterval();
-	int first = 0;
-	int second = 0;
+	IdCount x(slave, fcode, offset, count, interval);
 
-	first += ((0x00ff & slave)  << 24);
-	first += ((0x00ff & fcode)  << 16);
-	first += ((0xffff & offset) <<  0);
-	second += ((0xffff & count) << 16);
-	second += ((0x00ff & interval) << 8);
 
 	switch(command)
 	{
 		case VarCmdGet:
 		case VarCmdSet:
 		case VarCmdAdd:
-			modbus->second.AddVarConfig(first, second);
+			modbus->second.AddVarConfig(x.GetKey(), x.GetValue());
 			break;
 		case VarCmdDel:
-			modbus->second.DelVarConfig(first, second);
+			modbus->second.DelVarConfig(x.GetKey(), x.GetValue());
+			cache.DelValue(comname, x.GetKey());
 			break;
 		default:
 			return false;
@@ -65,10 +60,9 @@ void ModbusManager::RunLoop(void)
 	for(Iterator i = modbusmap.begin(); i != modbusmap.end(); i++)
 	{
 		map<int,int> vmap;
-		map<int,int>::iterator v;
 		if( i->second.GetValue(vmap) )
 		{
-			for(v = vmap.begin(); v != vmap.end(); v++)
+			for(map<int,int>::iterator v = vmap.begin(); v != vmap.end(); v++)
 			{
 				cache.SetValue(i->first, v->first, v->second);
 			}

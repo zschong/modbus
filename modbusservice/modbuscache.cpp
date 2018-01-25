@@ -115,3 +115,21 @@ void ModbusCache::SetValue(const string& com, int id, int value)
 {
 	valuemap[com][id].SetValue(value);
 }
+void ModbusCache::DelValue(const string& com, int id)
+{
+	map<string,map<int,Value> >::iterator value = valuemap.find(com);
+	if( valuemap.end() != value )
+	{
+		value->second.erase(id);
+	}
+}
+void ModbusCache::ShowValue(void)
+{
+	for(map<string,map<int,Value> >::iterator A = valuemap.begin(); A != valuemap.end(); A++)
+	{
+		for(map<int,Value>::iterator B = A->second.begin(); B != A->second.end(); B++)
+		{
+			printf("ModbusCache::%s(%s, %08X)\n", __func__, A->first.data(), B->first);
+		}
+	}
+}

@@ -44,6 +44,7 @@ public:
 	bool SetName(const string& com, int slave, int fcode, int offset, const string& name);
 	void SetValue(const string& com, int id, int value);
 	void SetValue(const string& com, int slave, int fcode, int offset, int value); 
+	void DelValue(const string& com, int id);
 	void ShowValue(void);
 };
 

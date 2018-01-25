@@ -29,7 +29,27 @@
 		</style>
 	</head>
 	<body>
-		<div id="config-div">
+		<div id="setcom-div">
+			<table>
+				<tr>
+					<th>com</th>
+					<th>baud</th>
+					<th>parity</th>
+					<th>bsize</th>
+					<th>stop</th>
+					<th>access</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="setcom-com" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" id="setcom-baud" name="baud" value="9600"></td>
+					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
+					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
+					<td><input type="text" id="setcom-stop" name="stop" value="1"></td>
+					<td><button onclick="setcom(this)">send</button></td>
+				</tr>
+			</table>
+		</div>
+		<div id="addvar-div">
 			<table>
 				<tr>
 					<th>name</th>
@@ -49,7 +69,7 @@
 					<td><input type="text" name="offset" value="0"></td>
 					<td><input type="text" name="count" value="1"></td>
 					<td><input type="text" name="interval" value="80"></td>
-					<td><button onclick="sendconfig(this)">send</button></td>
+					<td><button onclick="addvar(this)">send</button></td>
 				</tr>
 			</table>
 		</div>
@@ -71,7 +91,7 @@
 					<td name="value" id="td-value" >{{ i.value}}</td>
 					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
 					<td name="access" id="td-access" >
-						<button onclick="delnode(this)">delete</button>
+						<button onclick="delvar(this)">delete</button>
 					</td>
 				</tr>
 			</table>
@@ -86,7 +106,34 @@
 				message:""
 			}
 		});
-		function sendconfig(node)
+		function setcom(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var input0 = t.eq(0).children("input");
+			var input1 = t.eq(1).children("input");
+			var input2 = t.eq(2).children("input");
+			var input3 = t.eq(3).children("input");
+			var input4 = t.eq(4).children("input");
+			var url	= window.location.href
+				+ "modbus_varconfig.cgi?"
+				+ input0.attr("name") + "=" + input0.val() + "&" 
+				+ input1.attr("name") + "=" + input1.val() + "&"
+				+ input2.attr("name") + "=" + input2.val() + "&"
+				+ input3.attr("name") + "=" + input3.val() + "&"
+				+ input4.attr("name") + "=" + input4.val() + "&"
+				+ "cmd=setcom"; 
+			$("#status").html('<p id="fadeout">' + url + '</p>'); 
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(8000);
+
+		}
+		function addvar(node)
 		{
 			var t = $(node).parents("tr").children("td");
 			var input0 = t.eq(0).children("input");
@@ -104,7 +151,8 @@
 				+ input3.attr("name") + "=" + input3.val() + "&"
 				+ input4.attr("name") + "=" + input4.val() + "&"
 				+ input5.attr("name") + "=" + input5.val() + "&"
-				+ input6.attr("name") + "=" + input6.val(); 
+				+ input6.attr("name") + "=" + input6.val() + "&"
+				+ "cmd=addvar"; 
 			$("#status").html('<p id="fadeout">' + url + '</p>'); 
 			axios.get(url)
 				.then(function(r){
@@ -115,15 +163,22 @@
 				});
 			$("#fadeout").fadeOut(8000);
 		}
-		function delnode(node)
+		function delvar(node)
 		{
 			var t = $(node).parents("tr").children("td");
 			var url = window.location.href
-					+ "test.cgi?"
-					+ "com=" + t.eq(1).text()
-					+ "&id=" + t.eq(2).text()
-					+ "&cmd=delete";
+					+ "modbus_varconfig.cgi"  + "?"
+					+ "com=" + t.eq(1).text() + "&"
+					+ "id=" + t.eq(2).text()  + "&"
+					+ "cmd=delvar";
 			$("#status").html('<p id="fadeout">' + url + '</p>');
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
 			$("#fadeout").fadeOut(5000);
 		}
 		function getdata()
@@ -138,6 +193,11 @@
 		}
 		function initconfig()
 		{
+			$("input[name='com']").css("width", "8em");
+			$("input[name='baud']").css("width", "5em");
+			$("input[name='parity']").css("width", "5em");
+			$("input[name='bsize']").css("width", "5em");
+			$("input[name='stop']").css("width", "5em");
 			$("input[name='name']").css("width", "5em");
 			$("input[name='com']").css("width", "8em");
 			$("input[name='slave']").css("width", "5em");

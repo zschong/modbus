@@ -5,6 +5,16 @@ VarConfig::VarConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
+VarConfig::VarConfig(const string& comname, int cmd, IdCount &id)
+{
+	SetCommand(cmd);
+	SetComName(comname);
+	SetSlave(id.GetSlave());
+	SetFcode(id.GetFcode());
+	SetOffset(id.GetOffset());
+	SetValue(id.GetCount());
+	SetInterval(id.GetInterval());
+}
 VarConfig::VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value, int interval)
 {
 	SetComName(comname);
