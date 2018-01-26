@@ -68,6 +68,12 @@ bool ModbusCache::GetValue(list<Value>& vlist)
 	}
 	return (vlist.begin() != vlist.end());
 }
+bool ModbusCache::GetValue(map<string, map<int,Value> >& vmap)
+{
+	vmap.clear();
+	vmap = valuemap;
+	return true;
+}
 void ModbusCache::GetValue(void(*getvalue)(const Value&))
 {
 	if( 0 == getvalue )

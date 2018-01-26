@@ -1,0 +1,17 @@
+.app{border: solid 0 blue}
+
+.txt-input{width: 100px}
+.btn-input{width: 80px}
+table{
+  border: solid 0 blue;
+  width: 100%
+}
+table th, table tr, table td{border: solid 1px gray; line-height: 30px; vertical-align: middle; text-align: center}
+
+.common-cell{width: 80px}
+.btn-cell{width: 60px}
+
+.loginTable{
+  width: 200px;
+  margin: 0 auto;
+}

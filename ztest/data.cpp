@@ -7,11 +7,11 @@ string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
 
 int Login(Cgi& cgi);
+int Logout(Cgi& cgi);
 int SetCom(Cgi& cgi);
 int AddVar(Cgi& cgi);
 int DelVar(Cgi& cgi);
 int BindVar(Cgi& cgi);
-int GetConfig(Cgi& cgi);
 
 int main(void)
 {
@@ -22,11 +22,7 @@ int main(void)
 	printf("\r\n");
 	printf("\r\n");
 
-	if( "login" == cmd )
-	{
-		Login(cgi);
-	}
-	else if( "setcom" == cmd )
+	if( "setcom" == cmd )
 	{
 		SetCom(cgi);
 	}
@@ -42,17 +38,8 @@ int main(void)
 	{
 		BindVar(cgi);
 	}
-	else if( "config" == cmd )
-	{
-		GetConfig(cgi);
-	}
 
-	return 0;
-}
 
-int Login(Cgi& cgi)
-{
-	printf("{\"success\":\"true\",\"session\":\"123456789\"}");
 	return 0;
 }
 
@@ -84,7 +71,6 @@ int AddVar(Cgi& cgi)
 	ModbusConfig mconfig;
 
 	string com = cgi["com"];
-	string name = cgi["name"];
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
 	int offset = cgi["offset"].toint();
@@ -146,23 +132,5 @@ int BindVar(Cgi& cgi)
 	}
 	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
-}
-int GetConfig(Cgi& cgi)
-{
-	char buf[4096] = {0};
-	FILE *fp = fopen("com.config", "r");
-
-	if( NULL == fp )
-	{
-		return -1;
-	}
-	if( fread(buf, 1, sizeof(buf), fp) < 1 )
-	{
-		return -2;
-	}
-	buf[sizeof(buf)-1] = 0;
-	printf("%s", buf);
-
 	return 0;
 }

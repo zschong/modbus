@@ -39,6 +39,7 @@ protected:
 	map<string,map<int,Value> > valuemap;
 public:
 	bool GetValue(list<Value>& vlist);
+	bool GetValue(map<string, map<int,Value> >& vmap);
 	void GetValue(void(*getvalue)(const Value&));
 	bool SetName(const string& com, int id, const string& name);
 	bool SetName(const string& com, int slave, int fcode, int offset, const string& name);

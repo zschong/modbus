@@ -1,230 +1,334 @@
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		<title>ModbusWebServer</title>
-	</head>
-	<script type="text/javascript" src="/js/vue.min.js"></script>
-	<script type="text/javascript" src="/js/axios.min.js"></script>
-	<script type="text/javascript" src="/js/jquery.min.js"></script>
-	<style>
-		#content-div{
-			margin: 50px auto;
-			width:500px;
-		}
-		#td-name,#td-com,#td-id,#td-value,#td-cost
-		{
-			padding:5px;
-			margin:0px;
-			border:none;
-			width:50px;
-			background-color:#fafafa;
-		}
-		#td-access{
-			border-bottom:solid 1px;
-		}
-		table,tr,th,td{
-			border: none;
-			margin: none;
-			padding: none;
-		}
-		table, tr, th{
-			color:#333333;
-			border-left:solid 1px;
-			border-bottom:solid 1px;
-			background-color:#BBC7BB;
-		}
-		button{
-			color:#111999;
-			background-color:#BBC7BB;
-		}
-		button:hover{
-			color:#DD1111;
-			cursor:pointer;
-		}
-		body{
-			text-align:center;
-		}
-	</style>
-	<body>
-		<div id="content-div">
-		<div id="setcom-div">
-			<table>
-				<tr>
-					<th>串口名</th>
-					<th>波特率</th>
-					<th>校验</th>
-					<th>字长</th>
-					<th>停止位</th>
-					<th>操作</th>
-				</tr>
-				<tr>
-					<td><input type="text" id="setcom-com" name="com" value="/dev/ttySX0"></td>
-					<td><input type="text" id="setcom-baud" name="baud" value="9600"></td>
-					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
-					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
-					<td><input type="text" id="setcom-stop" name="stop" value="1"></td>
-					<td><button onclick="setcom(this)">设置</button></td>
-				</tr>
-			</table>
-		</div>
-		<p>
-		<div id="addvar-div">
-			<table>
-				<tr>
-					<th>串口名</th>
-					<th>从地址</th>
-					<th>功能码</th>
-					<th>地址</th>
-					<th>长度</th>
-					<th>超时</th>
-					<th>操作</th>
-				</tr>
-				<tr>
-					<td><input type="text" name="com" value="/dev/ttySX0"></td>
-					<td><input type="text" name="slave" value="1"></td>
-					<td><input type="text" name="fcode" value="3"></td>
-					<td><input type="text" name="offset" value="0"></td>
-					<td><input type="text" name="count" value="1"></td>
-					<td><input type="text" name="interval" value="80"></td>
-					<td><button onclick="addvar(this)">添加</button></td>
-				</tr>
-			</table>
-		</div>
-		<div id="app">
-			<table>
-				<tr>
-					<th>变量名</th>
-					<th>串口名</th>
-					<th>变量ID</th>
-					<th>实时值</th>
-					<th>帧时长</th>
-					<th>操作</th>
-				</tr>
-				<ul>
-				<tr v-for="i in message" v-if="i.com" >
-					<td name="name"  id="td-name" >{{ i.name }}</td>
-					<td name="com"   id="td-com" >{{ i.com }}</td>
-					<td name="id"    id="td-id" >{{ i.id }}</td>
-					<td name="value" id="td-value" >{{ i.value}}</td>
-					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
-					<td name="access" id="td-access" >
-						<button onclick="delvar(this)">删除</button>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<div id="status"></div>
-		</div>	
-	</body>
-	<script>
-		var app = new Vue({
-			el:"#app",
-			data:{
-				message:""
-			}
-		});
-		function setcom(node)
-		{
-			var t = $(node).parents("tr").children("td");
-			var input0 = t.eq(0).children("input");
-			var input1 = t.eq(1).children("input");
-			var input2 = t.eq(2).children("input");
-			var input3 = t.eq(3).children("input");
-			var input4 = t.eq(4).children("input");
-			var url	= "http://"
-				+ window.location.host
-				+ "/modbus_varconfig.cgi?"
-				+ input0.attr("name") + "=" + input0.val() + "&" 
-				+ input1.attr("name") + "=" + input1.val() + "&"
-				+ input2.attr("name") + "=" + input2.val() + "&"
-				+ input3.attr("name") + "=" + input3.val() + "&"
-				+ input4.attr("name") + "=" + input4.val() + "&"
-				+ "cmd=setcom"; 
-			$("#status").html('<p id="fadeout">' + url + '</p>'); 
-			axios.get(url)
-				.then(function(r){
-					$("#status").css("color", "green");
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>board</title>
+    <link rel="stylesheet" type="text/css" href="./css/app.css">
+  </head>
+  <body>
+    <div id="app" class="app">
+      <table style="width: 100%">
+        <tr>
+          <td style="">智能控制器</td>
+          <td style="width: 80px" v-if="user.login"><input type="button" value="修改密码"></td>
+          <td style="width: 80px" v-if="user.login"><input type="button" value="退出" v-on:click="logout"></td>
+        </tr>
+        <tr v-if="!user.login">
+          <td colspan="3">
+            <table class="loginTable">
+              <tr>
+                <th>用户名：</th>
+                <td><input type="text" class="txt-input" v-model="user.name"></td>
+              </tr>
+              <tr>
+                <th>密码：</th>
+                <td><input type="password" class="txt-input" v-model="user.pswd"></td>
+              </tr>
+              <tr>
+                <td colspan="2"><input type="button" value="登录" v-on:click="login"></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr v-else v-for="com in cfg">
+          <td colspan="3">
+            <table style="width: 100%">
+              <tr>
+                <th class="common-cell">串口号：</th>
+                <td class="common-cell">{{ com.code }}</td>
+                <th class="common-cell">波特率：</th>
+                <td class="common-cell"><input type="text" class="txt-input" v-model="com.baud"></td>
+                <th class="common-cell">校验位：</th>
+                <td class="common-cell"><input type="text" class="txt-input" v-model="com.parity"></td>
+                <th class="common-cell">数据位：</th>
+                <td class="common-cell"><input type="text" class="txt-input" v-model="com.data"></td>
+                <th class="common-cell">停止位：</th>
+                <td class="common-cell"><input type="text" class="txt-input" v-model="com.stop"></td>
+                <td>&nbsp;</td>
+                <td class="btn-cell"><input type="button" value="设置" class="btn-input" v-on:click="btnSetCom(com)"></td>
+                <td class="btn-cell"><input type="button" v-bind:value="com.show ? '隐藏' : '展开'" class="btn-input" v-on:click="expand(com)"></td>
+              </tr>
+              <tr v-if="com.show">
+                <td colspan="13">
+                  <table style="width: 100%">
+                    <tr>
+                      <th>设备地址</th>
+                      <th>变量地址</th>
+                      <th>功能</th>
+                      <th>帧时长</th>
+                      <th>当前值</th>
+                      <th>设置值</th>
+                      <th colspan="2"><input type="button" value="增加" class="btn-input" v-on:click="btnAddVars(com)"></th>
+                    </tr>
+                    <tr v-if="com.edit">
+                      <td colspan="8">
+                        <table>
+                          <tr>
+                            <th>设备地址：</th>
+                            <td><input type="text" class="txt-input" v-model="editVar.did"></td>
+                            <th>起始变量：</th>
+                            <td><input type="text" class="txt-input" v-model="editVar.vid"></td>
+                            <th>长度：</th>
+                            <td><input type="text" class="txt-input" v-model="editVar.len"></td>
+                            <th>功能：</th>
+                            <td><input type="text" class="txt-input" v-model="editVar.func"></td>
+                            <td><input type="button" value="保存" class="btn-input" v-on:click="btnSaveEdit(com)"></td>
+                            <td><input type="button" value="取消" class="btn-input" v-on:click="btnCancelEdit(com)"></td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr v-for="(v, idx) in com.vars">
+                      <td>{{ v.did }}</td>
+                      <td>{{ v.vid }}</td>
+                      <td>{{ v.func }}</td>
+                      <td>{{ v.time }}</td>
+                      <td>{{ v.val }}</td>
+                      <td><input type="text" v-model="v.set" class="txt-input"></td>
+                      <td><input type="button" value="设置" class="btn-input" v-on:click="btnSendVar(com, v, idx)"></td>
+                      <td><input type="button" value="删除" class="btn-input" v-on:click="btnDelVar(com, v, idx)"></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/md5.min.js"></script>
+    <script type="text/javascript">
+      var app = new Vue({
+        el: '#app',
+        data: {
+          user: {
+            login: false,
+            name: '',
+            pswd: '',
+            session: 'aaa'
+          },
+          url: '',
+          count: 10,
+          cfg: [],
+          editVar: {did: 1, vid: 1, len: 1, func: 3}
+        },
+        methods: {
+          msg: function(msg){
+            alert(msg)
+          },
+          sort: function(v1, v2){
+            return (v1.did - v2.did) * 10000 + (v1.vid - v2.vid)
+          },
+          login: function(){
+            if(this.user.name == ""){
+              this.msg('用户名不能为空')
+              return
+            }
+            if(this.user.pswd == ""){
+              this.msg('密码不能为空')
+              return
+            }
+            var $this = this;
+            this.getLogin(this.user.name, this.user.pswd).then(res => {
+              if(res.success){
+                $this.user.login = true
+                $this.user.session = res.session
+				$this.cfg.splice(0, $this.cfg.length);
+				$this.getCfg().then(res => {
+					res.map(item => {
+					  $this.cfg.push(item)
+					})
+					setInterval(this.btnGetVar, 1000);
 				})
-				.catch(function(e){
-					$("#status").css("color", "red");
-				});
-			$("#fadeout").fadeOut(8000);
-		}
-		function addvar(node)
-		{
-			var t = $(node).parents("tr").children("td");
-			var input0 = t.eq(0).children("input");
-			var input1 = t.eq(1).children("input");
-			var input2 = t.eq(2).children("input");
-			var input3 = t.eq(3).children("input");
-			var input4 = t.eq(4).children("input");
-			var input5 = t.eq(5).children("input");
-			var input6 = t.eq(6).children("input");
-			var url	= "http://"
-				+ window.location.host
-				+ "/modbus_varconfig.cgi?"
-				+ input0.attr("name") + "=" + input0.val() + "&" 
-				+ input1.attr("name") + "=" + input1.val() + "&"
-				+ input2.attr("name") + "=" + input2.val() + "&"
-				+ input3.attr("name") + "=" + input3.val() + "&"
-				+ input4.attr("name") + "=" + input4.val() + "&"
-				+ input5.attr("name") + "=" + input5.val() + "&"
-				+ input6.attr("name") + "=" + input6.val() + "&"
-				+ "cmd=addvar"; 
-			$("#status").html('<p id="fadeout">' + url + '</p>'); 
-			axios.get(url)
-				.then(function(r){
-					$("#status").css("color", "green");
-				})
-				.catch(function(e){
-					$("#status").css("color", "red");
-				});
-			$("#fadeout").fadeOut(8000);
-		}
-		function delvar(node)
-		{
-			var t = $(node).parents("tr").children("td");
-			var url	= "http://"
-				+ window.location.host
-					+ "/modbus_varconfig.cgi"  + "?"
-					+ "com=" + t.eq(1).text() + "&"
-					+ "id=" + t.eq(2).text()  + "&"
-					+ "cmd=delvar";
-			$("#status").html('<p id="fadeout">' + url + '</p>');
-			axios.get(url)
-				.then(function(r){
-					$("#status").css("color", "green");
-				})
-				.catch(function(e){
-					$("#status").css("color", "red");
-				});
-			$("#fadeout").fadeOut(5000);
-		}
-		function getdata()
-		{
-			axios.get("/var/data.txt")
-				.then(function(r){
-					app.message = r.data;
-				})
-				.catch(function(e){
-					app.message = "failed to get /var/data.txt"
-				});
-		}
-		function initconfig()
-		{
-			$("input[name='com']").css("width", "6em");
-			$("input[name='baud']").css("width", "5.4em");
-			$("input[name='parity']").css("width", "5em");
-			$("input[name='bsize']").css("width", "5em");
-			$("input[name='stop']").css("width", "5em");
-			$("input[name='com']").css("width", "6em");
-			$("input[name='slave']").css("width", "4em");
-			$("input[name='fcode']").css("width", "4em");
-			$("input[name='offset']").css("width", "4em");
-			$("input[name='count']").css("width", "4em");
-			$("input[name='interval']").css("width", "4em");
-		}
-		setInterval("getdata()", 1000);
-		initconfig();
-	</script>
-</ tml>
+
+              }else{
+                $this.user.login = false
+                $this.user.session = ''
+                $this.msg(res.msg)
+              }
+              $this.user.pswd = ''
+            })
+          },
+          logout: function(){
+            var $this = this;
+            this.getLogout(this.user.session).then(res => {
+              $this.user.login = false
+              $this.user.session = ''
+            })
+          },
+          btnSetCom: function(com){
+            var $this = this;
+            this.setCom(com.code, com.baud, com.parity, com.data, com.stop).then(res => {
+              if(res.success){
+                $this.msg('设置成功')
+              }else{
+                $this.msg(res.msg)
+              }
+            })
+          },
+          expand: function(obj){
+            obj.show = !obj.show
+          },
+          btnAddVars: function(obj){
+            obj.edit = true
+          },
+          btnDelVar: function(com, v, idx){
+            var $this = this;
+            this.delVar(com.code, v.did, v.vid).then(res => {
+              if(res.success){
+                com.vars.splice(idx, 1);
+              }else{
+                $this.msg(res.msg);
+              }
+            })
+          },
+          btnSendVar: function(com, v){
+            var $this = this;
+            this.setVar(com.code, v.did, v.vid, v.set).then(res => {
+              if(res.success){
+                $this.msg('设置成功');
+              }else{
+                $this.msg(res.msg);
+              }
+            })
+          },
+          btnCancelEdit: function(obj){
+            obj.edit = false
+          },
+          btnSaveEdit: function(obj){
+            var $this = this;
+            this.addVar(obj.code, this.editVar.did, this.editVar.vid, this.editVar.len, this.editVar.func).then(res => {
+              if(res.success){
+                res.list.map(item => {
+                  item.val = -999;
+                  item.time = -999;
+                  item.set = 0;
+                  obj.vars.push(item)
+                })
+              }
+              obj.vars.sort($this.sort);
+            })
+            obj.edit = false
+          },
+          btnGetVar: function(){
+            if(!this.user.login)return;
+            var $this = this;
+            
+            this.getVar().then(res => {
+              if(!res.success)return;
+              $this.cfg.map(com => {
+                com.vars.map(v => {
+                  var r = res.list.filter(x => {
+                    return x.cid == com.code && x.did == v.did && x.vid == v.vid;
+                  })
+                  if(r.length > 0){
+                    v.val = r[0].val;
+                    v.time = r[0].time;
+                  }
+                })
+              })
+            })
+          },
+          getLogin: function(user, pswd){
+            return new Promise(resolve => {
+              axios.get(this.url + '?cmd=login&code=' + md5(user+pswd)).then(res => {
+				  console.dir(res);
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          getLogout: function(session){
+            return new Promise(resolve => {
+              axios.get(this.url + '?cmd=logout&code=' + this.user.session).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          getCfg: function(){
+            return new Promise(resolve => {
+              axios.get(this.url + '?cmd=config&code='+ this.user.session).then(res => {
+                var data = res.data;
+                data.map((item, index) => {
+                  item.edit = false;
+                  item.show = index == 0;
+                  item.vars.map(v => {
+                    v.val = -999;
+                    v.time = -999;
+                    v.set = 0;
+                  })
+                })
+                resolve(data);
+              }).catch(error => {
+                resolve({success: false, msg: error});
+              })
+            })
+          },
+          setCom: function(cid, baud, parity, data, stop){
+            return new Promise(resolve => {
+              axios.get(`${this.url}?cmd=setcom&code=${this.user.session}&cid=${cid}&baud=${baud}&parity=${parity}&data=${data}&stop=${stop}`).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          addVar: function(cid, did, vid, len, func){
+            return new Promise(resolve => {
+              axios.get(`${this.url}?cmd=addvar&code=${this.user.session}&cid=${cid}&did=${did}&vid=${vid}&len=${len}&func=${func}`).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          delVar: function(cid, did, vid){
+            return new Promise(resolve => {
+              axios.get(`${this.url}?cmd=delvar&code=${this.user.session}&cid=${cid}&did=${did}&vid=${vid}`).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          setVar: function(cid, did, vid, val){
+            return new Promise(resolve => {
+              axios.get(`${this.url}?cmd=setvar&code=${this.user.session}&cid=${cid}&did=${did}&vid=${vid}&val=${val}`).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          },
+          getVar: function(cid, did){
+            return new Promise(resolve => {
+              var url = `${this.url}?cmd=getvar&code=${this.user.session}`;
+              if(cid != ''){
+                url += `&cid=${cid}`;
+                if(did != ''){
+                  url += `&did=${did}`;
+                }
+              }
+              axios.get(url).then(res => {
+                resolve(res.data)
+              }).catch(error => {
+                resolve({success: false, msg: error})
+              })
+            })
+          }
+        },
+        mounted: function(){
+          var $this = this;
+          this.url = window.location.href.replace('index.html', 'data.cgi');
+          console.dir(this.url);
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -77,3 +77,7 @@ bool ModbusManager::GetValue(list<Value>& vlist)
 {
 	return cache.GetValue(vlist);
 }
+bool ModbusManager::GetValue(map<string, map<int,Value> >& vmap)
+{
+	return cache.GetValue(vmap);
+}
