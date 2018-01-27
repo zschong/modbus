@@ -1,46 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "service.h"
+#include "valuefile.h"
 #include "modbusconfig.h"
 #include "modbusmanager.h"
 
 
-void MakeValueFile(map<string,map<int,Value> >& vmap)
-{
-
-}
-void MakeValueFile(list<Value>& v)
-{
-	FILE *fp = NULL; 
-
-	if( v.empty() )
-	{
-		return;
-	}
-	if( (fp = fopen("var/data.txt", "w"))  == NULL )
-	{
-		return;
-	}
-	fwrite("[", 1, 1, fp);
-	for(list<Value>::iterator i = v.begin(); i != v.end(); i++)
-	{
-		char buf[256];
-		snprintf(buf, sizeof(buf), 
-				"{\"name\":\"%s\","
-				"\"com\":\"%s\","
-				"\"id\":\"%08X\","
-				"\"value\":\"%d\","
-				"\"cost\":\"%d\"},",
-				i->GetName().data(),
-				i->GetCom().data(), 
-				i->GetId(), 
-				i->GetValue(),
-				i->mdiff());
-		fwrite(buf, string(buf).length(), 1, fp);
-	}
-	fwrite("{}]", 3, 1, fp);
-	fclose(fp);
-}
 void ShowValue(const Value& value)
 {
 	printf("[%s][%s][%08X][%04X][%-4d][t=%d]\n", 
@@ -55,6 +20,7 @@ void ShowValue(const Value& value)
 int main(void)
 {
 	Service service;
+	ValueFile valuefile;
 	TimeOperator timer;
 	TimeOperator ftimer;
 	ModbusManager manager;
@@ -65,6 +31,7 @@ int main(void)
 		printf("StartServer(%s) failed\n", server_path.data());
 		return -1;
 	}
+	valuefile.SetComMap("/dev/ttySX", "COM");
                                                                               
 	while(1)
 	{
@@ -90,9 +57,9 @@ int main(void)
 		manager.RunLoop();
 		if( ftimer.mdiff() > 1017 )
 		{
-			list<Value> v;
-			manager.GetValue(v);
-			MakeValueFile(v);
+			map<string,map<int,Value> > mmv;
+			manager.GetValue(mmv);
+			valuefile.MakeFile(mmv);
 			ftimer.init();
 		}
 		usleep(100);

@@ -7,11 +7,11 @@ string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
 
 int Login(Cgi& cgi);
-int Logout(Cgi& cgi);
 int SetCom(Cgi& cgi);
 int AddVar(Cgi& cgi);
 int DelVar(Cgi& cgi);
 int BindVar(Cgi& cgi);
+int GetConfig(Cgi& cgi);
 
 int main(void)
 {
@@ -22,7 +22,11 @@ int main(void)
 	printf("\r\n");
 	printf("\r\n");
 
-	if( "setcom" == cmd )
+	if( "login" == cmd )
+	{
+		Login(cgi);
+	}
+	else if( "setcom" == cmd )
 	{
 		SetCom(cgi);
 	}
@@ -38,8 +42,17 @@ int main(void)
 	{
 		BindVar(cgi);
 	}
+	else if( "config" == cmd )
+	{
+		GetConfig(cgi);
+	}
 
+	return 0;
+}
 
+int Login(Cgi& cgi)
+{
+	printf("{\"success\":\"true\",\"session\":\"123456789\"}");
 	return 0;
 }
 
@@ -47,14 +60,16 @@ int SetCom(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	const string com = cgi["com"];
+	int cid = cgi["cid"].toint();
 	int baud = cgi["baud"].toint();
-	int parity = cgi["parity"].toint();
-	int bsize = cgi["bsize"].toint();
+	int data = cgi["data"].toint();
 	int stop = cgi["stop"].toint();
+	int parity = cgi["parity"].toint();
 
+	char buf[128];
+	snprintf(buf, sizeof(buf), "/dev/ttySX%d", 0x7F & (cid - 1));
 	mconfig.SetPacketType(TypeComConfig);
-	mconfig.GetComConfig() = ComConfig(com, baud, parity, bsize, stop);
+	mconfig.GetComConfig() = ComConfig(string(buf), baud, parity, data, stop);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -70,15 +85,16 @@ int AddVar(Cgi& cgi)
 	Service service;
 	ModbusConfig mconfig;
 
-	string com = cgi["com"];
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	int offset = cgi["offset"].toint();
-	int count = cgi["count"].toint();
-	int interval = cgi["interval"].toint();
+	int cid = cgi["cid"].toint();
+	int did = cgi["did"].toint();
+	int func = cgi["func"].toint();
+	int vid = cgi["vid"].toint();
+	int len = cgi["len"].toint();
 
+	char buf[128];
+	snprintf(buf, sizeof(buf), "/dev/ttySX%d", 0x7F & (cid - 1));
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(com, VarCmdAdd, slave, fcode, offset, count, interval);
+	mconfig.GetVarConfig() = VarConfig(buf, VarCmdAdd, did, func, vid, len, 255);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -132,5 +148,25 @@ int BindVar(Cgi& cgi)
 	}
 	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
+	return 0;
+}
+int GetConfig(Cgi& cgi)
+{
+	char buf[4096] = {0};
+	FILE *fp = fopen("com.config", "r");
+
+	if( NULL == fp )
+	{
+		return -1;
+	}
+	if( fread(buf, 1, sizeof(buf), fp) < 1 )
+	{
+		fclose(fp);
+		return -2;
+	}
+	fclose(fp);
+	buf[sizeof(buf)-1] = 0;
+	printf("%s", buf);
+
 	return 0;
 }

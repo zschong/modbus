@@ -1,0 +1,230 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>ModbusWebServer</title>
+	</head>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+	<script type="text/javascript" src="/js/axios.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<style>
+		#content-div{
+			margin: 50px auto;
+			width:500px;
+		}
+		#td-name,#td-com,#td-id,#td-value,#td-cost
+		{
+			padding:5px;
+			margin:0px;
+			border:none;
+			width:50px;
+			background-color:#fafafa;
+		}
+		#td-access{
+			border-bottom:solid 1px;
+		}
+		table,tr,th,td{
+			border: none;
+			margin: none;
+			padding: none;
+		}
+		table, tr, th{
+			color:#333333;
+			border-left:solid 1px;
+			border-bottom:solid 1px;
+			background-color:#BBC7BB;
+		}
+		button{
+			color:#111999;
+			background-color:#BBC7BB;
+		}
+		button:hover{
+			color:#DD1111;
+			cursor:pointer;
+		}
+		body{
+			text-align:center;
+		}
+	</style>
+	<body>
+		<div id="content-div">
+		<div id="setcom-div">
+			<table>
+				<tr>
+					<th>串口名</th>
+					<th>波特率</th>
+					<th>校验</th>
+					<th>字长</th>
+					<th>停止位</th>
+					<th>操作</th>
+				</tr>
+				<tr>
+					<td><input type="text" id="setcom-com" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" id="setcom-baud" name="baud" value="9600"></td>
+					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
+					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
+					<td><input type="text" id="setcom-stop" name="stop" value="1"></td>
+					<td><button onclick="setcom(this)">设置</button></td>
+				</tr>
+			</table>
+		</div>
+		<p>
+		<div id="addvar-div">
+			<table>
+				<tr>
+					<th>串口名</th>
+					<th>从地址</th>
+					<th>功能码</th>
+					<th>地址</th>
+					<th>长度</th>
+					<th>超时</th>
+					<th>操作</th>
+				</tr>
+				<tr>
+					<td><input type="text" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" name="slave" value="1"></td>
+					<td><input type="text" name="fcode" value="3"></td>
+					<td><input type="text" name="offset" value="0"></td>
+					<td><input type="text" name="count" value="1"></td>
+					<td><input type="text" name="interval" value="80"></td>
+					<td><button onclick="addvar(this)">添加</button></td>
+				</tr>
+			</table>
+		</div>
+		<div id="app">
+			<table>
+				<tr>
+					<th>变量名</th>
+					<th>串口名</th>
+					<th>变量ID</th>
+					<th>实时值</th>
+					<th>帧时长</th>
+					<th>操作</th>
+				</tr>
+				<ul>
+				<tr v-for="i in message" v-if="i.com" >
+					<td name="name"  id="td-name" >{{ i.name }}</td>
+					<td name="com"   id="td-com" >{{ i.com }}</td>
+					<td name="id"    id="td-id" >{{ i.id }}</td>
+					<td name="value" id="td-value" >{{ i.value}}</td>
+					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
+					<td name="access" id="td-access" >
+						<button onclick="delvar(this)">删除</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="status"></div>
+		</div>	
+	</body>
+	<script>
+		var app = new Vue({
+			el:"#app",
+			data:{
+				message:""
+			}
+		});
+		function setcom(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var input0 = t.eq(0).children("input");
+			var input1 = t.eq(1).children("input");
+			var input2 = t.eq(2).children("input");
+			var input3 = t.eq(3).children("input");
+			var input4 = t.eq(4).children("input");
+			var url	= "http://"
+				+ window.location.host
+				+ "/modbus_varconfig.cgi?"
+				+ input0.attr("name") + "=" + input0.val() + "&" 
+				+ input1.attr("name") + "=" + input1.val() + "&"
+				+ input2.attr("name") + "=" + input2.val() + "&"
+				+ input3.attr("name") + "=" + input3.val() + "&"
+				+ input4.attr("name") + "=" + input4.val() + "&"
+				+ "cmd=setcom"; 
+			$("#status").html('<p id="fadeout">' + url + '</p>'); 
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(8000);
+		}
+		function addvar(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var input0 = t.eq(0).children("input");
+			var input1 = t.eq(1).children("input");
+			var input2 = t.eq(2).children("input");
+			var input3 = t.eq(3).children("input");
+			var input4 = t.eq(4).children("input");
+			var input5 = t.eq(5).children("input");
+			var input6 = t.eq(6).children("input");
+			var url	= "http://"
+				+ window.location.host
+				+ "/modbus_varconfig.cgi?"
+				+ input0.attr("name") + "=" + input0.val() + "&" 
+				+ input1.attr("name") + "=" + input1.val() + "&"
+				+ input2.attr("name") + "=" + input2.val() + "&"
+				+ input3.attr("name") + "=" + input3.val() + "&"
+				+ input4.attr("name") + "=" + input4.val() + "&"
+				+ input5.attr("name") + "=" + input5.val() + "&"
+				+ input6.attr("name") + "=" + input6.val() + "&"
+				+ "cmd=addvar"; 
+			$("#status").html('<p id="fadeout">' + url + '</p>'); 
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(8000);
+		}
+		function delvar(node)
+		{
+			var t = $(node).parents("tr").children("td");
+			var url	= "http://"
+				+ window.location.host
+					+ "/modbus_varconfig.cgi"  + "?"
+					+ "com=" + t.eq(1).text() + "&"
+					+ "id=" + t.eq(2).text()  + "&"
+					+ "cmd=delvar";
+			$("#status").html('<p id="fadeout">' + url + '</p>');
+			axios.get(url)
+				.then(function(r){
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(5000);
+		}
+		function getdata()
+		{
+			axios.get("/var/allcom.json")
+				.then(function(r){
+					app.message = r.data;
+				})
+				.catch(function(e){
+					app.message = "failed to get /var/allcom.json"
+				});
+		}
+		function initconfig()
+		{
+			$("input[name='com']").css("width", "6em");
+			$("input[name='baud']").css("width", "5.4em");
+			$("input[name='parity']").css("width", "5em");
+			$("input[name='bsize']").css("width", "5em");
+			$("input[name='stop']").css("width", "5em");
+			$("input[name='com']").css("width", "6em");
+			$("input[name='slave']").css("width", "4em");
+			$("input[name='fcode']").css("width", "4em");
+			$("input[name='offset']").css("width", "4em");
+			$("input[name='count']").css("width", "4em");
+			$("input[name='interval']").css("width", "4em");
+		}
+		setInterval("getdata()", 1000);
+		initconfig();
+	</script>
+</ tml>

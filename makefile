@@ -16,6 +16,7 @@ EXE_TARGET += modbus_server.exe
 EXE_TARGET += modbus_client.exe
 EXE_TARGET += cgicc_test.cgi
 EXE_TARGET += modbus_varconfig.cgi
+EXE_TARGET += data.cgi
 
 fast_make:
 	make -f makefile all -j8 
@@ -49,6 +50,10 @@ cgicc_test.cgi: ztest/cgicc_test.cpp $(LIB_TARGET)
 	@$(STRIP) $@
 modbus_varconfig.cgi: ztest/modbus_varconfig.cpp $(LIB_TARGET)
 	@echo "$(CC) ztest/modbus_varconfig.cpp => $@"
+	@$(CC) $(CFLAGS) $+ -o $@
+	@$(STRIP) $@
+data.cgi: ztest/data.cpp $(LIB_TARGET)
+	@echo "$(CC) ztest/data.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 thislib.a:$(OBJS)
