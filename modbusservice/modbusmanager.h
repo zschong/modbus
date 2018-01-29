@@ -12,8 +12,8 @@ protected:
 public:
 	void RunLoop(void);
 	bool GetValue(list<Value>&);
+	bool SetValue(const string&, IdCount&);
 	bool GetValue(map<string, map<int,Value> >&);
-	void GetValue(void(*get)(const Value&));
 	bool SetComConfig(const ComConfig& comcfg);
 	bool SetVarConfig(const VarConfig& var);
 	bool SetVarName(const VarName& var);

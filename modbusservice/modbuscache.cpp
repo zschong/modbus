@@ -54,72 +54,31 @@ const int Value::udiff(void)const
 
 
 //ModbusCache
-bool ModbusCache::GetValue(list<Value>& vlist)
-{
-	for(map<string, map<int,Value> >::iterator A = valuemap.begin(); A != valuemap.end(); A++)
-	{
-		for(map<int,Value>::iterator B = A->second.begin(); B != A->second.end(); B++)
-		{
-			Value v = B->second;
-			v.SetId(B->first);
-			v.SetCom(A->first);
-			vlist.push_back(v);
-		}
-	}
-	return (vlist.begin() != vlist.end());
-}
 bool ModbusCache::GetValue(map<string, map<int,Value> >& vmap)
 {
 	vmap.clear();
 	vmap = valuemap;
 	return true;
 }
-void ModbusCache::GetValue(void(*getvalue)(const Value&))
-{
-	if( 0 == getvalue )
-	{
-		return;
-	}
-	for(map<string, map<int,Value> >::iterator A = valuemap.begin(); A != valuemap.end(); A++)
-	{
-		for(map<int,Value>::iterator B = A->second.begin(); B != A->second.end(); B++)
-		{
-			Value v = B->second;
-			v.SetId(B->first);
-			v.SetCom(A->first);
-			getvalue(v);
-		}
-	}
-}
-bool ModbusCache::SetName(const string& com, int id, const string& name)
+bool ModbusCache::SetName(const string& com, const string& name, IdCount& x)
 {
 	map<string,map<int,Value> >::iterator A = valuemap.find(com);
 
 	if( valuemap.end() != A )
 	{
-		map<int,Value>::iterator B = A->second.find(id);
+		map<int,Value>::iterator B = A->second.find( x.GetKey() );
 		if( A->second.end() != B )
 		{
 			B->second.SetName(name);
 			return true;
 		}
 	}
-	valuemap[com][id].SetName(name);
+	valuemap[com][ x.GetKey() ].SetName(name);
 	return false;
 }
-bool ModbusCache::SetName(const string& com, int slave, int fcode, int offset, const string& name)
+void ModbusCache::SetValue(const string& com, IdCount& x)
 {
-	int id = 0;
-	
-	id += (0x00ff & slave) << 24;
-	id += (0x00ff & fcode) << 16;
-	id += (0xffff & offset) << 0;
-
-	return SetName(com, id, name);
-}
-void ModbusCache::SetValue(const string& com, int id, int value)
-{
-	valuemap[com][id].SetValue(value);
+	valuemap[com][x.GetKey()].SetValue( x.GetValue() );
 }
 void ModbusCache::DelValue(const string& com, int id)
 {

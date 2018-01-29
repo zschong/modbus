@@ -40,10 +40,10 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 		case VarCmdGet:
 		case VarCmdSet:
 		case VarCmdAdd:
-			modbus->second.AddVarConfig(x.GetKey(), x.GetValue());
+			modbus->second.AddVarConfig(x);
 			break;
 		case VarCmdDel:
-			modbus->second.DelVarConfig(x.GetKey(), x.GetValue());
+			modbus->second.DelVarConfig(x);
 			cache.DelValue(comname, x.GetKey());
 			break;
 		default:
@@ -51,31 +51,25 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	}
 	return true;
 }
-bool ModbusManager::SetVarName(const VarName& var)
+bool ModbusManager::SetVarName(const VarName& v)
 {
-	return cache.SetName(var.GetComName(), var.GetSlave(), var.GetFcode(), var.GetOffset(), var.GetVarName());
+	IdCount x(v.GetSlave(), v.GetFcode(), v.GetOffset(), 0, 0);
+	return cache.SetName(v.GetComName(), v.GetVarName(), x);
 }
 void ModbusManager::RunLoop(void)
 {
 	for(Iterator i = modbusmap.begin(); i != modbusmap.end(); i++)
 	{
-		map<int,int> vmap;
-		if( i->second.GetValue(vmap) )
+		list<IdCount> vlist;
+		if( i->second.GetValue(vlist) )
 		{
-			for(map<int,int>::iterator v = vmap.begin(); v != vmap.end(); v++)
+			for(list<IdCount>::iterator v = vlist.begin(); v != vlist.end(); v++)
 			{
-				cache.SetValue(i->first, v->first, v->second);
+				IdCount x(v->GetKey(), v->GetValue());
+				cache.SetValue(i->first, x);
 			}
 		}
 	}
-}
-void ModbusManager::GetValue( void(*getvalue)(const Value&) )
-{
-	cache.GetValue(getvalue);
-}
-bool ModbusManager::GetValue(list<Value>& vlist)
-{
-	return cache.GetValue(vlist);
 }
 bool ModbusManager::GetValue(map<string, map<int,Value> >& vmap)
 {

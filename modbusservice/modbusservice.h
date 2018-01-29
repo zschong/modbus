@@ -1,6 +1,7 @@
 #ifndef __MODBUS_SERVICE_H__
 #define __MODBUS_SERVICE_H__
 #include <map>
+#include <list>
 #include <string>
 #include "modbus.h"
 #include "varname.h"
@@ -18,31 +19,35 @@ protected:
 	Modbus modbus;
 	string comname;
 	TimeOperator timer;
-	map<int,int> requestmap;
 	map<int,int> varconfigmap;
+	list<IdCount> requestlist;
 public:
 	ModbusService(void);
 protected:
-	bool SendX01Request(int first, int second);
-	bool SendX02Request(int first, int second);
-	bool SendX03Request(int first, int second);
-	bool SendX04Request(int first, int second);
 	bool SendRequest(void);
+	bool SendX01Request(IdCount&);
+	bool SendX02Request(IdCount&);
+	bool SendX03Request(IdCount&);
+	bool SendX04Request(IdCount&);
+	bool SendX05Request(IdCount&);
+	bool SendX06Request(IdCount&);
+	bool SendX0fRequest(IdCount&);
+	bool SendX10Request(IdCount&);
 public:
-	bool SetValue(map<int,int>& values);
+	bool SetValue(IdCount&);
+	void AddVarConfig(IdCount&);
+	void DelVarConfig(IdCount&);
 	bool SetComConfig(const ComConfig& c);
-	void AddVarConfig(int offset, int count);
-	void DelVarConfig(int offset, int count);
 public:
-	bool GetValue(map<int,int>& values);
-	bool GetX01Response(map<int,int>& values);
-	bool GetX02Response(map<int,int>& values);
-	bool GetX03Response(map<int,int>& values);
-	bool GetX04Response(map<int,int>& values);
-	bool GetX05Response(map<int,int>& values);
-	bool GetX06Response(map<int,int>& values);
-	bool GetX0fResponse(map<int,int>& values);
-	bool GetX10Response(map<int,int>& values);
+	bool GetValue(list<IdCount>&);
+	bool GetX01Response(list<IdCount>&);
+	bool GetX02Response(list<IdCount>&);
+	bool GetX03Response(list<IdCount>&);
+	bool GetX04Response(list<IdCount>&);
+	bool GetX05Response(list<IdCount>&);
+	bool GetX06Response(list<IdCount>&);
+	bool GetX0fResponse(list<IdCount>&);
+	bool GetX10Response(list<IdCount>&);
 };
 
 #endif//__MODBUS_SERVICE_H__

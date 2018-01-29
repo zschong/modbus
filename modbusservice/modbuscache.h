@@ -3,6 +3,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include "idcount.h"
 #include "timeoperator.h"
 using namespace std;
 
@@ -38,14 +39,10 @@ class ModbusCache
 protected:
 	map<string,map<int,Value> > valuemap;
 public:
-	bool GetValue(list<Value>& vlist);
-	bool GetValue(map<string, map<int,Value> >& vmap);
-	void GetValue(void(*getvalue)(const Value&));
-	bool SetName(const string& com, int id, const string& name);
-	bool SetName(const string& com, int slave, int fcode, int offset, const string& name);
-	void SetValue(const string& com, int id, int value);
-	void SetValue(const string& com, int slave, int fcode, int offset, int value); 
-	void DelValue(const string& com, int id);
+	bool SetName(const string&, const string&, IdCount&);
+	bool GetValue(map<string,map<int,Value> >&);
+	void SetValue(const string&, IdCount&);
+	void DelValue(const string&, int id);
 	void ShowValue(void);
 };
 
