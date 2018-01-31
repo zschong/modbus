@@ -67,9 +67,8 @@ int SetCom(Cgi& cgi)
 	int parity = cgi["parity"].toint();
 
 	char buf[128];
-	snprintf(buf, sizeof(buf), "/dev/ttySX%d", 0x7F & (cid - 1));
 	mconfig.SetPacketType(TypeComConfig);
-	mconfig.GetComConfig() = ComConfig(string(buf), baud, parity, data, stop);
+	mconfig.GetComConfig() = ComConfig(cid, baud, parity, data, stop);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -92,9 +91,8 @@ int AddVar(Cgi& cgi)
 	int len = cgi["len"].toint();
 
 	char buf[128];
-	snprintf(buf, sizeof(buf), "/dev/ttySX%d", 0x7F & (cid - 1));
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(buf, VarCmdAdd, did, func, vid, len, 255);
+	mconfig.GetVarConfig() = VarConfig(cid, VarCmdAdd, did, func, vid, len);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -110,12 +108,12 @@ int DelVar(Cgi& cgi)
 	Service service;
 	ModbusConfig mconfig;
 
-	string com = cgi["com"];
+	int comid = cgi["com"].toint();
 	IdCount id(cgi["id"].xtoint(), 0);
 
 	id.SetCount(1);
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(com, VarCmdDel, id);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, id);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -130,16 +128,14 @@ int BindVar(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	string com = cgi["com"];
-	string name = cgi["name"];
+	int comid = cgi["com"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
 	int offset = cgi["offset"].toint();
-	int count = cgi["count"].toint();
-	int interval = cgi["interval"].toint();
+	string name = cgi["name"];
 
 	mconfig.SetPacketType(TypeVarName);
-	mconfig.GetVarName() = VarName(com, name, slave, fcode, offset);
+	mconfig.GetVarName() = VarName(comid, slave, fcode, offset, name);
 
 	if( service.StartServer(clientpath) == false )
 	{

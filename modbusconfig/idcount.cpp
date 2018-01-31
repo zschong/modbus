@@ -2,9 +2,9 @@
 #include "idcount.h"
 
 
-void Show(map<int,int>& m)
+void IdCount::Show(map<unsigned,unsigned>& m)
 {
-	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount x(i->first, i->second);
 		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());
@@ -12,19 +12,16 @@ void Show(map<int,int>& m)
 }
 IdCount::IdCount(void):key(0),value(0)
 {
-	SetInterval(255);
 }
 IdCount::IdCount(int i, int c):key(i),value(c)
 {
-	SetInterval(255);
 }
-IdCount::IdCount(int slave, int fcode, int offset, int count, int interval):key(0),value(0)
+IdCount::IdCount(int slave, int fcode, int offset, int count):key(0),value(0)
 {
 	SetSlave(slave);
 	SetFcode(fcode);
 	SetOffset(offset);
 	SetCount(count);
-	SetInterval(interval);
 }
 void IdCount::SetKey(int i)
 {
@@ -51,13 +48,7 @@ void IdCount::SetOffset(unsigned short offset)
 }
 void IdCount::SetCount(unsigned short count)
 {
-	value =(value & ~(0xffff << 16));
-	value =(value | (count << 16));
-}
-void IdCount::SetInterval(unsigned char interval)
-{
-	value =(value & ~(0xff << 8));
-	value =(value | (interval << 8));
+	value = 0x0000ffff & count;
 }
 unsigned char IdCount::GetSlave(void)
 {
@@ -73,11 +64,7 @@ unsigned short IdCount::GetOffset(void)
 }
 unsigned short IdCount::GetCount(void)
 {
-	return 0xffff & (value >> 16);
-}
-unsigned char IdCount::GetInterval(void)
-{
-	return 0xff & (value >>  8);
+	return 0xffff & value;
 }
 int IdCount::GetKey(void)
 {
@@ -88,14 +75,14 @@ int IdCount::GetValue(void)
 	return value;
 }
 
-void IdCount::Add(map<int,int>& m, int key, int value)
+void IdCount::Add(map<unsigned,unsigned>& m, int key, int value)
 {
 	Merge(m, key, value);
 	Split(m);
 }
-void IdCount::Merge(map<int,int>& m, int key, int value)
+void IdCount::Merge(map<unsigned,unsigned>& m, int key, int value)
 {
-	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount n(key, value);
 		IdCount o(i->first, i->second);
@@ -161,17 +148,17 @@ void IdCount::Merge(map<int,int>& m, int key, int value)
 	}
 	m[key] = value;
 }
-void IdCount::Merge(map<int,int>& m)
+void IdCount::Merge(map<unsigned,unsigned>& m)
 {
-	map<int,int> tmp;
-	for(map<int,int>::iterator i = tmp.begin(); i != tmp.end(); i++)
+	map<unsigned,unsigned> tmp = m;
+	for(Iterator i = tmp.begin(); i != tmp.end(); i++)
 	{
 		Merge(m, i->first, i->second);
 	}
 }
-void IdCount::Split(map<int,int>& m)
+void IdCount::Split(map<unsigned,unsigned>& m)
 {
-	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount o(i->first, i->second);
 
@@ -183,7 +170,6 @@ void IdCount::Split(map<int,int>& m)
 				{
 					IdCount x(o.GetKey(), o.GetValue());
 					x.SetCount(CountX01);
-					x.SetInterval(255);
 					m[x.GetKey()] = x.GetValue();
 					x.SetOffset(x.GetOffset() + CountX01);
 					x.SetCount(o.GetCount() - CountX01);
@@ -198,7 +184,6 @@ void IdCount::Split(map<int,int>& m)
 				{
 					IdCount x(o.GetKey(), o.GetValue());
 					x.SetCount(CountX03);
-					x.SetInterval(255);
 					m[x.GetKey()] = x.GetValue();
 					x.SetOffset(x.GetOffset() + CountX03);
 					x.SetCount(o.GetCount() - CountX03);
@@ -210,7 +195,7 @@ void IdCount::Split(map<int,int>& m)
 		}
 	}
 }
-void IdCount::Del(map<int,int>& m, int key, int value)
+void IdCount::Del(map<unsigned,unsigned>& m, int key, int value)
 {
 	Delx(m, key, value);
 	if( m.empty() == false )
@@ -219,9 +204,9 @@ void IdCount::Del(map<int,int>& m, int key, int value)
 		Split(m);
 	}
 }
-void IdCount::Delx(map<int,int>& m, int key, int value)
+void IdCount::Delx(map<unsigned,unsigned>& m, int key, int value)
 {
-	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount n(key, value);
 		IdCount o(i->first, i->second);
@@ -370,7 +355,7 @@ string IdCount::RangeToString(int range)
 #if 0
 int main(void)
 {
-	map<int,int> m;
+	map<unsigned,unsigned> m;
 	IdCount a(1, 3, 0, 10, 100);
 	IdCount b(1, 3, 20, 3, 100);
 	IdCount c(1, 3, 0, 200, 100);
@@ -384,7 +369,7 @@ int main(void)
 	//IdCount().Add(m, b.GetKey(), b.GetValue());
 
 
-	for(map<int,int>::iterator i = m.begin(); i != m.end(); i++)
+	for(map<unsigned,unsigned>::iterator i = m.begin(); i != m.end(); i++)
 	{
 		IdCount x(i->first, i->second);
 		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());

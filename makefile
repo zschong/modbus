@@ -1,6 +1,6 @@
 ARCH := 
-ARCH := arm-linux-
 ARCH := powerpc-e300c3-linux-gnu-
+ARCH := arm-linux-
 CC := $(ARCH)g++
 AR := $(ARCH)ar
 ARFLAG := -rc
@@ -23,7 +23,7 @@ fast_make:
 
 all: $(EXE_TARGET)
 	@echo -n "\033[33;4m"
-	@echo "strip  {$+}"
+	@echo "$(STRIP) {$+}"
 	@echo -n "\33[0m\033[32m"
 	@ls -1sh $+ $(LIB_TARGET)
 	@echo -n "\033[0m"

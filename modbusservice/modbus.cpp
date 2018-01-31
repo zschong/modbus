@@ -163,42 +163,82 @@ uint8_t Modbus::RecvResponse(void)
 	}
 	if( x01response.CheckResponse() == 1 )
 	{
-		x01response.Show();
+		if( ctx.GetX01Request().GetSlave() != x01response.GetSlave() )
+		{
+			x02response.Init();
+			return 0;
+		}
+		//x01response.Show();
 		return 0x01;
 	}
 	if( x02response.CheckResponse() == 1 )
 	{
-		x02response.Show();
+		if( ctx.GetX02Request().GetSlave() != x02response.GetSlave() )
+		{
+			x02response.Init();
+			return 0;
+		}
+		//x02response.Show();
 		return 0x02;
 	}
 	if( x03response.CheckResponse() == 1 )
 	{
-		x03response.Show();
+		if( ctx.GetX03Request().GetSlave() != x03response.GetSlave() )
+		{
+			x03response.Init();
+			return 0;
+		}
+		//x03response.Show();
 		return 0x03;
 	}
 	if( x04response.CheckResponse() == 1 )
 	{
-		x04response.Show();
+		if( ctx.GetX04Request().GetSlave() != x04response.GetSlave() )
+		{
+			x04response.Init();
+			return 0;
+		}
+		//x04response.Show();
 		return 0x04;
 	}
 	if( x05response.CheckResponse() == 1 )
 	{
-		x05response.Show();
+		if( ctx.GetX05Request().GetSlave() != x05response.GetSlave() )
+		{
+			x05response.Init();
+			return 0;
+		}
+		//x05response.Show();
 		return 0x05;
 	}
 	if( x06response.CheckResponse() == 1 )
 	{
-		x06response.Show();
+		if( ctx.GetX06Request().GetSlave() != x06response.GetSlave() )
+		{
+			x06response.Init();
+			return 0;
+		}
+		//x06response.Show();
 		return 0x06;
 	}
 	if( x0fresponse.CheckResponse() == 1 )
 	{
-		x0fresponse.Show();
+		if( ctx.GetX0fRequest().GetSlave() != x0fresponse.GetSlave() )
+		{
+			x0fresponse.Init();
+			return 0;
+		}
+		//x0fresponse.Show();
 		return 0x0f;
 	}
 	if( x10response.CheckResponse() == 1 )
 	{
-		x10response.Show();
+		if( ctx.GetX10Request().GetSlave() != x10response.GetSlave() )
+		{
+			x10response.Init();
+			return 0;
+		}
+		//x10response.Show();
 		return 0x10;
 	}
 	return 0;
@@ -234,7 +274,10 @@ bool Modbus::RecvResponse(Mcontext& context)
 bool Modbus::SendRequest(Mcontext& context)
 {
 	ctx = context;
-	context.Show();
+	//context.Show();
+	InitResponse();
+	printf("Send(%d)\n", t.mdiff());
+	t.init();
 	return (com.Send(ctx.GetData(), ctx.GetLength()) == ctx.GetLength());
 }
 bool Modbus::SendResponse(Mcontext& context)

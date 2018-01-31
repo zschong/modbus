@@ -58,7 +58,7 @@
 					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" id="setcom-com" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" id="setcom-com" name="com" value="/dev/ttyS1"></td>
 					<td><input type="text" id="setcom-baud" name="baud" value="9600"></td>
 					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
 					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
@@ -80,7 +80,7 @@
 					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" name="com" value="/dev/ttySX0"></td>
+					<td><input type="text" name="com" value="/dev/ttyS1"></td>
 					<td><input type="text" name="slave" value="1"></td>
 					<td><input type="text" name="fcode" value="3"></td>
 					<td><input type="text" name="offset" value="0"></td>
@@ -101,10 +101,10 @@
 					<th>操作</th>
 				</tr>
 				<ul>
-				<tr v-for="i in message" v-if="i.com" >
-					<td name="name"  id="td-name" >{{ i.name }}</td>
-					<td name="com"   id="td-com" >{{ i.com }}</td>
-					<td name="id"    id="td-id" >{{ i.id }}</td>
+				<tr v-for="i in message" v-if="i.comid" >
+					<td name="name"  id="td-name" >{{ i.varname }}</td>
+					<td name="com"   id="td-com" >{{ i.comid }}</td>
+					<td name="id"    id="td-id" >{{ i.varid }}</td>
 					<td name="value" id="td-value" >{{ i.value}}</td>
 					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
 					<td name="access" id="td-access" >
@@ -202,7 +202,7 @@
 		}
 		function getdata()
 		{
-			axios.get("/var/allcom.json")
+			axios.get("/var/allcom.json?id=" + Date.now())
 				.then(function(r){
 					app.message = r.data;
 				})

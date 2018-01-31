@@ -9,16 +9,18 @@ using namespace std;
 class ValueFile
 {
 protected:
-	map<string,string> sscom;
+	string filename;
+	typedef map<unsigned,ModbusValue>::iterator VIterator;
+	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator CVIterator;
 public:
 	ValueFile(void);
-	ValueFile(map<string, map<int,Value> >&);
+	ValueFile(const string&, map<unsigned, map<unsigned,ModbusValue> >&);
 public:
-	void SetComMap(const string&, const string&);
-	void MakeFile(map<string, map<int,Value> >&);
-	void MakeSlaveFile(const string& f, list<Value>&);
-	void MakeComFile(const string& f, map<int,Value>&);
-	void MakeAllComFile(const string& f, map<string,list<Value> >&);
+	void SetFileName(const string& filename);
+	void MakeFile(map<unsigned, map<unsigned,ModbusValue> >&);
+	void MakeAllComFile(map<unsigned,map<unsigned,ModbusValue> >&);
+	void MakeSlaveFile(unsigned, unsigned, list<ModbusValue>&);
+	void MakeComFile(unsigned, map<unsigned,ModbusValue>&);
 };
 
 #endif//__VALUE_FILE_H__

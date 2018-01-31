@@ -6,12 +6,12 @@
 #include "modbusmanager.h"
 
 
-void ShowValue(const Value& value)
+void ShowValue(const ModbusValue& value)
 {
-	printf("[%s][%s][%08X][%04X][%-4d][t=%d]\n", 
-			value.GetName().data(),
-			value.GetCom().data(), 
-			value.GetId(), 
+	printf("[%s][%d][%08X][%04X][%-4d][t=%d]\n", 
+			value.GetVarName().data(),
+			value.GetComId(), 
+			value.GetVarId(), 
 			value.GetValue(),
 			value.GetValue(),
 			value.mdiff());
@@ -31,33 +31,42 @@ int main(void)
 		printf("StartServer(%s) failed\n", server_path.data());
 		return -1;
 	}
-	valuefile.SetComMap("/dev/ttySX", "COM");
+	manager.SetComId("/dev/ttyS0", 0);
+	manager.SetComId("/dev/ttyS1", 1);
+	manager.SetComId("/dev/ttyS2", 2);
+	manager.SetComId("/dev/ttyS3", 3);
+	manager.SetComId("/dev/ttyS4", 4);
+	manager.SetComId("/dev/ttyS5", 5);
+	manager.SetComId("/dev/ttyS6", 6);
+	manager.SetComId("/dev/ttyS7", 7);
+	manager.SetComId("/dev/ttyS8", 8);
+	valuefile.SetFileName("var/allcom.json");
                                                                               
 	while(1)
 	{
 		if( service.RecvPacket() )
 		{
-			ModbusConfig &p = *(ModbusConfig*)service.GetData();
-			switch(p.GetPacketType())
+			ModbusConfig &packet = *(ModbusConfig*)service.GetData();
+			switch( packet.GetPacketType() )
 			{
 				case TypeVarName:
-					p.GetVarName().Show();
-					manager.SetVarName( p.GetVarName() );
+					packet.GetVarName().Show();
+					manager.SetVarName( packet.GetVarName() );
 					break;
 				case TypeVarConfig:
-					p.GetVarConfig().Show();
-					manager.SetVarConfig( p.GetVarConfig() );
+					packet.GetVarConfig().Show();
+					manager.SetVarConfig( packet.GetVarConfig() );
 					break;
 				case TypeComConfig:
-					p.GetComConfig().Show();
-					manager.SetComConfig( p.GetComConfig() );
+					packet.GetComConfig().Show();
+					manager.SetComConfig( packet.GetComConfig() );
 					break;
 			}
 		}
 		manager.RunLoop();
 		if( ftimer.mdiff() > 1017 )
 		{
-			map<string,map<int,Value> > mmv;
+			map<unsigned,map<unsigned,ModbusValue> > mmv;
 			manager.GetValue(mmv);
 			valuefile.MakeFile(mmv);
 			ftimer.init();

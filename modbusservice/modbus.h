@@ -3,6 +3,7 @@
 #include <string>
 #include "comport.h"
 #include "mcontext.h"
+#include "timeoperator.h"
 using namespace std;
 
 class Modbus
@@ -10,6 +11,7 @@ class Modbus
 protected:
 	ComPort com;
 	Mcontext ctx;
+	TimeOperator t;
 
 public:
 	X01Request x01request;

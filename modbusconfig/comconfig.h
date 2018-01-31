@@ -8,29 +8,28 @@ class ComConfig
 {
 	typedef enum
 	{
-		IndexComNameA  = 0,
-		IndexComNameZ  = 120,
-		IndexBaudRate0 = 121,
-		IndexBaudRate1 = 122,
-		IndexBaudRate2 = 123,
-		IndexBaudRate3 = 124,
-		IndexParity    = 125,
-		IndexByteSize  = 126,
-		IndexStopBit   = 127 
+		IndexComId     = 0,
+		IndexBaudRate0 = 1,
+		IndexBaudRate1 = 2,
+		IndexBaudRate2 = 3,
+		IndexBaudRate3 = 4,
+		IndexParity    = 5,
+		IndexByteSize  = 6,
+		IndexStopBit   = 7,
 	}IndexTypeDefine;
 protected:
-	unsigned char buffer[128];
+	unsigned char buffer[8];
 public:
 	ComConfig(void);
-	ComConfig(const string& com, int baud, int parity, int bsize, int stop);
+	ComConfig(int comid, int baud, int parity, int bsize, int stop);
 public:
-	const string GetComName(void)const;
+	const int GetComId(void)const;
 	const int GetBaudRate(void)const;
 	const int GetParity(void)const;
 	const int GetByteSize(void)const;
 	const int GetStopBit(void)const;
 public:
-	void SetComName(const string& comname);
+	void SetComId(const int comid);
 	void SetBaudRate(const int baud);
 	void SetParity(const int parity);
 	void SetByteSize(const int bsize);

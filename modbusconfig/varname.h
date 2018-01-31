@@ -8,35 +8,33 @@ class VarName
 {
 	typedef enum
 	{
-		IndexComNameA = 0,
-		IndexComNameZ = 120,
-		IndexVarNameA = 121,
-		IndexVarNameZ = 240,
-		IndexSlave    = 241,
-		IndexFcode    = 242,
-		IndexOffset0  = 243,
-		IndexOffset1  = 244,
+		IndexComId    = 0,
+		IndexSlave    = 1,
+		IndexFcode    = 2,
+		IndexOffset0  = 3,
+		IndexOffset1  = 4,
+		IndexVarNameA = 5,
+		IndexVarNameZ = (IndexVarNameA + 128)
 	}IndexTypeDefine;
 protected:
-	unsigned char buffer[250];
+	unsigned char buffer[IndexVarNameZ];
 
 public:
 	VarName(void);
-	VarName(const string& varname, const string& comname, int slave, int fcode, int offset);
+	VarName(int comid, int slave, int fcode, int offset, const string& name);
 public:
-	const string GetComName(void)const;
-	const string GetVarName(void)const;
+	const int GetComId(void)const;
 	const int GetCommand(void)const;
 	const int GetSlave(void)const;
 	const int GetFcode(void)const;
 	const int GetOffset(void)const;
+	const string GetVarName(void)const;
 public:
-	void SetComName(const string& comname);
-	void SetVarName(const string& varname);
+	void SetComId(const int comid);
 	void SetSlave(const int slave);
 	void SetFcode(const int fcode);
 	void SetOffset(const int offset);
-	void SetCount(const int count);
+	void SetVarName(const string& varname);
 public:
 	VarName& operator=(const VarName& var);
 public:

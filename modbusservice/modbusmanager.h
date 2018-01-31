@@ -7,16 +7,23 @@ class ModbusManager
 {
 protected:
 	ModbusCache cache;
-	map<string,ModbusService> modbusmap;
-	typedef map<string,ModbusService>::iterator Iterator;
+	map<string,unsigned> comidmap;
+	map<unsigned,string> idcommap;
+	map<unsigned,ModbusService> modbusmap;
+	typedef map<string,unsigned>::iterator CIiterator;
+	typedef map<unsigned,string>::iterator ICiterator;
+	typedef map<unsigned,ModbusService>::iterator Iterator;
 public:
 	void RunLoop(void);
-	bool GetValue(list<Value>&);
+	void SetComId(const string&, unsigned);
 	bool SetValue(const string&, IdCount&);
-	bool GetValue(map<string, map<int,Value> >&);
 	bool SetComConfig(const ComConfig& comcfg);
 	bool SetVarConfig(const VarConfig& var);
 	bool SetVarName(const VarName& var);
+public:
+	bool GetComConfig(map<unsigned,ComConfig>&);
+	bool GetVarConfig(map<unsigned,map<unsigned,unsigned> >&);
+	bool GetValue(map<unsigned, map<unsigned,ModbusValue> >&);
 };
 
 #endif//__MODBUS_MANAGER_H__

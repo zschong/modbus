@@ -18,9 +18,11 @@ protected:
 	int timeout;
 	Modbus modbus;
 	string comname;
+	ComConfig comconfig;
 	TimeOperator timer;
-	map<int,int> varconfigmap;
 	list<IdCount> requestlist;
+	map<unsigned,unsigned> varconfigmap;
+	typedef map<unsigned,unsigned>::iterator Iterator;
 public:
 	ModbusService(void);
 protected:
@@ -37,7 +39,10 @@ public:
 	bool SetValue(IdCount&);
 	void AddVarConfig(IdCount&);
 	void DelVarConfig(IdCount&);
-	bool SetComConfig(const ComConfig& c);
+	bool SetComConfig(const string&, const ComConfig&);
+public:
+	const ComConfig& GetComConfig(void);
+	const map<unsigned,unsigned>& GetVarConfig(void);
 public:
 	bool GetValue(list<IdCount>&);
 	bool GetX01Response(list<IdCount>&);

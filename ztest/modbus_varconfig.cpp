@@ -60,14 +60,14 @@ int SetCom(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	const string com = cgi["com"];
+	int comid = cgi["com"].toint();
 	int baud = cgi["baud"].toint();
 	int parity = cgi["parity"].toint();
 	int bsize = cgi["bsize"].toint();
 	int stop = cgi["stop"].toint();
 
 	mconfig.SetPacketType(TypeComConfig);
-	mconfig.GetComConfig() = ComConfig(com, baud, parity, bsize, stop);
+	mconfig.GetComConfig() = ComConfig(comid, baud, parity, bsize, stop);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -83,16 +83,14 @@ int AddVar(Cgi& cgi)
 	Service service;
 	ModbusConfig mconfig;
 
-	string com = cgi["com"];
-	string name = cgi["name"];
+	int comid = cgi["com"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
 	int offset = cgi["offset"].toint();
 	int count = cgi["count"].toint();
-	int interval = cgi["interval"].toint();
 
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(com, VarCmdAdd, slave, fcode, offset, count, interval);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdAdd, slave, fcode, offset, count);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -108,12 +106,11 @@ int DelVar(Cgi& cgi)
 	Service service;
 	ModbusConfig mconfig;
 
-	string com = cgi["com"];
-	IdCount id(cgi["id"].xtoint(), 0);
+	int comid = cgi["com"].toint();
+	IdCount id(cgi["id"].xtoint(), 1);
 
-	id.SetCount(1);
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(com, VarCmdDel, id);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, id);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -128,16 +125,14 @@ int BindVar(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	string com = cgi["com"];
-	string name = cgi["name"];
+	int comid = cgi["com"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
 	int offset = cgi["offset"].toint();
-	int count = cgi["count"].toint();
-	int interval = cgi["interval"].toint();
+	string name = cgi["name"];
 
 	mconfig.SetPacketType(TypeVarName);
-	mconfig.GetVarName() = VarName(com, name, slave, fcode, offset);
+	mconfig.GetVarName() = VarName(comid, slave, fcode, offset, name);
 
 	if( service.StartServer(clientpath) == false )
 	{

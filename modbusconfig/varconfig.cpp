@@ -5,29 +5,27 @@ VarConfig::VarConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-VarConfig::VarConfig(const string& comname, int cmd, IdCount &id)
+VarConfig::VarConfig(int comid, int cmd, IdCount &id)
 {
+	SetComId(comid);
 	SetCommand(cmd);
-	SetComName(comname);
 	SetSlave(id.GetSlave());
 	SetFcode(id.GetFcode());
 	SetOffset(id.GetOffset());
 	SetValue(id.GetCount());
-	SetInterval(id.GetInterval());
 }
-VarConfig::VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value, int interval)
+VarConfig::VarConfig(int comid, int cmd, int slave, int fcode, int offset, int value)
 {
-	SetComName(comname);
+	SetComId(comid);
 	SetCommand(cmd);
 	SetSlave(slave);
 	SetFcode(fcode);
 	SetOffset(offset);
 	SetValue(value);
-	SetInterval(interval);
 }
-const string VarConfig::GetComName(void)const
+const int VarConfig::GetComId(void)const
 {
-	return (char*)buffer;
+	return (int)buffer[ IndexComId ];
 }
 const int VarConfig::GetCommand(void)const
 {
@@ -68,17 +66,10 @@ const int VarConfig::GetValue(void)const
 
 	return value;
 }
-const int VarConfig::GetInterval(void)const
-{
-	return (int)buffer[ IndexInterval ];
-}
 
-void VarConfig::SetComName(const string& comname)
+void VarConfig::SetComId(const int comid)
 {
-	if( comname.empty() == false )
-	{
-		snprintf((char*)buffer, IndexComNameZ, "%s", comname.data());
-	}
+	buffer[ IndexComId ] = 0xff & comid;
 }
 void VarConfig::SetCommand(const int cmd)
 {
@@ -107,10 +98,6 @@ void VarConfig::SetValue(const int value)
 	buffer[ IndexValue0 ] = 0xff & (value >> 8);
 	buffer[ IndexValue1 ] = 0xff & (value >> 0);
 }
-void VarConfig::SetInterval(const int interval)
-{
-	buffer[ IndexInterval ] = 0xff & (interval >> 0);
-}
 VarConfig& VarConfig::operator=(const VarConfig& var)
 {
 	memcpy(buffer, var.buffer, sizeof(var.buffer));
@@ -119,11 +106,10 @@ VarConfig& VarConfig::operator=(const VarConfig& var)
 void VarConfig::Show(void)
 {
 	printf("VarConfig");
-	printf(".com(%s)", GetComName().data());
+	printf(".comid(%d)", GetComId());
 	printf(".cmd(%d)", GetCommand());
 	printf(".slave(%d)", GetSlave());
 	printf(".fcode(%d)", GetFcode());
 	printf(".offset(%d)", GetOffset());
-	printf(".count(%d)", GetCount());
-	printf(".interval(%d)\n", GetInterval());
+	printf(".count(%d)\n", GetCount());
 }

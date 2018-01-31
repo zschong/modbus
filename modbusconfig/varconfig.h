@@ -17,42 +17,38 @@ class VarConfig
 {
 	typedef enum
 	{
-		IndexComNameA = 0,
-		IndexComNameZ = 110,
-		IndexCommand  = 111,
-		IndexSlave    = 112,
-		IndexFcode    = 113,
-		IndexOffset0  = 114,
-		IndexOffset1  = 115,
-		IndexValue0   = 116,
-		IndexValue1   = 117,
-		IndexInterval = 118,
+		IndexComId    = 0,
+		IndexCommand  = 1,
+		IndexSlave    = 2,
+		IndexFcode    = 3,
+		IndexOffset0  = 4,
+		IndexOffset1  = 5,
+		IndexValue0   = 6,
+		IndexValue1   = 7
 	}IndexTypeDefine;
 protected:
-	unsigned char buffer[128];
+	unsigned char buffer[8];
 
 public:
 	VarConfig(void);
-	VarConfig(const string& comname, int cmd, IdCount& id);
-	VarConfig(const string& comname, int cmd, int slave, int fcode, int offset, int value, int interval);
+	VarConfig(int comid, int cmd, IdCount& idcout);
+	VarConfig(int comid, int cmd, int slave, int fcode, int offset, int value);
 public:
-	const string GetComName(void)const;
+	const int GetComId(void)const;
 	const int GetCommand(void)const;
 	const int GetSlave(void)const;
 	const int GetFcode(void)const;
 	const int GetOffset(void)const;
 	const int GetCount(void)const;
 	const int GetValue(void)const;
-	const int GetInterval(void)const;
 public:
-	void SetComName(const string& comname);
+	void SetComId(const int comid);
 	void SetCommand(const int cmd);
 	void SetSlave(const int slave);
 	void SetFcode(const int fcode);
 	void SetOffset(const int offset);
 	void SetCount(const int count);
 	void SetValue(const int value);
-	void SetInterval(const int interval);
 public:
 	VarConfig& operator=(const VarConfig& var);
 public:

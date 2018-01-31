@@ -6,23 +6,33 @@ ModbusService::ModbusService(void)
 {
 	timeout = 0;
 }
-bool ModbusService::SetComConfig(const ComConfig& c)
+bool ModbusService::SetComConfig(const string& com, const ComConfig& comcfg)
 {
-	return modbus.Init(c.GetComName(), 
-					   c.GetBaudRate(),
-					   c.GetParity(),
-					   c.GetByteSize(),
-					   c.GetStopBit());
+	int baud = comcfg.GetBaudRate();
+	int parity = comcfg.GetParity();
+	int bsize = comcfg.GetByteSize();
+	int stop = comcfg.GetStopBit();
+
+	comconfig = comcfg;
+	return modbus.Init(com, baud, parity, bsize, stop);
 }
 void ModbusService::AddVarConfig(IdCount& x)
 {
 	x.Add(varconfigmap, x.GetKey(), x.GetValue());
 }
+const ComConfig& ModbusService::GetComConfig(void)
+{
+	return comconfig;
+}
+const map<unsigned,unsigned>& ModbusService::GetVarConfig(void)
+{
+	return varconfigmap;
+}
 bool ModbusService::SendRequest(void)
 {
 	if( requestlist.begin() == requestlist.end() )
 	{
-		for(map<int,int>::iterator i = varconfigmap.begin(); i != varconfigmap.end(); i++)
+		for(Iterator i = varconfigmap.begin(); i != varconfigmap.end(); i++)
 		{
 			requestlist.push_back(IdCount(i->first, i->second));
 		}
@@ -31,6 +41,7 @@ bool ModbusService::SendRequest(void)
 	{
 		return false;
 	}
+	timer.init();
 	IdCount &x = requestlist.front();
 	switch( x.GetFcode() )
 	{
@@ -59,8 +70,7 @@ bool ModbusService::SendRequest(void)
 			SendX10Request(x);
 			break;
 	}
-	timer.init();
-	timeout = (uint8_t)x.GetInterval();
+	timeout = 1250;
 	requestlist.pop_front();
 	return true;
 }
@@ -236,7 +246,7 @@ bool ModbusService::GetX03Response(list<IdCount>& idlist)
 	for(int i = 0; i < count; i++)
 	{
 		uint16_t data = modbus.x03response.GetData(i + 1);
-		idlist.push_back(IdCount(slave, fcode, (offset + i), data, 0));
+		idlist.push_back(IdCount(slave, fcode, (offset + i), data));
 	}
 
 	return (idlist.begin() != idlist.end());
@@ -253,7 +263,7 @@ bool ModbusService::GetX04Response(list<IdCount>& idlist)
 	for(int i = 0; i < count; i++)
 	{
 		uint16_t data = modbus.x04response.GetData(i + 1);
-		idlist.push_back(IdCount(slave, fcode, (offset + i), data, 0));
+		idlist.push_back(IdCount(slave, fcode, (offset + i), data));
 	}
 
 	return (idlist.begin() != idlist.end());

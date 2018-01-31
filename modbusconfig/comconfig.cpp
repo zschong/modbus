@@ -6,17 +6,17 @@ ComConfig::ComConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-ComConfig::ComConfig(const string& com, int baud, int parity, int bsize, int stop)
+ComConfig::ComConfig(int comid, int baud, int parity, int bsize, int stop)
 {
-	SetComName(com);
+	SetComId(comid);
 	SetBaudRate(baud);
 	SetParity(parity);
 	SetByteSize(bsize);
 	SetStopBit(stop);
 }
-const string ComConfig::GetComName(void)const
+const int ComConfig::GetComId(void)const
 {
-	return (char*)buffer;
+	return (int)buffer[ IndexComId ];
 }
 const int ComConfig::GetBaudRate(void)const
 {
@@ -41,12 +41,9 @@ const int ComConfig::GetStopBit(void)const
 {
 	return (int)(buffer[ IndexStopBit ]);
 }
-void ComConfig::SetComName(const string& comname)
+void ComConfig::SetComId(const int comid)
 {
-	if( comname.empty() == false )
-	{
-		snprintf((char*)buffer, IndexComNameZ, "%s", comname.data());
-	}
+	buffer[ IndexComId ] = 0xff & comid;
 }
 void ComConfig::SetBaudRate(const int baud)
 {
@@ -75,7 +72,7 @@ ComConfig& ComConfig::operator=(const ComConfig& com)
 void ComConfig::Show(void)
 {
 	printf("ComConfig");
-	printf(".com(%s)", GetComName().data());
+	printf(".comid(%d)", GetComId());
 	printf(".baud(%d)", GetBaudRate());
 	printf(".parity(%d)", GetParity());
 	printf(".bsize(%d)", GetByteSize());

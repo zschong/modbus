@@ -11,17 +11,17 @@ int main(void)
 	string client_path = ".modbus.client";
 	string server_path = ".modbus.service";
 
-	ComConfig comconfig("/dev/ttySX0", 9600, 0, 8, 1);
-	VarConfig varconfig("/dev/ttySX0", VarCmdAdd, 1, 3, 0, 9, 80);
-	VarName varname1("/dev/ttySX0", "1IN1", 0x01, 0x03, 0x0000);
-	VarName varname2("/dev/ttySX0", "1IN2", 0x01, 0x03, 0x0001);
-	VarName varname3("/dev/ttySX0", "1IN3", 0x01, 0x03, 0x0002);
-	VarName varname4("/dev/ttySX0", "1IN4", 0x01, 0x03, 0x0003);
-	VarName varname5("/dev/ttySX0", "1IN5", 0x01, 0x03, 0x0004);
-	VarName varname6("/dev/ttySX0", "1IN6", 0x01, 0x03, 0x0005);
-	VarName varname7("/dev/ttySX0", "1IN7", 0x01, 0x03, 0x0006);
-	VarName varname8("/dev/ttySX0", "1IN8", 0x01, 0x03, 0x0007);
-	VarName varname9("/dev/ttySX0", "1IN9", 0x01, 0x03, 0x0008);
+	ComConfig comconfig(1, 9600, 0, 8, 1);
+	VarConfig varconfig(1, VarCmdAdd, 1, 3, 0, 9);
+	VarName varname1(1, 0x01, 0x03, 0x0000, "1IN1");
+	VarName varname2(1, 0x01, 0x03, 0x0001, "1IN2");
+	VarName varname3(1, 0x01, 0x03, 0x0002, "1IN3");
+	VarName varname4(1, 0x01, 0x03, 0x0003, "1IN4");
+	VarName varname5(1, 0x01, 0x03, 0x0004, "1IN5");
+	VarName varname6(1, 0x01, 0x03, 0x0005, "1IN6");
+	VarName varname7(1, 0x01, 0x03, 0x0006, "1IN7");
+	VarName varname8(1, 0x01, 0x03, 0x0007, "1IN8");
+	VarName varname9(1, 0x01, 0x03, 0x0008, "1IN9");
                                                                               
 	if( client.StartServer(client_path) == false )
 	{
