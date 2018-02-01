@@ -80,7 +80,7 @@
 					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" name="com" value="/dev/ttyS1"></td>
+					<td><input type="text" name="com" value="1"></td>
 					<td><input type="text" name="slave" value="1"></td>
 					<td><input type="text" name="fcode" value="3"></td>
 					<td><input type="text" name="offset" value="0"></td>
@@ -102,7 +102,7 @@
 				</tr>
 				<ul>
 				<tr v-for="i in message" v-if="i.comid" >
-					<td name="name"  id="td-name" >{{ i.varname }}</td>
+					<td name="name"  id="td-name" onclick="clickvarname(this)">{{ i.varname }}</td>
 					<td name="com"   id="td-com" >{{ i.comid }}</td>
 					<td name="id"    id="td-id" >{{ i.varid }}</td>
 					<td name="value" id="td-value" >{{ i.value}}</td>
@@ -204,11 +204,17 @@
 		{
 			axios.get("/var/allcom.json?id=" + Date.now())
 				.then(function(r){
-					app.message = r.data;
+					if( r.data.length > 2 )
+					{
+						app.message = r.data;
+					}
 				})
 				.catch(function(e){
-					app.message = "failed to get /var/allcom.json"
 				});
+		}
+		function clickvarname(node)
+		{
+			$(node).html();
 		}
 		function initconfig()
 		{

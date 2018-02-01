@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "mcontext.h"
 
 Mcontext::Mcontext(void)
@@ -67,6 +68,12 @@ void Mcontext::SetMaster(uint8_t master)
 void Mcontext::SetServiceFcode(uint8_t sfcode)
 {
 	MBContextSetServiceFcode(&context, sfcode);
+}
+Mcontext& Mcontext::operator=(const Mcontext& m)
+{
+	memcpy(&context, &m.context, sizeof(context));
+	context.index = ((Mcontext*)&m)->GetLength();
+	return *this;
 }
 
 //GetRequest
@@ -707,7 +714,7 @@ void X10Request::SetCount(uint16_t count)
 }
 void X10Request::SetBcount(uint8_t bcount)
 {
-	X10RequestSetCount((X10RequestContext*)&context, bcount);
+	X10RequestSetBcount((X10RequestContext*)&context, bcount);
 }
 void X10Request::SetData(uint8_t i, uint16_t data)
 {

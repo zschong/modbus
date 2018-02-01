@@ -44,7 +44,10 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	switch( cmd )
 	{
 		case VarCmdGet:
+			break;
 		case VarCmdSet:
+			modbus->second.SetValue(x);
+			break;
 		case VarCmdAdd:
 			modbus->second.AddVarConfig(x);
 			break;

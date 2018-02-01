@@ -63,6 +63,8 @@ public:
 	X06Response& GetX06Response(void);
 	X0fResponse& GetX0fResponse(void);
 	X10Response& GetX10Response(void);
+public:
+	Mcontext& operator=(const Mcontext&);
 };
 
 class X01Request: public Mcontext

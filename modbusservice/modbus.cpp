@@ -208,7 +208,7 @@ uint8_t Modbus::RecvResponse(void)
 			x05response.Init();
 			return 0;
 		}
-		//x05response.Show();
+		x05response.Show();
 		return 0x05;
 	}
 	if( x06response.CheckResponse() == 1 )
@@ -218,7 +218,7 @@ uint8_t Modbus::RecvResponse(void)
 			x06response.Init();
 			return 0;
 		}
-		//x06response.Show();
+		x06response.Show();
 		return 0x06;
 	}
 	if( x0fresponse.CheckResponse() == 1 )
@@ -228,7 +228,7 @@ uint8_t Modbus::RecvResponse(void)
 			x0fresponse.Init();
 			return 0;
 		}
-		//x0fresponse.Show();
+		x0fresponse.Show();
 		return 0x0f;
 	}
 	if( x10response.CheckResponse() == 1 )
@@ -238,7 +238,7 @@ uint8_t Modbus::RecvResponse(void)
 			x10response.Init();
 			return 0;
 		}
-		//x10response.Show();
+		x10response.Show();
 		return 0x10;
 	}
 	return 0;
@@ -274,9 +274,8 @@ bool Modbus::RecvResponse(Mcontext& context)
 bool Modbus::SendRequest(Mcontext& context)
 {
 	ctx = context;
-	//context.Show();
+	context.Show();
 	InitResponse();
-	printf("Send(%d)\n", t.mdiff());
 	t.init();
 	return (com.Send(ctx.GetData(), ctx.GetLength()) == ctx.GetLength());
 }

@@ -6,12 +6,14 @@
 string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
 
-int Login(Cgi& cgi);
-int SetCom(Cgi& cgi);
-int AddVar(Cgi& cgi);
-int DelVar(Cgi& cgi);
-int BindVar(Cgi& cgi);
-int GetConfig(Cgi& cgi);
+int login(Cgi& cgi);
+int setcom(Cgi& cgi);
+int addvar(Cgi& cgi);
+int setvar(Cgi& cgi);
+int delvar(Cgi& cgi);
+int getvar(Cgi& cgi);
+int namevar(Cgi& cgi);
+int getconfig(Cgi& cgi);
 
 int main(void)
 {
@@ -20,55 +22,61 @@ int main(void)
 
 	printf("Content-Type:text/json\r\n");
 	printf("\r\n");
-	printf("\r\n");
+	//printf("\r\n");
 
-	if( "login" == cmd )
+	if( "getvar" == cmd )
 	{
-		Login(cgi);
+		getvar(cgi);
+	}
+	else if( "login" == cmd )
+	{
+		login(cgi);
 	}
 	else if( "setcom" == cmd )
 	{
-		SetCom(cgi);
+		setcom(cgi);
 	}
 	else if( "addvar" == cmd )
 	{
-		AddVar(cgi);
+		addvar(cgi);
+	}
+	else if( "setvar" == cmd )
+	{
+		setvar(cgi);
 	}
 	else if( "delvar" == cmd )
 	{
-		DelVar(cgi);
+		delvar(cgi);
 	}
-	else if( "bindvar" == cmd )
+	else if( "namevar" == cmd )
 	{
-		BindVar(cgi);
+		namevar(cgi);
 	}
 	else if( "config" == cmd )
 	{
-		GetConfig(cgi);
+		getconfig(cgi);
 	}
 
 	return 0;
 }
 
-int Login(Cgi& cgi)
+int login(Cgi& cgi)
 {
 	printf("{\"success\":\"true\",\"session\":\"123456789\"}");
 	return 0;
 }
-
-int SetCom(Cgi& cgi)
+int setcom(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	int cid = cgi["cid"].toint();
+	int comid = cgi["comid"].toint();
 	int baud = cgi["baud"].toint();
-	int data = cgi["data"].toint();
-	int stop = cgi["stop"].toint();
 	int parity = cgi["parity"].toint();
+	int bsize = cgi["bsize"].toint();
+	int stop = cgi["stop"].toint();
 
-	char buf[128];
 	mconfig.SetPacketType(TypeComConfig);
-	mconfig.GetComConfig() = ComConfig(cid, baud, parity, data, stop);
+	mconfig.GetComConfig() = ComConfig(comid, baud, parity, bsize, stop);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -79,39 +87,108 @@ int SetCom(Cgi& cgi)
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
 	return 0;
 }
-int AddVar(Cgi& cgi)
+int addvar(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
 
-	int cid = cgi["cid"].toint();
-	int did = cgi["did"].toint();
-	int func = cgi["func"].toint();
-	int vid = cgi["vid"].toint();
-	int len = cgi["len"].toint();
+	int comid = cgi["comid"].toint();
+	int slave = cgi["slave"].toint();
+	int fcode = cgi["fcode"].toint();
+	int offset = cgi["offset"].toint();
+	int count = cgi["count"].toint();
+
+	mconfig.SetPacketType(TypeVarConfig);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdAdd, slave, fcode, offset, count);
+
+	if( service.StartServer(clientpath) == false )
+	{
+		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
+		return -1;
+	}
+	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
+	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
+	return 0;
+}
+int setvar(Cgi& cgi)
+{
+	Service service;
+	ModbusConfig mconfig;
+
+	int comid = cgi["comid"].toint();
+	int slave = cgi["slave"].toint();
+	int fcode = cgi["fcode"].toint();
+	int offset = cgi["offset"].toint();
+	int value = cgi["value"].toint();
+
+	mconfig.SetPacketType(TypeVarConfig);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdSet, slave, fcode, offset, value);
+
+	if( service.StartServer(clientpath) == false )
+	{
+		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
+		return -1;
+	}
+	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
+	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
+	return 0;
+}
+int getvar(Cgi& cgi)
+{
+	Service service;
+	ModbusConfig mconfig;
+
+	int comid = cgi["comid"].toint();
+	int slave = cgi["slave"].toint();
+	int fcode = cgi["fcode"].toint();
 
 	char buf[128];
-	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(cid, VarCmdAdd, did, func, vid, len);
+	FILE *fp = NULL;
 
-	if( service.StartServer(clientpath) == false )
+	if( comid == 0 )
 	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
+		snprintf(buf, sizeof(buf), "var/allcom.json");
+		fp = fopen(buf, "r");
 	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	else if( slave == 0 )
+	{
+		snprintf(buf, sizeof(buf), "var/COM%d.json", comid);
+		fp = fopen(buf, "r");
+	}
+	else
+	{
+		snprintf(buf, sizeof(buf), "var/COM%d.%d.json", comid, slave);
+		fp = fopen(buf, "r");
+	}
+	if( fp )
+	{
+		printf("{\"success\":true,\"list\":");
+	}
+	while(fp)
+	{
+		char data[1025] = {0};
+		int len = fread(data, 1, 1024, fp);
+		if( len > 0 )
+		{
+			data[len] = 0;
+			printf("%s", data);
+			continue;
+		}
+		printf("}");
+		return 0;
+	}
+	printf("{\"success\":false}");
+
+	return -1;
 }
-int DelVar(Cgi& cgi)
+int delvar(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
 
-	int comid = cgi["com"].toint();
-	IdCount id(cgi["id"].xtoint(), 0);
+	int comid = cgi["comid"].toint();
+	IdCount id(cgi["varid"].xtoint(), 1);
 
-	id.SetCount(1);
 	mconfig.SetPacketType(TypeVarConfig);
 	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, id);
 
@@ -124,11 +201,11 @@ int DelVar(Cgi& cgi)
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
 	return 0;
 }
-int BindVar(Cgi& cgi)
+int namevar(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
-	int comid = cgi["com"].toint();
+	int comid = cgi["comid"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
 	int offset = cgi["offset"].toint();
@@ -146,7 +223,7 @@ int BindVar(Cgi& cgi)
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
 	return 0;
 }
-int GetConfig(Cgi& cgi)
+int getconfig(Cgi& cgi)
 {
 	char buf[4096] = {0};
 	FILE *fp = fopen("com.config", "r");
@@ -157,10 +234,8 @@ int GetConfig(Cgi& cgi)
 	}
 	if( fread(buf, 1, sizeof(buf), fp) < 1 )
 	{
-		fclose(fp);
 		return -2;
 	}
-	fclose(fp);
 	buf[sizeof(buf)-1] = 0;
 	printf("%s", buf);
 
