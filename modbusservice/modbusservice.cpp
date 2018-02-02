@@ -1,10 +1,8 @@
 #include "modbusservice.h"
 
 
-
-ModbusService::ModbusService(void)
+ModbusService::ModbusService(void):timeout(0),comid(0)
 {
-	timeout = 0;
 }
 bool ModbusService::SetComConfig(const string& com, const ComConfig& comcfg)
 {
@@ -16,9 +14,9 @@ bool ModbusService::SetComConfig(const string& com, const ComConfig& comcfg)
 	comconfig = comcfg;
 	return modbus.Init(com, baud, parity, bsize, stop);
 }
-void ModbusService::AddVarConfig(IdCount& x)
+void ModbusService::AddVarConfig(RegisterOperator& x)
 {
-	x.Add(varconfigmap, x.GetKey(), x.GetValue());
+	x.Add(requestmap, x.GetKey(), x.GetValue());
 }
 const ComConfig& ModbusService::GetComConfig(void)
 {
@@ -26,15 +24,15 @@ const ComConfig& ModbusService::GetComConfig(void)
 }
 const map<unsigned,unsigned>& ModbusService::GetVarConfig(void)
 {
-	return varconfigmap;
+	return requestmap;
 }
 bool ModbusService::SendRequest(void)
 {
 	if( requestlist.begin() == requestlist.end() )
 	{
-		for(Iterator i = varconfigmap.begin(); i != varconfigmap.end(); i++)
+		for(Iterator i = requestmap.begin(); i != requestmap.end(); i++)
 		{
-			requestlist.push_back(IdCount(i->first, i->second));
+			requestlist.push_back(RegisterOperator(i->first, i->second));
 		}
 	}
 	if( requestlist.begin() == requestlist.end() )
@@ -42,7 +40,7 @@ bool ModbusService::SendRequest(void)
 		return false;
 	}
 	timer.init();
-	IdCount &x = requestlist.front();
+	RegisterOperator &x = requestlist.front();
 	switch( x.GetFcode() )
 	{
 		case 0x01:
@@ -74,11 +72,11 @@ bool ModbusService::SendRequest(void)
 	requestlist.pop_front();
 	return true;
 }
-void ModbusService::DelVarConfig(IdCount& x)
+void ModbusService::DelVarConfig(RegisterOperator& x)
 {
-	x.Del(varconfigmap, x.GetKey(), x.GetValue());
+	x.Del(requestmap, x.GetKey(), x.GetValue());
 }
-bool ModbusService::SendX01Request(IdCount& x)
+bool ModbusService::SendX01Request(RegisterOperator& x)
 {
 	X01Request request;
 
@@ -90,7 +88,7 @@ bool ModbusService::SendX01Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX02Request(IdCount& x)
+bool ModbusService::SendX02Request(RegisterOperator& x)
 {
 	X02Request request;
 
@@ -102,7 +100,7 @@ bool ModbusService::SendX02Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX03Request(IdCount& x)
+bool ModbusService::SendX03Request(RegisterOperator& x)
 {
 	X03Request request;
 
@@ -114,7 +112,7 @@ bool ModbusService::SendX03Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX04Request(IdCount& x)
+bool ModbusService::SendX04Request(RegisterOperator& x)
 {
 	X04Request request;
 
@@ -126,7 +124,7 @@ bool ModbusService::SendX04Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX05Request(IdCount& x)
+bool ModbusService::SendX05Request(RegisterOperator& x)
 {
 	X05Request request;
 
@@ -142,7 +140,7 @@ bool ModbusService::SendX05Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX06Request(IdCount& x)
+bool ModbusService::SendX06Request(RegisterOperator& x)
 {
 	X06Request request;
 
@@ -154,7 +152,7 @@ bool ModbusService::SendX06Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX0fRequest(IdCount& x)
+bool ModbusService::SendX0fRequest(RegisterOperator& x)
 {
 	X0fRequest request;
 
@@ -168,7 +166,7 @@ bool ModbusService::SendX0fRequest(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SendX10Request(IdCount& x)
+bool ModbusService::SendX10Request(RegisterOperator& x)
 {
 	X10Request request;
 
@@ -182,11 +180,11 @@ bool ModbusService::SendX10Request(IdCount& x)
 
 	return modbus.SendRequest(request);
 }
-bool ModbusService::SetValue(IdCount& x)
+bool ModbusService::SetValue(RegisterOperator& x)
 {
 	requestlist.push_back(x);
 }
-bool ModbusService::GetValue(list<IdCount>& values)
+bool ModbusService::GetValue(list<RegisterOperator>& values)
 {
 	if( timer.mdiff() > timeout )
 	{
@@ -226,15 +224,43 @@ bool ModbusService::GetValue(list<IdCount>& values)
 	modbus.InitResponse();
 	return true;
 }
-bool ModbusService::GetX01Response(list<IdCount>& idlist)
+bool ModbusService::GetX01Response(list<RegisterOperator>& idlist)
 {
-	return false;
+	X01Request &x = modbus.GetContext().GetX01Request();
+	int slave = x.GetSlave();
+	int fcode = x.GetFcode();
+	int offset = x.GetOffset();
+	int count = x.GetCount();
+
+	idlist.clear();
+	for(int i = 0; i < count; i++)
+	{
+		unsigned data = modbus.x01response.GetCoil(i + 1);
+		RegisterOperator r(slave, fcode, (offset + i), data);
+		idlist.push_back(r);
+	}
+
+	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX02Response(list<IdCount>& idlist)
+bool ModbusService::GetX02Response(list<RegisterOperator>& idlist)
 {
-	return false;
+	X02Request &x = modbus.GetContext().GetX02Request();
+	int slave = x.GetSlave();
+	int fcode = x.GetFcode();
+	int offset = x.GetOffset();
+	int count = x.GetCount();
+
+	idlist.clear();
+	for(int i = 0; i < count; i++)
+	{
+		unsigned data = modbus.x02response.GetCoil(i + 1);
+		RegisterOperator r(slave, fcode, (offset + i), data);
+		idlist.push_back(r);
+	}
+
+	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX03Response(list<IdCount>& idlist)
+bool ModbusService::GetX03Response(list<RegisterOperator>& idlist)
 {
 	X03Request &x = modbus.GetContext().GetX03Request();
 	int slave = x.GetSlave();
@@ -245,13 +271,14 @@ bool ModbusService::GetX03Response(list<IdCount>& idlist)
 	idlist.clear();
 	for(int i = 0; i < count; i++)
 	{
-		uint16_t data = modbus.x03response.GetData(i + 1);
-		idlist.push_back(IdCount(slave, fcode, (offset + i), data));
+		unsigned data = modbus.x03response.GetData(i + 1);
+		RegisterOperator r(slave, fcode, (offset + i), data);
+		idlist.push_back(r);
 	}
 
 	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX04Response(list<IdCount>& idlist)
+bool ModbusService::GetX04Response(list<RegisterOperator>& idlist)
 {
 	X04Request &x = modbus.GetContext().GetX04Request();
 	int slave = x.GetSlave();
@@ -263,12 +290,12 @@ bool ModbusService::GetX04Response(list<IdCount>& idlist)
 	for(int i = 0; i < count; i++)
 	{
 		uint16_t data = modbus.x04response.GetData(i + 1);
-		idlist.push_back(IdCount(slave, fcode, (offset + i), data));
+		idlist.push_back(RegisterOperator(slave, fcode, (offset + i), data));
 	}
 
 	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX05Response(list<IdCount>& idlist)
+bool ModbusService::GetX05Response(list<RegisterOperator>& idlist)
 {
 	X05Request &x = modbus.GetContext().GetX05Request();
 	int slave = x.GetSlave();
@@ -280,7 +307,7 @@ bool ModbusService::GetX05Response(list<IdCount>& idlist)
 
 	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX06Response(list<IdCount>& idlist)
+bool ModbusService::GetX06Response(list<RegisterOperator>& idlist)
 {
 	X06Request &x = modbus.GetContext().GetX06Request();
 	int slave = x.GetSlave();
@@ -292,7 +319,7 @@ bool ModbusService::GetX06Response(list<IdCount>& idlist)
 
 	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX0fResponse(list<IdCount>& idlist)
+bool ModbusService::GetX0fResponse(list<RegisterOperator>& idlist)
 {
 	X0fRequest &x = modbus.GetContext().GetX0fRequest();
 	int slave = x.GetSlave();
@@ -304,7 +331,7 @@ bool ModbusService::GetX0fResponse(list<IdCount>& idlist)
 
 	return (idlist.begin() != idlist.end());
 }
-bool ModbusService::GetX10Response(list<IdCount>& idlist)
+bool ModbusService::GetX10Response(list<RegisterOperator>& idlist)
 {
 	X10Request &x = modbus.GetContext().GetX10Request();
 	int slave = x.GetSlave();

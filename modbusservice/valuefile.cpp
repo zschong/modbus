@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "idcount.h"
 #include "valuefile.h"
+#include "registeroperator.h"
 
 
 ValueFile::ValueFile(void)
@@ -40,7 +40,7 @@ void ValueFile::MakeComFile(unsigned comid, map<unsigned,ModbusValue> &vmap)
 	for(VIterator i = vmap.begin(); i != vmap.end(); i++)
 	{
 		char buf[256];
-		IdCount x(i->second.GetVarId(), i->second.GetValue());
+		RegisterOperator x(i->second.GetVarId(), i->second.GetValue());
 
 		int len = snprintf(buf, sizeof(buf), 
 							"{"
@@ -70,7 +70,7 @@ void ValueFile::MakeComFile(unsigned comid, map<unsigned,ModbusValue> &vmap)
 							x.GetOffset()
 							);
 		fwrite(buf, len, 1, fp);
-		slavemap[ IdCount(i->first,0).GetSlave() ].push_back( i->second );
+		slavemap[ RegisterOperator(i->first,0).GetSlave() ].push_back( i->second );
 	}
 	fwrite("{}]", 3, 1, fp);
 	fclose(fp);
@@ -94,7 +94,7 @@ void ValueFile::MakeSlaveFile(unsigned cid,unsigned vid, list<ModbusValue> &vlis
 	for(list<ModbusValue>::iterator i = vlist.begin(); i != vlist.end(); i++)
 	{
 		char buf[256];
-		IdCount x(i->GetVarId(), i->GetValue());
+		RegisterOperator x(i->GetVarId(), i->GetValue());
 
 		snprintf(buf, sizeof(buf), 
 				"{"
@@ -146,7 +146,7 @@ void ValueFile::MakeAllComFile(map<unsigned,map<unsigned,ModbusValue> > &mmv)
 		for(VIterator B = A->second.begin(); B != A->second.end(); B++)
 		{
 			char buf[256];
-			IdCount x(B->second.GetVarId(), B->second.GetValue());
+			RegisterOperator x(B->second.GetVarId(), B->second.GetValue());
 
 			snprintf(buf, sizeof(buf), 
 					"{"

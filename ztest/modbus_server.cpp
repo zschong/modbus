@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "service.h"
 #include "valuefile.h"
+#include "mconfigfile.h"
 #include "modbusconfig.h"
 #include "modbusmanager.h"
 
@@ -21,6 +22,7 @@ int main(void)
 {
 	Service service;
 	ValueFile valuefile;
+	MconfigFile mcfile;
 	TimeOperator timer;
 	TimeOperator ftimer;
 	ModbusManager manager;
@@ -40,6 +42,7 @@ int main(void)
 	manager.SetComId("/dev/ttyS6", 6);
 	manager.SetComId("/dev/ttyS7", 7);
 	manager.SetComId("/dev/ttyS8", 8);
+	mcfile.SetFileName("mconfig.config");
 	valuefile.SetFileName("var/allcom.json");
                                                                               
 	while(1)
@@ -54,9 +57,14 @@ int main(void)
 					manager.SetVarName( packet.GetVarName() );
 					break;
 				case TypeVarConfig:
+					{
 					packet.GetVarConfig().Show();
 					manager.SetVarConfig( packet.GetVarConfig() );
+					map<unsigned,map<unsigned,unsigned> > mmu;
+					manager.GetVarConfig(mmu);
+					mcfile.WriteConfig(mmu);
 					break;
+					}
 				case TypeComConfig:
 					packet.GetComConfig().Show();
 					manager.SetComConfig( packet.GetComConfig() );

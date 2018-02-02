@@ -5,14 +5,14 @@ VarConfig::VarConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-VarConfig::VarConfig(int comid, int cmd, IdCount &id)
+VarConfig::VarConfig(int comid, int cmd, RegisterOperator &roperator)
 {
 	SetComId(comid);
 	SetCommand(cmd);
-	SetSlave(id.GetSlave());
-	SetFcode(id.GetFcode());
-	SetOffset(id.GetOffset());
-	SetValue(id.GetCount());
+	SetSlave(roperator.GetSlave());
+	SetFcode(roperator.GetFcode());
+	SetOffset(roperator.GetOffset());
+	SetValue(roperator.GetCount());
 }
 VarConfig::VarConfig(int comid, int cmd, int slave, int fcode, int offset, int value)
 {

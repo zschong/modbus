@@ -2,7 +2,7 @@
 #define __VAR_CONFIG_H__
 #include <string>
 #include <string.h>
-#include "idcount.h"
+#include "registeroperator.h"
 using namespace std;
 
 typedef enum
@@ -31,7 +31,7 @@ protected:
 
 public:
 	VarConfig(void);
-	VarConfig(int comid, int cmd, IdCount& idcout);
+	VarConfig(int comid, int cmd, RegisterOperator& roperator);
 	VarConfig(int comid, int cmd, int slave, int fcode, int offset, int value);
 public:
 	const int GetComId(void)const;

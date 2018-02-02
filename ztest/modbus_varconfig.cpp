@@ -107,10 +107,10 @@ int DelVar(Cgi& cgi)
 	ModbusConfig mconfig;
 
 	int comid = cgi["com"].toint();
-	IdCount id(cgi["id"].xtoint(), 1);
+	RegisterOperator roperator(cgi["id"].xtoint(), (1 << 16));
 
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, id);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, roperator);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -119,6 +119,7 @@ int DelVar(Cgi& cgi)
 	}
 	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
+
 	return 0;
 }
 int BindVar(Cgi& cgi)

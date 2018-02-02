@@ -91,9 +91,9 @@
                         <th>设备地址</th>
                         <th>变量地址</th>
                         <th>功能</th>
-                        <th>帧时长</th>
                         <th>当前值</th>
-                        <th>设置值</th>
+                        <th>更新间隔</th> 
+                        <!-- <th>设置值</th> -->
                         <th colspan="2"><input type="button" value="增加" class="btn-input" v-on:click="btnAddVars(com)"></th>
                       </tr>
                       <tr v-if="com.edit">
@@ -140,12 +140,14 @@
                           <td>{{ v.value }}</td>
                           <td>{{ v.time }}</td>
                           <td>{{ v.val }}</td> -->
-                          <td>{{ v.comid }}</td>
+                          <td>{{ v.slave }}</td>
                           <td>{{ v.varid }}</td>
+                          <td>{{ v.fcode }}</td>
+
                           <td>{{ v.value }}</td>
                           <td>{{ v.cost }}</td>
-                          <td><input type="text" v-model="v.set" class="txt-input"></td>
-                          <td><input type="button" value="设置" class="btn-input" v-on:click="btnSendVar(com, v, idx)"></td>
+                          <!-- <td><input type="text" v-model="v.set" class="txt-input"></td> -->
+                          <!-- <td><input type="button" value="设置" class="btn-input" v-on:click="btnSendVar(com, v, idx)"></td> -->
                           <td><input type="button" value="删除" class="btn-input" v-on:click="btnDelVar(com, v, idx)"></td>
                         </tr>
                     </table>
@@ -242,7 +244,7 @@
           },
           btnDelVar: function(com, v, idx){
             var $this = this;
-            this.delVar(com.code, v.did, v.vid).then(res => {
+            this.delVar(com.code, v.slave, v.varid).then(res => {
               if(res.success){
                 com.vars.splice(idx, 1);
               }else{
@@ -250,16 +252,16 @@
               }
             })
           },
-          btnSendVar: function(com, v){
-            var $this = this;
-            this.setVar(com.code, v.did, v.vid, v.set).then(res => {
-              if(res.success){
-                $this.msg('设置成功');
-              }else{
-                $this.msg(res.msg);
-              }
-            })
-          },
+          // btnSendVar: function(com, v){
+          //   var $this = this;
+          //   this.setVar(com.code, v.slave, v.varid, v.set).then(res => {
+          //     if(res.success){
+          //       $this.msg('设置成功');
+          //     }else{
+          //       $this.msg(res.msg);
+          //     }
+          //   })
+          // },
           btnCancelEdit: function(obj){
             obj.edit = false
           },

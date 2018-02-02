@@ -16,14 +16,17 @@ protected:
 public:
 	void RunLoop(void);
 	void SetComId(const string&, unsigned);
-	bool SetValue(const string&, IdCount&);
+	bool SetValue(const string&, RegisterOperator&);
 	bool SetComConfig(const ComConfig& comcfg);
 	bool SetVarConfig(const VarConfig& var);
 	bool SetVarName(const VarName& var);
 public:
-	bool GetComConfig(map<unsigned,ComConfig>&);
+	bool GetComConfig(map<string,map<unsigned,unsigned> >&);
 	bool GetVarConfig(map<unsigned,map<unsigned,unsigned> >&);
 	bool GetValue(map<unsigned, map<unsigned,ModbusValue> >&);
+public:
+	void LoadComConfig(map<string,map<unsigned,unsigned> >&);
+	void LoadVarConfig(map<unsigned,map<unsigned,unsigned> >&);
 };
 
 #endif//__MODBUS_MANAGER_H__

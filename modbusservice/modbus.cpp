@@ -273,10 +273,9 @@ bool Modbus::RecvResponse(Mcontext& context)
 }
 bool Modbus::SendRequest(Mcontext& context)
 {
-	ctx = context;
-	context.Show();
-	InitResponse();
 	t.init();
+	ctx = context;
+	InitResponse();
 	return (com.Send(ctx.GetData(), ctx.GetLength()) == ctx.GetLength());
 }
 bool Modbus::SendResponse(Mcontext& context)

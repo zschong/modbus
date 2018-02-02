@@ -187,10 +187,10 @@ int delvar(Cgi& cgi)
 	ModbusConfig mconfig;
 
 	int comid = cgi["comid"].toint();
-	IdCount id(cgi["varid"].xtoint(), 1);
+	RegisterOperator roperator(cgi["varid"].xtoint(), 1);
 
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, id);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, roperator);
 
 	if( service.StartServer(clientpath) == false )
 	{

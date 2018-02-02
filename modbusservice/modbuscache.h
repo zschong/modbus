@@ -1,8 +1,8 @@
 #ifndef __MODBUS_CACHE_H__
 #define __MODBUS_CACHE_H__
 #include <map>
-#include "idcount.h"
 #include "modbusvalue.h"
+#include "registeroperator.h"
 
 
 class ModbusCache
