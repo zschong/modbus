@@ -58,7 +58,7 @@
 					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" id="setcom-com" name="com" value="1"></td>
+					<td><input type="text" id="setcom-com" name="comid" value="1"></td>
 					<td><input type="text" id="setcom-baud" name="baud" value="9600"></td>
 					<td><input type="text" id="setcom-parity" name="parity" value="0"></td>
 					<td><input type="text" id="setcom-bsize" name="bsize" value="8"></td>
@@ -76,16 +76,18 @@
 					<th>功能码</th>
 					<th>地址</th>
 					<th>长度</th>
-					<th>超时</th>
+					<th>value</th>
+					<!--<th>超时</th>-->
 					<th>操作</th>
 				</tr>
 				<tr>
-					<td><input type="text" name="com" value="1"></td>
+					<td><input type="text" name="comid" value="1"></td>
 					<td><input type="text" name="slave" value="1"></td>
 					<td><input type="text" name="fcode" value="3"></td>
 					<td><input type="text" name="offset" value="0"></td>
 					<td><input type="text" name="count" value="1"></td>
-					<td><input type="text" name="interval" value="80"></td>
+					<td><input type="text" name="value" value="0"></td>
+					<!--<td><input type="text" name="interval" value="80"></td>-->
 					<td><button onclick="addvar(this)">添加</button></td>
 				</tr>
 			</table>
@@ -94,19 +96,21 @@
 			<table>
 				<tr>
 					<th>变量名</th>
-					<th>串口名</th>
-					<th>变量ID</th>
+					<th>comid</th>
+					<th>slave</th>
+					<th>offset</th>
 					<th>实时值</th>
-					<th>帧时长</th>
+					<th>update</th>
 					<th>操作</th>
 				</tr>
 				<ul>
-				<tr v-for="i in message" v-if="i.comid" >
-					<td name="name"  id="td-name" onclick="clickvarname(this)">{{ i.varname }}</td>
-					<td name="com"   id="td-com" >{{ i.comid }}</td>
-					<td name="id"    id="td-id" >{{ i.varid }}</td>
-					<td name="value" id="td-value" >{{ i.value}}</td>
-					<td name="cost"  id="td-cost" >{{ i.cost }}</td>
+				<tr v-for="i in message" v-if="i.comid">
+					<td name="name"  id="td-name" onclick="clickvarname(this)">{{i.varid}}</td>
+					<td name="comid" id="td-com">{{i.comid}}</td>
+					<td name="slave" id="td-id">{{i.slave}}</td>
+					<td name="offset" id="td-id">{{i.offset}}</td>
+					<td name="value" id="td-value">{{i.value}}</td>
+					<td name="cost"  id="td-cost">{{i.cost}}</td>
 					<td name="access" id="td-access" >
 						<button onclick="delvar(this)">删除</button>
 					</td>
@@ -133,7 +137,7 @@
 			var input4 = t.eq(4).children("input");
 			var url	= "http://"
 				+ window.location.host
-				+ "/modbus_varconfig.cgi?"
+				+ "/data.cgi?"
 				+ input0.attr("name") + "=" + input0.val() + "&" 
 				+ input1.attr("name") + "=" + input1.val() + "&"
 				+ input2.attr("name") + "=" + input2.val() + "&"
@@ -160,9 +164,19 @@
 			var input4 = t.eq(4).children("input");
 			var input5 = t.eq(5).children("input");
 			var input6 = t.eq(6).children("input");
+			var command = "addvar";
+			switch(input2.val())
+			{
+				case 5:
+				case 6:
+				case 15:
+				case 16:
+					command = "setvar";
+					break;
+			}
 			var url	= "http://"
 				+ window.location.host
-				+ "/modbus_varconfig.cgi?"
+				+ "/data.cgi?"
 				+ input0.attr("name") + "=" + input0.val() + "&" 
 				+ input1.attr("name") + "=" + input1.val() + "&"
 				+ input2.attr("name") + "=" + input2.val() + "&"
@@ -170,7 +184,7 @@
 				+ input4.attr("name") + "=" + input4.val() + "&"
 				+ input5.attr("name") + "=" + input5.val() + "&"
 				+ input6.attr("name") + "=" + input6.val() + "&"
-				+ "cmd=addvar"; 
+				+ "cmd=" + command; 
 			$("#status").html('<p id="fadeout">' + url + '</p>'); 
 			axios.get(url)
 				.then(function(r){
@@ -186,7 +200,7 @@
 			var t = $(node).parents("tr").children("td");
 			var url	= "http://"
 				+ window.location.host
-					+ "/modbus_varconfig.cgi"  + "?"
+					+ "/data.cgi"  + "?"
 					+ "com=" + t.eq(1).text() + "&"
 					+ "id=" + t.eq(2).text()  + "&"
 					+ "cmd=delvar";
@@ -219,16 +233,17 @@
 		}
 		function initconfig()
 		{
-			$("input[name='com']").css("width", "6em");
+			$("input[name='comid']").css("width", "6em");
 			$("input[name='baud']").css("width", "5.4em");
 			$("input[name='parity']").css("width", "5em");
 			$("input[name='bsize']").css("width", "5em");
 			$("input[name='stop']").css("width", "5em");
-			$("input[name='com']").css("width", "6em");
+			$("input[name='comid']").css("width", "6em");
 			$("input[name='slave']").css("width", "4em");
 			$("input[name='fcode']").css("width", "4em");
 			$("input[name='offset']").css("width", "4em");
 			$("input[name='count']").css("width", "4em");
+			$("input[name='value']").css("width", "4em");
 			$("input[name='interval']").css("width", "4em");
 		}
 		setInterval("getdata()", 1000);
