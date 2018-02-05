@@ -10,8 +10,6 @@ class ValueFile
 {
 protected:
 	string filename;
-	typedef map<unsigned,ModbusValue>::iterator VIterator;
-	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator CVIterator;
 public:
 	ValueFile(void);
 	ValueFile(const string&, map<unsigned, map<unsigned,ModbusValue> >&);
@@ -21,6 +19,9 @@ public:
 	void MakeAllComFile(map<unsigned,map<unsigned,ModbusValue> >&);
 	void MakeSlaveFile(unsigned, unsigned, list<ModbusValue>&);
 	void MakeComFile(unsigned, map<unsigned,ModbusValue>&);
+public:
+	typedef map<unsigned,ModbusValue>::iterator BIterator;
+	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator AIterator;
 };
 
 #endif//__VALUE_FILE_H__

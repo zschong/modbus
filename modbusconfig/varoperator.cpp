@@ -1,91 +1,130 @@
 #include <stdio.h>
-#include "idcount.h"
+#include "varoperator.h"
 
 
-void IdCount::Show(map<unsigned,unsigned>& m)
+void VarOperator::Show(map<unsigned,unsigned>& m)
 {
 	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
-		IdCount x(i->first, i->second);
+		VarOperator x(i->first, i->second);
 		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());
 	}
 }
-IdCount::IdCount(void):key(0),value(0)
+VarOperator::VarOperator(void):key(0),value(0)
 {
 }
-IdCount::IdCount(int i, int c):key(i),value(c)
+VarOperator::VarOperator(int i, int c):key(i),value(c)
 {
 }
-IdCount::IdCount(int slave, int fcode, int offset, int count):key(0),value(0)
+VarOperator::VarOperator(int s, int f, int o, int c)
 {
-	SetSlave(slave);
-	SetFcode(fcode);
-	SetOffset(offset);
-	SetCount(count);
+	SetSlave(s);
+	SetFcode(f);
+	SetOffset(o);
+	SetCount(c);
+	SetInterval(0xfff);
+	SetComId(0x00);
 }
-void IdCount::SetKey(int i)
+VarOperator::VarOperator(int s, int f, int o, int c, int i)
+{
+	SetSlave(s);
+	SetFcode(f);
+	SetOffset(o);
+	SetCount(c);
+	SetInterval(i);
+	SetComId(0x00);
+}
+VarOperator::VarOperator(int s, int f, int o, int c, int i, int comid)
+{
+	SetSlave(s);
+	SetFcode(f);
+	SetOffset(o);
+	SetCount(c);
+	SetInterval(i);
+	SetComId(comid);
+}
+void VarOperator::SetKey(int i)
 {
 	key = i;
 }
-void IdCount::SetValue(int v)
+void VarOperator::SetValue(int v)
 {
 	value = v;
 }
-void IdCount::SetSlave(unsigned char slave)
+void VarOperator::SetSlave(unsigned char slave)
 {
 	key = (key & ~(0xff << 24));
 	key = (key | (slave << 24));
 }
-void IdCount::SetFcode(unsigned char fcode)
+void VarOperator::SetFcode(unsigned char fcode)
 {
 	key = (key & ~(0xff << 16));
 	key = (key | (fcode << 16));
 }
-void IdCount::SetOffset(unsigned short offset)
+void VarOperator::SetOffset(unsigned short offset)
 {
 	key = (key & ~(0xffff <<  0));
 	key = (key | (offset <<  0));
 }
-void IdCount::SetCount(unsigned short count)
+void VarOperator::SetCount(unsigned short count)
 {
-	value = 0x0000ffff & count;
+	value &= ~(0xffff << 16);
+	value |= (0xffff << 16) & (count << 16);
 }
-unsigned char IdCount::GetSlave(void)
+void VarOperator::SetInterval(unsigned short interval)
+{
+	value &= ~(0xfff << 4);
+	value |= (0xfff << 4) & (interval << 4);
+}
+void VarOperator::SetComId(unsigned char comid)
+{
+	value &= ~(0xf << 0);
+	value |= (0xf << 0) & (comid << 0);
+}
+unsigned char VarOperator::GetSlave(void)
 {
 	return 0xff & (key >> 24);
 }
-unsigned char IdCount::GetFcode(void)
+unsigned char VarOperator::GetFcode(void)
 {
 	return 0xff & (key >> 16);
 }
-unsigned short IdCount::GetOffset(void)
+unsigned short VarOperator::GetOffset(void)
 {
 	return 0xffff & (key >> 0);
 }
-unsigned short IdCount::GetCount(void)
+unsigned short VarOperator::GetCount(void)
 {
-	return 0xffff & value;
+	return 0xffff & (value >> 16);
 }
-int IdCount::GetKey(void)
+unsigned short VarOperator::GetInterval(void)
+{
+	return 0xfff & (value >> 4);
+}
+unsigned char VarOperator::GetComId(void)
+{
+	return 0xf & (value >> 0);
+}
+int VarOperator::GetKey(void)
 {
 	return key;
 }
-int IdCount::GetValue(void)
+int VarOperator::GetValue(void)
 {
 	return value;
 }
 
-void IdCount::Add(map<unsigned,unsigned>& m, int key, int value)
+void VarOperator::Add(map<unsigned,unsigned>& m, int key, int value)
 {
 	Merge(m, key, value);
 	Split(m);
 }
-void IdCount::Merge(map<unsigned,unsigned>& m, int key, int value)
+void VarOperator::Merge(map<unsigned,unsigned>& m, int key, int value)
 {
 	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
-		IdCount n(key, value);
-		IdCount o(i->first, i->second);
+		VarOperator n(key, value);
+		VarOperator o(i->first, i->second);
 
 		if( n.GetCount() < 1 )
 		{
@@ -148,7 +187,7 @@ void IdCount::Merge(map<unsigned,unsigned>& m, int key, int value)
 	}
 	m[key] = value;
 }
-void IdCount::Merge(map<unsigned,unsigned>& m)
+void VarOperator::Merge(map<unsigned,unsigned>& m)
 {
 	map<unsigned,unsigned> tmp = m;
 	for(Iterator i = tmp.begin(); i != tmp.end(); i++)
@@ -156,11 +195,11 @@ void IdCount::Merge(map<unsigned,unsigned>& m)
 		Merge(m, i->first, i->second);
 	}
 }
-void IdCount::Split(map<unsigned,unsigned>& m)
+void VarOperator::Split(map<unsigned,unsigned>& m)
 {
 	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
-		IdCount o(i->first, i->second);
+		VarOperator o(i->first, i->second);
 
 		switch(o.GetFcode())
 		{
@@ -168,7 +207,7 @@ void IdCount::Split(map<unsigned,unsigned>& m)
 			case 0x02:
 				if( o.GetCount() > CountX01 )
 				{
-					IdCount x(o.GetKey(), o.GetValue());
+					VarOperator x(o.GetKey(), o.GetValue());
 					x.SetCount(CountX01);
 					m[x.GetKey()] = x.GetValue();
 					x.SetOffset(x.GetOffset() + CountX01);
@@ -182,7 +221,7 @@ void IdCount::Split(map<unsigned,unsigned>& m)
 			case 0x04:
 				if( o.GetCount() > CountX03 )
 				{
-					IdCount x(o.GetKey(), o.GetValue());
+					VarOperator x(o.GetKey(), o.GetValue());
 					x.SetCount(CountX03);
 					m[x.GetKey()] = x.GetValue();
 					x.SetOffset(x.GetOffset() + CountX03);
@@ -195,7 +234,7 @@ void IdCount::Split(map<unsigned,unsigned>& m)
 		}
 	}
 }
-void IdCount::Del(map<unsigned,unsigned>& m, int key, int value)
+void VarOperator::Del(map<unsigned,unsigned>& m, int key, int value)
 {
 	Delx(m, key, value);
 	if( m.empty() == false )
@@ -204,12 +243,12 @@ void IdCount::Del(map<unsigned,unsigned>& m, int key, int value)
 		Split(m);
 	}
 }
-void IdCount::Delx(map<unsigned,unsigned>& m, int key, int value)
+void VarOperator::Delx(map<unsigned,unsigned>& m, int key, int value)
 {
 	for(Iterator i = m.begin(); i != m.end(); i++)
 	{
-		IdCount n(key, value);
-		IdCount o(i->first, i->second);
+		VarOperator n(key, value);
+		VarOperator o(i->first, i->second);
 
 		if( n.GetCount() < 1 )
 		{
@@ -304,7 +343,7 @@ void IdCount::Delx(map<unsigned,unsigned>& m, int key, int value)
 		}
 	}
 }
-int IdCount::GetABCD(int A, int B, int C, int D)
+int VarOperator::GetABCD(int A, int B, int C, int D)
 {
 	if( (A <= B) && (B <= C) && (C <= D) )
 	{
@@ -332,7 +371,7 @@ int IdCount::GetABCD(int A, int B, int C, int D)
 	}
 	return 0;
 }
-string IdCount::RangeToString(int range)
+string VarOperator::RangeToString(int range)
 {
 	switch(range)
 	{
@@ -356,22 +395,22 @@ string IdCount::RangeToString(int range)
 int main(void)
 {
 	map<unsigned,unsigned> m;
-	IdCount a(1, 3, 0, 10, 100);
-	IdCount b(1, 3, 20, 3, 100);
-	IdCount c(1, 3, 0, 200, 100);
-	IdCount d(1, 3, 3, 1, 100);
+	VarOperator a(1, 3, 0, 10, 100);
+	VarOperator b(1, 3, 20, 3, 100);
+	VarOperator c(1, 3, 0, 200, 100);
+	VarOperator d(1, 3, 3, 1, 100);
 
-	IdCount().Add(m, a.GetKey(), a.GetValue());
-	IdCount().Add(m, b.GetKey(), b.GetValue());
-	IdCount().Add(m, c.GetKey(), c.GetValue());
-	IdCount().Del(m, b.GetKey(), b.GetValue());
-	IdCount().Del(m, d.GetKey(), d.GetValue());
-	//IdCount().Add(m, b.GetKey(), b.GetValue());
+	VarOperator().Add(m, a.GetKey(), a.GetValue());
+	VarOperator().Add(m, b.GetKey(), b.GetValue());
+	VarOperator().Add(m, c.GetKey(), c.GetValue());
+	VarOperator().Del(m, b.GetKey(), b.GetValue());
+	VarOperator().Del(m, d.GetKey(), d.GetValue());
+	//VarOperator().Add(m, b.GetKey(), b.GetValue());
 
 
 	for(map<unsigned,unsigned>::iterator i = m.begin(); i != m.end(); i++)
 	{
-		IdCount x(i->first, i->second);
+		VarOperator x(i->first, i->second);
 		printf("<%08X, %08X>(%d, %d)\n", i->first, i->second, x.GetOffset(), x.GetCount());
 	}
 

@@ -11,12 +11,12 @@
 			margin: 50px auto;
 			width:500px;
 		}
-		#td-name,#td-com,#td-id,#td-value,#td-cost
+		#td-name,#td-comid,#td-slave,#td-fcode,#td-offset,#td-value,#td-cost
 		{
 			padding:5px;
 			margin:0px;
 			border:none;
-			width:50px;
+			width:20px;
 			background-color:#fafafa;
 		}
 		#td-access{
@@ -98,6 +98,7 @@
 					<th>变量名</th>
 					<th>comid</th>
 					<th>slave</th>
+					<th>fcode</th>
 					<th>offset</th>
 					<th>实时值</th>
 					<th>update</th>
@@ -106,9 +107,10 @@
 				<ul>
 				<tr v-for="i in message" v-if="i.comid">
 					<td name="name"  id="td-name" onclick="clickvarname(this)">{{i.varid}}</td>
-					<td name="comid" id="td-com">{{i.comid}}</td>
-					<td name="slave" id="td-id">{{i.slave}}</td>
-					<td name="offset" id="td-id">{{i.offset}}</td>
+					<td name="comid" id="td-comid">{{i.comid}}</td>
+					<td name="slave" id="td-slave">{{i.slave}}</td>
+					<td name="fcode" id="td-fcode">{{i.fcode}}</td>
+					<td name="offset" id="td-offset">{{i.offset}}</td>
 					<td name="value" id="td-value">{{i.value}}</td>
 					<td name="cost"  id="td-cost">{{i.cost}}</td>
 					<td name="access" id="td-access" >
@@ -201,8 +203,8 @@
 			var url	= "http://"
 				+ window.location.host
 					+ "/data.cgi"  + "?"
-					+ "com=" + t.eq(1).text() + "&"
-					+ "id=" + t.eq(2).text()  + "&"
+					+ "comid=" + t.eq(1).text() + "&"
+					+ "varid=" + t.eq(0).text()  + "&"
 					+ "cmd=delvar";
 			$("#status").html('<p id="fadeout">' + url + '</p>');
 			axios.get(url)
@@ -238,7 +240,7 @@
 			$("input[name='parity']").css("width", "5em");
 			$("input[name='bsize']").css("width", "5em");
 			$("input[name='stop']").css("width", "5em");
-			$("input[name='comid']").css("width", "6em");
+			$("input[name='comid']").css("width", "4em");
 			$("input[name='slave']").css("width", "4em");
 			$("input[name='fcode']").css("width", "4em");
 			$("input[name='offset']").css("width", "4em");

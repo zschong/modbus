@@ -1,32 +1,34 @@
 #ifndef __MODBUS_MANAGER_H__
 #define __MODBUS_MANAGER_H__
+#include "comconfig.h"
+#include "comidname.h"
+#include "comcfgfile.h"
+#include "varcfgfile.h"
 #include "modbuscache.h"
 #include "modbusservice.h"
 
 class ModbusManager
 {
 protected:
+	ComIdName idname;
+	ComcfgFile comcfg;
+	VarcfgFile varcfg;
 	ModbusCache cache;
-	map<string,unsigned> comidmap;
-	map<unsigned,string> idcommap;
 	map<unsigned,ModbusService> modbusmap;
-	typedef map<string,unsigned>::iterator CIiterator;
-	typedef map<unsigned,string>::iterator ICiterator;
+public:
 	typedef map<unsigned,ModbusService>::iterator Iterator;
 public:
 	void RunLoop(void);
-	void SetComId(const string&, unsigned);
-	bool SetValue(const string&, RegisterOperator&);
-	bool SetComConfig(const ComConfig& comcfg);
+public:
+	bool SetComConfig(const ComConfig& com);
 	bool SetVarConfig(const VarConfig& var);
-	bool SetVarName(const VarName& var);
+	bool SetVarName(const VarName& varname);
 public:
-	bool GetComConfig(map<string,map<unsigned,unsigned> >&);
-	bool GetVarConfig(map<unsigned,map<unsigned,unsigned> >&);
-	bool GetValue(map<unsigned, map<unsigned,ModbusValue> >&);
+	bool GetValue(map<unsigned,map<unsigned,ModbusValue> >&);
 public:
-	void LoadComConfig(map<string,map<unsigned,unsigned> >&);
-	void LoadVarConfig(map<unsigned,map<unsigned,unsigned> >&);
+	void LoadComId(const string&);
+	void LoadComConfig(const string&);
+	void LoadVarConfig(const string&);
 };
 
 #endif//__MODBUS_MANAGER_H__

@@ -2,7 +2,6 @@
 #define __MODBUS_CACHE_H__
 #include <map>
 #include "modbusvalue.h"
-#include "registeroperator.h"
 
 
 class ModbusCache

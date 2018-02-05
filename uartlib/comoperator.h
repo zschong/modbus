@@ -1,15 +1,15 @@
-#ifndef __COMPORT_H__
-#define __COMPORT_H__ 
+#ifndef __COM_OPERATOR_H__
+#define __COM_OPERATOR_H__ 
 #include <string>
 #include "uart.h"
 using namespace std;
 
-class ComPort
+class ComOperator
 {
 private:
-	int fd;
+	int comfd;
 public:
-	ComPort(void):fd(-1){}
+	ComOperator(void);
 public:
 	bool Close(void);
 	bool Block(bool b);
@@ -19,4 +19,4 @@ public:
 	virtual int  Send(unsigned char *data, int len);
 };
 
-#endif//__COMPORT_H__
+#endif//__COM_OPERATOR_H__

@@ -1,5 +1,5 @@
-#ifndef __REGISTER_OPERATOR_H__
-#define __REGISTER_OPERATOR_H__
+#ifndef __VAR_OPERATOR_H__
+#define __VAR_OPERATOR_H__
 #include <map>
 #include <string>
 using namespace std;
@@ -19,7 +19,7 @@ typedef enum
 	CABD,//C <= A <= B <= D
 }ABCDType;                   
 
-class RegisterOperator
+class VarOperator
 {
 protected:
 	unsigned key;
@@ -27,11 +27,11 @@ protected:
 	typedef map<unsigned,unsigned>::iterator Iterator;
 
 public:
-	RegisterOperator(void);
-	RegisterOperator(int, int);
-	RegisterOperator(int, int, int, int);
-	RegisterOperator(int, int, int, int, int);
-	RegisterOperator(int, int, int, int, int, int);
+	VarOperator(void);
+	VarOperator(int, int);
+	VarOperator(int, int, int, int);
+	VarOperator(int, int, int, int, int);
+	VarOperator(int, int, int, int, int, int);
 public:
 	void SetKey(int);
 	void SetValue(int);
@@ -66,4 +66,4 @@ public:
 public:	
 	void Show(map<unsigned,unsigned>&);
 };
-#endif//__REGISTER_OPERATOR_H__
+#endif//__VAR_OPERATOR_H__

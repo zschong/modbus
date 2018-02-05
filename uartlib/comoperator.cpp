@@ -1,31 +1,34 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#include "comport.h"
+#include "comoperator.h"
 
-bool ComPort::Close(void)
+ComOperator::ComOperator(void):comfd(-1)
 {
-	uart_close(fd);
-	fd = -1;
+}
+bool ComOperator::Close(void)
+{
+	uart_close(comfd);
+	comfd = -1;
 	return true;
 }
-bool ComPort::Block(bool b)
+bool ComOperator::Block(bool b)
 {
 	if( b )
 	{
-		return (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK) == 0);
+		return (fcntl(comfd, F_SETFL, fcntl(comfd, F_GETFL) & ~O_NONBLOCK) == 0);
 	}
-	return (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK) == 0);
+	return (fcntl(comfd, F_SETFL, fcntl(comfd, F_GETFL) | O_NONBLOCK) == 0);
 }
-bool ComPort::Open(const string& path)
+bool ComOperator::Open(const string& path)
 {
-	if( -1 == fd )
+	if( -1 == comfd )
 	{
-		fd = uart_open(path.data());
+		comfd = uart_open(path.data());
 	}
-	return (-1 != fd);
+	return (-1 != comfd);
 }
-bool ComPort::Config(int baud, char parity, int bsize, int stop)
+bool ComOperator::Config(int baud, char parity, int bsize, int stop)
 {
 	switch(parity)
 	{
@@ -45,21 +48,21 @@ bool ComPort::Config(int baud, char parity, int bsize, int stop)
 		parity = 'E';
 		break;
 	}
-	return (uart_config(fd, baud, parity, bsize, stop) == 0);
+	return (uart_config(comfd, baud, parity, bsize, stop) == 0);
 }
-int ComPort::Recv(unsigned char *buf, int len)
+int ComOperator::Recv(unsigned char *buf, int len)
 {
-	return uart_read(fd, (char*)buf, len);
+	return uart_read(comfd, (char*)buf, len);
 }
-int  ComPort::Send(unsigned char *data, int len)
+int  ComOperator::Send(unsigned char *data, int len)
 {
-	return uart_write(fd, (const char*)data, len);
+	return uart_write(comfd, (const char*)data, len);
 }
 
 #ifdef TEST_COMPORT
 int main(int argc, char **argv)
 {
-	ComPort com;
+	ComOperator com;
 	char *p = (char*)"/dev/ttySX0";
 
 	if( argc > 1 )

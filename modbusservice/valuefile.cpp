@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "valuefile.h"
-#include "registeroperator.h"
+#include "varoperator.h"
 
 
 ValueFile::ValueFile(void)
@@ -19,7 +19,7 @@ void ValueFile::MakeFile(map<unsigned,map<unsigned,ModbusValue> > &mmv)
 {
 	MakeAllComFile(mmv);
 	return;
-	for(CVIterator A = mmv.begin(); A != mmv.end(); A++)
+	for(AIterator A = mmv.begin(); A != mmv.end(); A++)
 	{
 		MakeComFile(A->first, A->second);
 	}
@@ -37,10 +37,10 @@ void ValueFile::MakeComFile(unsigned comid, map<unsigned,ModbusValue> &vmap)
 		return;
 	}
 	fwrite("[", 1, 1, fp);
-	for(VIterator i = vmap.begin(); i != vmap.end(); i++)
+	for(BIterator i = vmap.begin(); i != vmap.end(); i++)
 	{
 		char buf[256];
-		RegisterOperator x(i->second.GetVarId(), i->second.GetValue());
+		VarOperator x(i->second.GetVarId(), i->second.GetValue());
 
 		int len = snprintf(buf, sizeof(buf), 
 							"{"
@@ -70,7 +70,7 @@ void ValueFile::MakeComFile(unsigned comid, map<unsigned,ModbusValue> &vmap)
 							x.GetOffset()
 							);
 		fwrite(buf, len, 1, fp);
-		slavemap[ RegisterOperator(i->first,0).GetSlave() ].push_back( i->second );
+		slavemap[ VarOperator(i->first,0).GetSlave() ].push_back( i->second );
 	}
 	fwrite("{}]", 3, 1, fp);
 	fclose(fp);
@@ -94,7 +94,7 @@ void ValueFile::MakeSlaveFile(unsigned cid,unsigned vid, list<ModbusValue> &vlis
 	for(list<ModbusValue>::iterator i = vlist.begin(); i != vlist.end(); i++)
 	{
 		char buf[256];
-		RegisterOperator x(i->GetVarId(), i->GetValue());
+		VarOperator x(i->GetVarId(), i->GetValue());
 
 		snprintf(buf, sizeof(buf), 
 				"{"
@@ -141,12 +141,12 @@ void ValueFile::MakeAllComFile(map<unsigned,map<unsigned,ModbusValue> > &mmv)
 		return;
 	}
 	fwrite("[", 1, 1, fp);
-	for(CVIterator A = mmv.begin(); A != mmv.end(); A++)
+	for(AIterator A = mmv.begin(); A != mmv.end(); A++)
 	{
-		for(VIterator B = A->second.begin(); B != A->second.end(); B++)
+		for(BIterator B = A->second.begin(); B != A->second.end(); B++)
 		{
 			char buf[256];
-			RegisterOperator x(B->second.GetVarId(), B->second.GetValue());
+			VarOperator x(B->second.GetVarId(), B->second.GetValue());
 
 			snprintf(buf, sizeof(buf), 
 					"{"

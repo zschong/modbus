@@ -6,60 +6,6 @@
 string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
 
-int login(Cgi& cgi);
-int setcom(Cgi& cgi);
-int addvar(Cgi& cgi);
-int setvar(Cgi& cgi);
-int delvar(Cgi& cgi);
-int getvar(Cgi& cgi);
-int namevar(Cgi& cgi);
-int getconfig(Cgi& cgi);
-
-int main(void)
-{
-	Cgi cgi;
-	string cmd = cgi["cmd"];
-
-	printf("Content-Type:text/json\r\n");
-	printf("\r\n");
-	//printf("\r\n");
-
-	if( "getvar" == cmd )
-	{
-		getvar(cgi);
-	}
-	else if( "login" == cmd )
-	{
-		login(cgi);
-	}
-	else if( "setcom" == cmd )
-	{
-		setcom(cgi);
-	}
-	else if( "addvar" == cmd )
-	{
-		addvar(cgi);
-	}
-	else if( "setvar" == cmd )
-	{
-		setvar(cgi);
-	}
-	else if( "delvar" == cmd )
-	{
-		delvar(cgi);
-	}
-	else if( "namevar" == cmd )
-	{
-		namevar(cgi);
-	}
-	else if( "config" == cmd )
-	{
-		getconfig(cgi);
-	}
-
-	return 0;
-}
-
 int login(Cgi& cgi)
 {
 	printf("{\"success\":\"true\",\"session\":\"123456789\"}");
@@ -187,10 +133,10 @@ int delvar(Cgi& cgi)
 	ModbusConfig mconfig;
 
 	int comid = cgi["comid"].toint();
-	RegisterOperator roperator(cgi["varid"].xtoint(), 1);
+	VarOperator var(cgi["varid"].xtoint(), 1 << 16);
 
 	mconfig.SetPacketType(TypeVarConfig);
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, roperator);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, var);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -238,6 +184,38 @@ int getconfig(Cgi& cgi)
 	}
 	buf[sizeof(buf)-1] = 0;
 	printf("%s", buf);
+
+	return 0;
+}
+
+int main(void)
+{
+	Cgi cgi;
+	string cmd = cgi["cmd"];
+	map<string,int(*)(Cgi&)> cmdmap;
+
+	printf("Content-Type:text/json\r\n");
+	printf("\r\n");
+
+	cmdmap["login"] = login;
+	cmdmap["setcom"] = setcom;
+	cmdmap["addvar"] = addvar;
+	cmdmap["setvar"] = setvar;
+	cmdmap["delvar"] = delvar;
+	cmdmap["namevar"] = namevar;
+	cmdmap["config"] = getconfig;
+
+	map<string,int(*)(Cgi&)>::iterator i = cmdmap.find(cmd);
+
+	if( cmdmap.end() == i )
+	{
+		printf("{\"success\":\"false\",\"msg\":\"unknow cmd type!\"}");
+		return 0;
+	}
+	if( i->second )
+	{
+		i->second(cgi);
+	}
 
 	return 0;
 }

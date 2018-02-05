@@ -1,17 +1,17 @@
 #ifndef __MODBUS_H__
 #define __MODBUS_H__
 #include <string>
-#include "comport.h"
 #include "mcontext.h"
+#include "comoperator.h"
 #include "timeoperator.h"
 using namespace std;
 
 class Modbus
 {
 protected:
-	ComPort com;
 	Mcontext ctx;
 	TimeOperator t;
+	ComOperator com;
 
 public:
 	X01Request x01request;

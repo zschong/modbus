@@ -5,7 +5,7 @@ VarConfig::VarConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-VarConfig::VarConfig(int comid, int cmd, RegisterOperator &roperator)
+VarConfig::VarConfig(int comid, int cmd, VarOperator &roperator)
 {
 	SetComId(comid);
 	SetCommand(cmd);

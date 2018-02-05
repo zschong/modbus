@@ -13,9 +13,6 @@ LIB_TARGET := thislib.a
 EXE_TARGET := service_server.exe
 EXE_TARGET += service_client.exe
 EXE_TARGET += modbus_server.exe
-EXE_TARGET += modbus_client.exe
-EXE_TARGET += cgicc_test.cgi
-EXE_TARGET += modbus_varconfig.cgi
 EXE_TARGET += data.cgi
 
 fast_make:
@@ -38,18 +35,6 @@ service_client.exe: ztest/service_client.cpp $(LIB_TARGET)
 	@$(STRIP) $@
 modbus_server.exe: ztest/modbus_server.cpp $(LIB_TARGET)
 	@echo "$(CC) ztest/modbus_server.cpp => $@"
-	@$(CC) $(CFLAGS) $+ -o $@
-	@$(STRIP) $@
-modbus_client.exe: ztest/modbus_client.cpp $(LIB_TARGET)
-	@echo "$(CC) ztest/modbus_client.cpp => $@"
-	@$(CC) $(CFLAGS) $+ -o $@
-	@$(STRIP) $@
-cgicc_test.cgi: ztest/cgicc_test.cpp $(LIB_TARGET)
-	@echo "$(CC) ztest/cgicc_test.cpp => $@"
-	@$(CC) $(CFLAGS) $+ -o $@
-	@$(STRIP) $@
-modbus_varconfig.cgi: ztest/modbus_varconfig.cpp $(LIB_TARGET)
-	@echo "$(CC) ztest/modbus_varconfig.cpp => $@"
 	@$(CC) $(CFLAGS) $+ -o $@
 	@$(STRIP) $@
 data.cgi: ztest/data.cpp $(LIB_TARGET)

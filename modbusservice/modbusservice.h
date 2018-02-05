@@ -6,9 +6,8 @@
 #include "modbus.h"
 #include "varname.h"
 #include "varconfig.h"
-#include "comconfig.h"
+#include "varoperator.h"
 #include "timeoperator.h"
-#include "registeroperator.h"
 using namespace std;
 
 
@@ -16,45 +15,36 @@ class ModbusService
 {
 protected:
 	Modbus modbus;
-	string comname;
-	unsigned comid;
 	unsigned timeout;
-	ComConfig comconfig;
 	TimeOperator timer;
-	list<RegisterOperator> requestlist;
+	list<VarOperator> requestlist;
 	map<unsigned,unsigned> requestmap;
-	typedef map<unsigned,unsigned>::iterator Iterator;
 public:
 	ModbusService(void);
+public:
+	bool SetValue(VarOperator&);
+	void AddVarConfig(VarOperator&);
+	void DelVarConfig(VarOperator&);
+	bool SetComConfig(const string&, int,int,int,int);
 protected:
 	bool SendRequest(void);
-	bool SendX01Request(RegisterOperator&);
-	bool SendX02Request(RegisterOperator&);
-	bool SendX03Request(RegisterOperator&);
-	bool SendX04Request(RegisterOperator&);
-	bool SendX05Request(RegisterOperator&);
-	bool SendX06Request(RegisterOperator&);
-	bool SendX0fRequest(RegisterOperator&);
-	bool SendX10Request(RegisterOperator&);
+	bool SendX01Request(VarOperator&);
+	bool SendX02Request(VarOperator&);
+	bool SendX03Request(VarOperator&);
+	bool SendX04Request(VarOperator&);
+	bool SendX05Request(VarOperator&);
+	bool SendX06Request(VarOperator&);
+	bool SendX0fRequest(VarOperator&);
+	bool SendX10Request(VarOperator&);
 public:
-	bool SetValue(RegisterOperator&);
-	void AddVarConfig(RegisterOperator&);
-	void DelVarConfig(RegisterOperator&);
-	bool SetComConfig(const string&, const ComConfig&);
-public:
-	const ComConfig& GetComConfig(void);
-	const map<unsigned,unsigned>& GetVarConfig(void);
-public:
-	bool GetValue(list<RegisterOperator>&);
-	bool GetX01Response(list<RegisterOperator>&);
-	bool GetX02Response(list<RegisterOperator>&);
-	bool GetX03Response(list<RegisterOperator>&);
-	bool GetX04Response(list<RegisterOperator>&);
-	bool GetX05Response(list<RegisterOperator>&);
-	bool GetX06Response(list<RegisterOperator>&);
-	bool GetX0fResponse(list<RegisterOperator>&);
-	bool GetX10Response(list<RegisterOperator>&);
+	bool GetValue(list<VarOperator>&);
+	bool GetX01Response(list<VarOperator>&);
+	bool GetX02Response(list<VarOperator>&);
+	bool GetX03Response(list<VarOperator>&);
+	bool GetX04Response(list<VarOperator>&);
+	bool GetX05Response(list<VarOperator>&);
+	bool GetX06Response(list<VarOperator>&);
+	bool GetX0fResponse(list<VarOperator>&);
+	bool GetX10Response(list<VarOperator>&);
 };
-
 #endif//__MODBUS_SERVICE_H__
-

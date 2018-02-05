@@ -2,27 +2,14 @@
 #include <unistd.h>
 #include "service.h"
 #include "valuefile.h"
-#include "mconfigfile.h"
 #include "modbusconfig.h"
 #include "modbusmanager.h"
 
-
-void ShowValue(const ModbusValue& value)
-{
-	printf("[%s][%d][%08X][%04X][%-4d][t=%d]\n", 
-			value.GetVarName().data(),
-			value.GetComId(), 
-			value.GetVarId(), 
-			value.GetValue(),
-			value.GetValue(),
-			value.mdiff());
-}
 
 int main(void)
 {
 	Service service;
 	ValueFile valuefile;
-	MconfigFile mcfile;
 	TimeOperator timer;
 	TimeOperator ftimer;
 	ModbusManager manager;
@@ -33,18 +20,9 @@ int main(void)
 		printf("StartServer(%s) failed\n", server_path.data());
 		return -1;
 	}
-	manager.SetComId("/dev/ttyS0", 0);
-	manager.SetComId("/dev/ttyS1", 1);
-	manager.SetComId("/dev/ttyS2", 2);
-	manager.SetComId("/dev/ttyS3", 3);
-	manager.SetComId("/dev/ttyS4", 4);
-	manager.SetComId("/dev/ttyS5", 5);
-	manager.SetComId("/dev/ttyS6", 6);
-	manager.SetComId("/dev/ttyS7", 7);
-	manager.SetComId("/dev/ttyS8", 8);
-	mcfile.SetFileName("mconfig.config");
+	manager.LoadComId(".com.id");
 	valuefile.SetFileName("var/allcom.json");
-                                                                              
+
 	while(1)
 	{
 		if( service.RecvPacket() )
@@ -62,7 +40,6 @@ int main(void)
 					manager.SetVarConfig( packet.GetVarConfig() );
 					map<unsigned,map<unsigned,unsigned> > mmu;
 					manager.GetVarConfig(mmu);
-					mcfile.WriteConfig(mmu);
 					break;
 					}
 				case TypeComConfig:

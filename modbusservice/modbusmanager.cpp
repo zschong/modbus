@@ -1,25 +1,19 @@
 #include "modbusmanager.h"
 
-void ModbusManager::SetComId(const string& com, unsigned id)
+bool ModbusManager::SetComConfig(const ComConfig& com)
 {
-	comidmap[ com ] = id;
-	idcommap[ id  ] = com;
-}
-bool ModbusManager::SetComConfig(const ComConfig& comcfg)
-{
-	int comid = comcfg.GetComId();
-	ICiterator com = idcommap.find(comid);
-
-	if( idcommap.end() == com )
-	{
-		return false;
-	}
+	int c = com.GetComId();
+	int b = com.GetBaudRate();
+	int p = com.GetParity();
+	int z = com.GetByteSize();
+	int s = com.GetStopBit();
+	const string &n = idname.GetComName(c);
 	
-	if( modbusmap[ comid ].SetComConfig(com->second, comcfg) )
+	if( modbusmap[c].SetComConfig(n, b, p, z, s) )
 	{
 		return true;
 	}
-	modbusmap.erase( comid );
+	modbusmap.erase(c);
 	return false;
 }
 bool ModbusManager::SetVarConfig(const VarConfig& var)
@@ -38,7 +32,7 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	int offset = var.GetOffset();
 	int count  = var.GetCount();
 	int cmd    = var.GetCommand();
-	RegisterOperator x(slave, fcode, offset, count);
+	VarOperator x(slave, fcode, offset, count);
 
 
 	switch( cmd )
@@ -61,24 +55,24 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	}
 	return true;
 }
-bool ModbusManager::SetVarName(const VarName& v)
+bool ModbusManager::SetVarName(const VarName& var)
 {
-	int comid = v.GetComId();
+	int comid = varname.GetComId();
 
-	RegisterOperator x(v.GetSlave(), v.GetFcode(), v.GetOffset(), 0);
+	VarOperator x(var.GetSlave(), var.GetFcode(), var.GetOffset(), 0);
 
-	cache.SetVarName(comid, x.GetKey(), v.GetVarName());
+	cache.SetVarName(comid, x.GetKey(), var.GetVarName());
 	return true;
 }
 void ModbusManager::RunLoop(void)
 {
 	for(Iterator i = modbusmap.begin(); i != modbusmap.end(); i++)
 	{
-		list<RegisterOperator> vlist;
+		list<VarOperator> vlist;
 
 		if( i->second.GetValue(vlist) )
 		{
-			typedef list<RegisterOperator>::iterator Literator;
+			typedef list<VarOperator>::iterator Literator;
 			for(Literator v = vlist.begin(); v != vlist.end(); v++)
 			{
 				cache.SetValue(i->first, v->GetKey(), v->GetCount());
@@ -90,24 +84,7 @@ bool ModbusManager::GetValue(map<unsigned,map<unsigned,ModbusValue> >& vmap)
 {
 	cache.GetValue(vmap);
 }
-bool ModbusManager::GetComConfig(map<string,map<unsigned,unsigned> >& ccmap)
+void ModbusManager::LoadComId(const string& fname)
 {
-}
-bool ModbusManager::GetVarConfig(map<unsigned,map<unsigned,unsigned> >& idmap)
-{
-	map<unsigned,ModbusService>::iterator i;
-
-	idmap.clear();
-	for(i = modbusmap.begin(); i != modbusmap.end(); i++)
-	{
-		idmap[i->first] = i->second.GetVarConfig();
-	}
-
-	return idmap.begin() != idmap.end();
-}
-void ModbusManager::LoadComConfig(map<string,map<unsigned,unsigned> >& mmu)
-{
-}
-void ModbusManager::LoadVarConfig(map<unsigned,map<unsigned,unsigned> >& mmu)
-{
+	idname.LoadComId(fname);
 }
