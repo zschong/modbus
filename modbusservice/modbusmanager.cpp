@@ -46,12 +46,13 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 		case VarCmdAdd:
 			modbus->second.AddVarConfig(x);
 			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
-			printf("VarCmdAdd(%d,%08X)\n", comid, x.GetKey());
+			printf("VarCmdAdd(%d,%08X,%08X)\n", comid, x.GetKey(), x.GetValue());
 			break;
 		case VarCmdDel:
-			printf("VarCmdDel(%d,%08X)\n", comid, x.GetKey());
+			modbus->second.DelVarConfig(x);
 			cache.DelValue(comid, x.GetKey());
 			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
+			printf("VarCmdAdd(%d,%08X,%08X)\n", comid, x.GetKey(), x.GetValue());
 			break;
 		default:
 			return false;

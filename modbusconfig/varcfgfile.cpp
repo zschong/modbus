@@ -59,7 +59,6 @@ bool VarcfgFile::Store(void)
 	{
 		return false;
 	}
-	printf("VarcfgFile::Store(%s)\n", filename.data());
 
 	FILE *fp = fopen(filename.data(), "w");
 
@@ -84,7 +83,7 @@ bool VarcfgFile::Store(void)
 					var.GetInterval()
 					);
 			buf[ sizeof(buf) - 1 ] = 0;
-			fwrite(buf, strlen(buf) - 1, 1, fp);
+			fwrite(buf, strlen(buf), 1, fp);
 		}
 	}
 	fclose(fp);
