@@ -7,10 +7,12 @@ bool ModbusManager::SetComConfig(const ComConfig& com)
 	int p = com.GetParity();
 	int z = com.GetByteSize();
 	int s = com.GetStopBit();
-	const string &n = idname.GetComName(c);
+	const string &n = idfile.GetComName(c);
 	
 	if( modbusmap[c].SetComConfig(n, b, p, z, s) )
 	{
+		comcfg.SetComConfig(com);
+		comcfg.Store();
 		return true;
 	}
 	modbusmap.erase(c);
@@ -20,7 +22,7 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 {
 	int comid = var.GetComId();
 
-	Iterator modbus = modbusmap.find( comid );
+	map<unsigned,ModbusService>::iterator modbus = modbusmap.find( comid );
 
 	if( modbusmap.end() == modbus )
 	{
@@ -32,8 +34,7 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	int offset = var.GetOffset();
 	int count  = var.GetCount();
 	int cmd    = var.GetCommand();
-	VarOperator x(slave, fcode, offset, count);
-
+	VarOperator x(slave, fcode, offset, count, 0xfff, comid);
 
 	switch( cmd )
 	{
@@ -44,20 +45,23 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 			break;
 		case VarCmdAdd:
 			modbus->second.AddVarConfig(x);
+			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
+			printf("VarCmdAdd(%d,%08X)\n", comid, x.GetKey());
 			break;
 		case VarCmdDel:
 			printf("VarCmdDel(%d,%08X)\n", comid, x.GetKey());
 			cache.DelValue(comid, x.GetKey());
-			modbus->second.DelVarConfig(x);
+			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
 			break;
 		default:
 			return false;
 	}
+	varcfg.Store();
 	return true;
 }
 bool ModbusManager::SetVarName(const VarName& var)
 {
-	int comid = varname.GetComId();
+	int comid = var.GetComId();
 
 	VarOperator x(var.GetSlave(), var.GetFcode(), var.GetOffset(), 0);
 
@@ -86,5 +90,35 @@ bool ModbusManager::GetValue(map<unsigned,map<unsigned,ModbusValue> >& vmap)
 }
 void ModbusManager::LoadComId(const string& fname)
 {
-	idname.LoadComId(fname);
+	idfile.Load(fname);
+}
+void ModbusManager::LoadComConfig(const string& fname)
+{
+	comcfg.Load(fname);
+
+	for(ComcfgFile::Iterator i = comcfg.begin(); i != comcfg.end(); i++)
+	{
+		int c = i->second.GetComId();
+		int b = i->second.GetBaudRate();
+		int p = i->second.GetParity();
+		int z = i->second.GetByteSize();
+		int s = i->second.GetStopBit();
+		const string &n = idfile.GetComName(c);
+		
+		modbusmap[c].SetComConfig(n, b, p, z, s);
+		i->second.Show();
+	}
+}
+void ModbusManager::LoadVarConfig(const string& fname)
+{
+	varcfg.Load(fname);
+
+	for(VarcfgFile::AIterator A = varcfg.begin(); A != varcfg.end(); A++)
+	{
+		for(VarcfgFile::BIterator B = A->second.begin(); B != A->second.end(); B++)
+		{
+			VarOperator x(B->first, B->second);
+			modbusmap[A->first].AddVarConfig(x);
+		}
+	}
 }

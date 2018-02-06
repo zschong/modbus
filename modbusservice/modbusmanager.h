@@ -1,7 +1,7 @@
 #ifndef __MODBUS_MANAGER_H__
 #define __MODBUS_MANAGER_H__
 #include "comconfig.h"
-#include "comidname.h"
+#include "comidfile.h"
 #include "comcfgfile.h"
 #include "varcfgfile.h"
 #include "modbuscache.h"
@@ -10,12 +10,11 @@
 class ModbusManager
 {
 protected:
-	ComIdName idname;
+	ComIdFile idfile;
 	ComcfgFile comcfg;
 	VarcfgFile varcfg;
 	ModbusCache cache;
 	map<unsigned,ModbusService> modbusmap;
-public:
 	typedef map<unsigned,ModbusService>::iterator Iterator;
 public:
 	void RunLoop(void);

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <strings.h>
-#include "comidname.h"
+#include "comidfile.h"
 
-bool ComIdName::LoadComId(const string& fname)
+bool ComIdFile::Load(const string& fname)
 {
 	if( fname.empty() )
 	{
@@ -32,23 +32,23 @@ bool ComIdName::LoadComId(const string& fname)
 	fclose(fp);
 	return true;
 }
-void ComIdName::SetComId(const string& name, unsigned id)
+void ComIdFile::SetComId(const string& name, unsigned id)
 {
 	nameid[ name ] = id;
 	idname[ id   ] = name;
 	printf("comname(%s).comid(%d)\n", name.data(), id);
 }
-unsigned ComIdName::GetComId(const string& name)
+const unsigned ComIdFile::GetComId(const string& name)
 {
 	map<string,unsigned>::iterator i = nameid.find(name);
 
 	if( nameid.end() == i )
 	{
-		return 0;
+		return unsigned(0);
 	}
 	return i->second;
 }
-const string& ComIdName::GetComName(unsigned id)
+const string& ComIdFile::GetComName(const unsigned id)
 {
 	map<unsigned,string>::iterator i = idname.find(id);
 

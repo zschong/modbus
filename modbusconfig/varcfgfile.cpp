@@ -1,27 +1,24 @@
 #include <stdio.h>
+#include <string.h>
 #include <strings.h>
 #include "varoperator.h"
 #include "varcfgfile.h"
 
 
-void VarcfgFile::SetName(const string& fname)
+bool VarcfgFile::Load(const string& fname)
 {
-	filename = fname;
-}
-bool VarcfgFile::Load(map<unsigned,map<unsigned,unsigned> >& m)
-{
-	if( filename.empty() )
+	if( fname.empty() )
 	{
 		return false;
 	}
+	filename = fname;
 
-	FILE *fp = fopen(filename.data(), "r");
+	FILE *fp = fopen(fname.data(), "r");
 
 	if( fp )
 	{
 		char buf[256];
 
-		m.clear();
 		buf[ sizeof(buf) - 1 ] = 0;
 		while( fgets(buf, sizeof(buf)-1, fp) )
 		{
@@ -50,18 +47,19 @@ bool VarcfgFile::Load(map<unsigned,map<unsigned,unsigned> >& m)
 			var.SetInterval(interval);
 			var.SetComId(comid);
 
-			m[comid][var.GetKey()] = var.GetValue();
+			varcfgmap[comid][var.GetKey()] = var.GetValue();
 		}
 		fclose(fp);
 	}
 	return false;
 }
-bool VarcfgFile::Store(map<unsigned,map<unsigned,unsigned> >& m)
+bool VarcfgFile::Store(void)
 {
 	if( filename.empty() )
 	{
 		return false;
 	}
+	printf("VarcfgFile::Store(%s)\n", filename.data());
 
 	FILE *fp = fopen(filename.data(), "w");
 
@@ -69,25 +67,39 @@ bool VarcfgFile::Store(map<unsigned,map<unsigned,unsigned> >& m)
 	{
 		return false;
 	}
-	for(AIterator A = m.begin(); A != m.end(); A++)
+	for(AIterator A = varcfgmap.begin(); A != varcfgmap.end(); A++)
 	{
 		for(BIterator B = A->second.begin(); B != A->second.end(); B++)
 		{
 			char buf[256];
 			VarOperator var(B->first, B->second);
 
-			int len = snprintf(buf, sizeof(buf),
-									"%u,%u,%u,%u,%u,%s\n",
-									var.GetComId(),
-									var.GetSlave(),
-									var.GetFcode(),
-									var.GetOffset(),
-									var.GetCount(),
-									var.GetInterval()
-									);
-			fwrite(buf, len, 1, fp);
+			snprintf(buf, sizeof(buf),
+					"%u,%u,%u,%u,%u,%u\n",
+					var.GetComId(),
+					var.GetSlave(),
+					var.GetFcode(),
+					var.GetOffset(),
+					var.GetCount(),
+					var.GetInterval()
+					);
+			buf[ sizeof(buf) - 1 ] = 0;
+			fwrite(buf, strlen(buf) - 1, 1, fp);
 		}
 	}
 	fclose(fp);
 	return true;
+}
+void VarcfgFile::SetVarConfig(unsigned comid, map<unsigned,unsigned> &m)
+{
+	varcfgmap.erase( comid );
+	varcfgmap[ comid ] = m;
+}
+VarcfgFile::AIterator VarcfgFile::begin(void)
+{
+	return varcfgmap.begin();
+}
+VarcfgFile::AIterator VarcfgFile::end(void)
+{
+	return varcfgmap.end();
 }

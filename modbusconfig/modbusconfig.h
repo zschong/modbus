@@ -6,10 +6,10 @@
 
 typedef enum
 {
-	TypeVarName = 0,
-	TypeVarConfig = 1,
-	TypeComConfig = 2,
-}PacketTypeDefine;
+	VAR_NAME = 0,
+	VAR_CONFIG = 1,
+	COM_CONFIG = 2,
+}PacketType;
 
 class ModbusConfig
 {
@@ -19,7 +19,7 @@ class ModbusConfig
 		IndexPacketObject = 1
 	}IndexTypeDefine;
 protected:
-	unsigned char buffer[255];
+	unsigned char buffer[256];
 public:
 	ModbusConfig(void);
 public:
@@ -29,9 +29,9 @@ public:
 	VarName& GetVarName(void);
 	VarConfig& GetVarConfig(void);
 	ComConfig& GetComConfig(void);
-	const int GetPacketType(void);
 public:
-	void SetPacketType(const int type);
+	void SetType(int type);
+	const int GetType(void);
 };
 
 #endif//__MODBUS_CONFIG_H__

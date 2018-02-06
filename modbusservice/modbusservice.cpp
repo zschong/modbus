@@ -331,3 +331,7 @@ bool ModbusService::GetX10Response(list<VarOperator>& idlist)
 
 	return (idlist.begin() != idlist.end());
 }
+map<unsigned,unsigned>& ModbusService::GetVarConfig(void)
+{
+	return requestmap;
+}

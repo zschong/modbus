@@ -21,7 +21,7 @@ int setcom(Cgi& cgi)
 	int bsize = cgi["bsize"].toint();
 	int stop = cgi["stop"].toint();
 
-	mconfig.SetPacketType(TypeComConfig);
+	mconfig.SetType( COM_CONFIG );
 	mconfig.GetComConfig() = ComConfig(comid, baud, parity, bsize, stop);
 
 	if( service.StartServer(clientpath) == false )
@@ -44,7 +44,7 @@ int addvar(Cgi& cgi)
 	int offset = cgi["offset"].toint();
 	int count = cgi["count"].toint();
 
-	mconfig.SetPacketType(TypeVarConfig);
+	mconfig.SetType( VAR_CONFIG );
 	mconfig.GetVarConfig() = VarConfig(comid, VarCmdAdd, slave, fcode, offset, count);
 
 	if( service.StartServer(clientpath) == false )
@@ -67,7 +67,7 @@ int setvar(Cgi& cgi)
 	int offset = cgi["offset"].toint();
 	int value = cgi["value"].toint();
 
-	mconfig.SetPacketType(TypeVarConfig);
+	mconfig.SetType( VAR_CONFIG );
 	mconfig.GetVarConfig() = VarConfig(comid, VarCmdSet, slave, fcode, offset, value);
 
 	if( service.StartServer(clientpath) == false )
@@ -135,7 +135,7 @@ int delvar(Cgi& cgi)
 	int comid = cgi["comid"].toint();
 	VarOperator var(cgi["varid"].xtoint(), 1 << 16);
 
-	mconfig.SetPacketType(TypeVarConfig);
+	mconfig.SetType( VAR_CONFIG );
 	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, var);
 
 	if( service.StartServer(clientpath) == false )
@@ -157,7 +157,7 @@ int namevar(Cgi& cgi)
 	int offset = cgi["offset"].toint();
 	string name = cgi["name"];
 
-	mconfig.SetPacketType(TypeVarName);
+	mconfig.SetType( VAR_NAME );
 	mconfig.GetVarName() = VarName(comid, slave, fcode, offset, name);
 
 	if( service.StartServer(clientpath) == false )

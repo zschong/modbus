@@ -21,6 +21,8 @@ int main(void)
 		return -1;
 	}
 	manager.LoadComId(".com.id");
+	manager.LoadComConfig(".com.config");
+	manager.LoadVarConfig(".var.config");
 	valuefile.SetFileName("var/allcom.json");
 
 	while(1)
@@ -28,22 +30,15 @@ int main(void)
 		if( service.RecvPacket() )
 		{
 			ModbusConfig &packet = *(ModbusConfig*)service.GetData();
-			switch( packet.GetPacketType() )
+			switch( packet.GetType() )
 			{
-				case TypeVarName:
-					packet.GetVarName().Show();
+				case VAR_NAME:
 					manager.SetVarName( packet.GetVarName() );
 					break;
-				case TypeVarConfig:
-					{
-					packet.GetVarConfig().Show();
+				case VAR_CONFIG:
 					manager.SetVarConfig( packet.GetVarConfig() );
-					map<unsigned,map<unsigned,unsigned> > mmu;
-					manager.GetVarConfig(mmu);
 					break;
-					}
-				case TypeComConfig:
-					packet.GetComConfig().Show();
+				case COM_CONFIG:
 					manager.SetComConfig( packet.GetComConfig() );
 					break;
 			}

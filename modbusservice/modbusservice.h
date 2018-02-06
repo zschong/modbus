@@ -46,5 +46,7 @@ public:
 	bool GetX06Response(list<VarOperator>&);
 	bool GetX0fResponse(list<VarOperator>&);
 	bool GetX10Response(list<VarOperator>&);
+public:
+	map<unsigned,unsigned>& GetVarConfig(void);
 };
 #endif//__MODBUS_SERVICE_H__

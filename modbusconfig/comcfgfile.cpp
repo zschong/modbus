@@ -1,18 +1,16 @@
 #include <stdio.h>
+#include <string.h>
 #include <strings.h>
 #include "comcfgfile.h"
 
 
-void ComcfgFile::SetName(const string& fname)
+bool ComcfgFile::Load(const string& fname)
 {
-	filename = fname;
-}
-bool ComcfgFile::Load(map<unsigned,ComConfig>& m)
-{
-	if( filename.empty() )
+	if( fname.empty() )
 	{
 		return false;
 	}
+	filename = fname;
 
 	FILE *fp = fopen(filename.data(), "r");
 
@@ -20,7 +18,6 @@ bool ComcfgFile::Load(map<unsigned,ComConfig>& m)
 	{
 		char buf[128];
 
-		m.clear();
 		buf[ sizeof(buf) - 1 ] = 0;
 		while( fgets(buf, sizeof(buf)-1, fp) )
 		{
@@ -38,24 +35,25 @@ bool ComcfgFile::Load(map<unsigned,ComConfig>& m)
 				   &bsize,
 				   &stop
 				  );
-			ComConfig& comcfig = m[comid];
+			ComConfig& com = comcfgmap[comid];
 
-			comcfig.SetComId(comid);
-			comcfig.SetBaudRate(baud);
-			comcfig.SetParity(parity);
-			comcfig.SetByteSize(bsize);
-			comcfig.SetStopBit(stop);
+			com.SetComId(comid);
+			com.SetBaudRate(baud);
+			com.SetParity(parity);
+			com.SetByteSize(bsize);
+			com.SetStopBit(stop);
 		}
 		fclose(fp);
 	}
-	return false;
+	return true;
 }
-bool ComcfgFile::Store(map<unsigned,ComConfig>& m)
+bool ComcfgFile::Store(void)
 {
 	if( filename.empty() )
 	{
 		return false;
 	}
+	printf("ComcfgFile::Store(%s)\n", filename.data());
 
 	FILE *fp = fopen(filename.data(), "w");
 
@@ -63,20 +61,33 @@ bool ComcfgFile::Store(map<unsigned,ComConfig>& m)
 	{
 		return false;
 	}
-	for(Iterator i = m.begin(); i != m.end(); i++)
+	for(Iterator i = comcfgmap.begin(); i != comcfgmap.end(); i++)
 	{
 		char buf[128];
 
-		int len = snprintf(buf, sizeof(buf),
-								"%u,%u,%u,%u,%u\n",
-								i->second.GetComId(),
-								i->second.GetBaudRate(),
-								i->second.GetParity(),
-								i->second.GetByteSize(),
-								i->second.GetStopBit()
-								);
-		fwrite(buf, len, 1, fp);
+		snprintf(buf, sizeof(buf),
+				"%u,%u,%u,%u,%u\n",
+				i->second.GetComId(),
+				i->second.GetBaudRate(),
+				i->second.GetParity(),
+				i->second.GetByteSize(),
+				i->second.GetStopBit()
+				);
+		buf[ sizeof(buf) - 1 ] = 0;
+		fwrite(buf, strlen(buf), 1, fp);
 	}
 	fclose(fp);
 	return true;
+}
+void ComcfgFile::SetComConfig(const ComConfig& com)
+{
+	comcfgmap[ com.GetComId() ] = com;
+}
+ComcfgFile::Iterator ComcfgFile::begin(void)
+{
+	return comcfgmap.begin();
+}
+ComcfgFile::Iterator ComcfgFile::end(void)
+{
+	return comcfgmap.end();
 }

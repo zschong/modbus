@@ -1,10 +1,10 @@
-#ifndef __COM_ID_NAME_H__
-#define __COM_ID_NAME_H__
+#ifndef __COM_ID_FILE_H__
+#define __COM_ID_FILE_H__
 #include <map>
 #include <string>
 using namespace std;
 
-class ComIdName
+class ComIdFile
 {
 protected:
 	string nullname;
@@ -12,11 +12,12 @@ protected:
 	map<unsigned,string> idname;
 	map<string,unsigned> nameid;
 public:
-	bool LoadComId(const string&);
+	bool Load(const string&);
+public:
 	void SetComId(const string& name, unsigned id);
 public:
-	unsigned GetComId(const string& name);
-	const string& GetComName(unsigned id);
+	const unsigned GetComId(const string& name);
+	const string&  GetComName(const unsigned id);
 };
 
-#endif//__COM_ID_NAME_H__
+#endif//__COM_ID_FILE_H__

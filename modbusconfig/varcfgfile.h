@@ -2,17 +2,21 @@
 #define __VAR_CFG_FILE_H__
 #include <map>
 #include <string>
+#include "varoperator.h"
 using namespace std;
 
 class VarcfgFile
 {
 protected:
 	string filename;
+	map<unsigned,map<unsigned,unsigned> > varcfgmap;
 public:
-	void SetName(const string&);
+	bool Store(void);
+	bool Load(const string&);
+	void SetVarConfig(unsigned, map<unsigned,unsigned>&);
 public:
-	bool Load(map<unsigned,map<unsigned,unsigned> >&);
-	bool Store(map<unsigned,map<unsigned,unsigned> >&);
+	map<unsigned,map<unsigned,unsigned> >::iterator begin(void);
+	map<unsigned,map<unsigned,unsigned> >::iterator end(void);
 public:
 	typedef map<unsigned,unsigned>::iterator BIterator;
 	typedef map<unsigned,map<unsigned,unsigned> >::iterator AIterator;

@@ -13,11 +13,11 @@ ModbusConfig::ModbusConfig(void)
 {
 	memset(buffer, 0, sizeof(buffer));
 }
-void ModbusConfig::SetPacketType(const int type)
+void ModbusConfig::SetType(const int type)
 {
 	buffer[ IndexPacketType ] = 0xff & type;
 }
-const int ModbusConfig::GetPacketType(void)
+const int ModbusConfig::GetType(void)
 {
 	return (int)(buffer[ IndexPacketType ]);
 }

@@ -9,11 +9,14 @@ class ComcfgFile
 {
 protected:
 	string filename;
+	map<unsigned,ComConfig> comcfgmap;
 public:
-	void SetName(const string&);
+	bool Store(void);
+	bool Load(const string&);
+	void SetComConfig(const ComConfig&);
 public:
-	bool Load(map<unsigned,ComConfig>&);
-	bool Store(map<unsigned,ComConfig>&);
+	map<unsigned,ComConfig>::iterator begin(void);
+	map<unsigned,ComConfig>::iterator end(void);
 public:
 	typedef map<unsigned,ComConfig>::iterator Iterator;
 };
