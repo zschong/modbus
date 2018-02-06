@@ -73,13 +73,27 @@ void VarOperator::SetCount(unsigned short count)
 }
 void VarOperator::SetInterval(unsigned short interval)
 {
-	value &= ~(0xfff << 4);
-	value |= (0xfff << 4) & (interval << 4);
+	value &= ~(0x7ff << 5);
+	if( interval > 0x7ff )
+	{
+		value |= (0x7ff << 5);
+	}
+	else
+	{
+		value |= (0x7ff << 5) & (interval << 5);
+	}
 }
 void VarOperator::SetComId(unsigned char comid)
 {
-	value &= ~(0xf << 0);
-	value |= (0xf << 0) & (comid << 0);
+	value &= ~(0x1f << 0);
+	if( comid > 0x1f )
+	{
+		value |= (0x1f << 0);
+	}
+	else
+	{
+		value |= (0x1f << 0) & (comid << 0);
+	}
 }
 unsigned char VarOperator::GetSlave(void)
 {
@@ -99,11 +113,11 @@ unsigned short VarOperator::GetCount(void)
 }
 unsigned short VarOperator::GetInterval(void)
 {
-	return 0xfff & (value >> 4);
+	return 0x7ff & (value >> 5);
 }
 unsigned char VarOperator::GetComId(void)
 {
-	return 0xf & (value >> 0);
+	return 0x1f & (value >> 0);
 }
 int VarOperator::GetKey(void)
 {

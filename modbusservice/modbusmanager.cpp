@@ -45,19 +45,19 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 			break;
 		case VarCmdAdd:
 			modbus->second.AddVarConfig(x);
-			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
-			printf("VarCmdAdd(%d,%08X,%08X)\n", comid, x.GetKey(), x.GetValue());
 			break;
 		case VarCmdDel:
 			modbus->second.DelVarConfig(x);
-			cache.DelValue(comid, x.GetKey());
-			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
-			printf("VarCmdAdd(%d,%08X,%08X)\n", comid, x.GetKey(), x.GetValue());
 			break;
 		default:
 			return false;
 	}
-	varcfg.Store();
+	if( VarCmdAdd == cmd || VarCmdDel == cmd )
+	{
+		varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
+		cache.DelValue(comid, x.GetKey());
+		varcfg.Store();
+	}
 	return true;
 }
 bool ModbusManager::SetVarName(const VarName& var)
@@ -107,7 +107,6 @@ void ModbusManager::LoadComConfig(const string& fname)
 		const string &n = idfile.GetComName(c);
 		
 		modbusmap[c].SetComConfig(n, b, p, z, s);
-		i->second.Show();
 	}
 }
 void ModbusManager::LoadVarConfig(const string& fname)
@@ -116,7 +115,7 @@ void ModbusManager::LoadVarConfig(const string& fname)
 
 	for(VarcfgFile::AIterator A = varcfg.begin(); A != varcfg.end(); A++)
 	{
-		for(VarcfgFile::BIterator B = A->second.begin(); B != A->second.end(); B++)
+		for(VarcfgFile::BIterator B=A->second.begin(); B != A->second.end(); B++)
 		{
 			VarOperator x(B->first, B->second);
 			modbusmap[A->first].AddVarConfig(x);

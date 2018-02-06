@@ -18,6 +18,8 @@ protected:
 	unsigned timeout;
 	TimeOperator timer;
 	list<VarOperator> requestlist;
+	map<unsigned,unsigned> recvcount;
+	map<unsigned,unsigned> sendcount;
 	map<unsigned,unsigned> requestmap;
 public:
 	ModbusService(void);
@@ -37,15 +39,15 @@ protected:
 	bool SendX0fRequest(VarOperator&);
 	bool SendX10Request(VarOperator&);
 public:
-	bool GetValue(list<VarOperator>&);
-	bool GetX01Response(list<VarOperator>&);
-	bool GetX02Response(list<VarOperator>&);
-	bool GetX03Response(list<VarOperator>&);
-	bool GetX04Response(list<VarOperator>&);
-	bool GetX05Response(list<VarOperator>&);
-	bool GetX06Response(list<VarOperator>&);
-	bool GetX0fResponse(list<VarOperator>&);
-	bool GetX10Response(list<VarOperator>&);
+	unsigned GetValue(list<VarOperator>&);
+	unsigned GetX01Response(list<VarOperator>&);
+	unsigned GetX02Response(list<VarOperator>&);
+	unsigned GetX03Response(list<VarOperator>&);
+	unsigned GetX04Response(list<VarOperator>&);
+	unsigned GetX05Response(list<VarOperator>&);
+	unsigned GetX06Response(list<VarOperator>&);
+	unsigned GetX0fResponse(list<VarOperator>&);
+	unsigned GetX10Response(list<VarOperator>&);
 public:
 	map<unsigned,unsigned>& GetVarConfig(void);
 };

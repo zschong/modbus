@@ -53,7 +53,6 @@ bool ComcfgFile::Store(void)
 	{
 		return false;
 	}
-	printf("ComcfgFile::Store(%s)\n", filename.data());
 
 	FILE *fp = fopen(filename.data(), "w");
 
