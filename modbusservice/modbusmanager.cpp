@@ -55,7 +55,7 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 	if( VarCmdAdd == cmd || VarCmdDel == cmd )
 	{
 		varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
-		cache.DelValue(comid, x.GetKey());
+		cache.DelValue(comid, x.GetKey(), x.GetCount());
 		varcfg.Store();
 	}
 	return true;
@@ -85,9 +85,24 @@ void ModbusManager::RunLoop(void)
 		}
 	}
 }
-bool ModbusManager::GetValue(map<unsigned,map<unsigned,ModbusValue> >& vmap)
+bool ModbusManager::StoreValue(const string& fname)
 {
-	cache.GetValue(vmap);
+	map<unsigned,map<unsigned,ModbusValue> > valuemap;
+
+	cache.GetValue(valuemap);
+	valuefile.SetFileName(fname);
+	return valuefile.Store(valuemap);
+}
+bool ModbusManager::StoreCount(const string& fname)
+{
+	map<unsigned,map<unsigned,SendRecvCount> > countmap;
+
+	for(Iterator i = modbusmap.begin(); i != modbusmap.end(); i++)
+	{
+		countmap[i->first] = i->second.GetCount();
+	}
+	countfile.SetFileName(fname);
+	return countfile.Store(countmap);
 }
 void ModbusManager::LoadComId(const string& fname)
 {

@@ -43,27 +43,35 @@ bool ModbusService::SendRequest(void)
 	{
 		case 0x01:
 			SendX01Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x02:
 			SendX02Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x03:
 			SendX03Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x04:
 			SendX04Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x05:
 			SendX05Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x06:
 			SendX06Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x0f:
 			SendX0fRequest(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 		case 0x10:
 			SendX10Request(x);
+			srcount[ x.GetKey() ] += 0x10000;
 			break;
 	}
 	timeout = x.GetInterval();
@@ -196,28 +204,28 @@ unsigned ModbusService::GetValue(list<VarOperator>& values)
 	switch(ret)
 	{
 		case 0x01:
-			recvcount[ GetX01Response(values) ]++;
+			srcount[ GetX01Response(values) ]++;
 			break;
 		case 0x02:
-			recvcount[ GetX02Response(values) ]++;
+			srcount[ GetX02Response(values) ]++;
 			break;
 		case 0x03:
-			recvcount[ GetX03Response(values) ]++;
+			srcount[ GetX03Response(values) ]++;
 			break;
 		case 0x04:
-			recvcount[ GetX04Response(values) ]++;
+			srcount[ GetX04Response(values) ]++;
 			break;
 		case 0x05:
-			recvcount[ GetX05Response(values) ]++;
+			srcount[ GetX05Response(values) ]++;
 			break;
 		case 0x06:
-			recvcount[ GetX06Response(values) ]++;
+			srcount[ GetX06Response(values) ]++;
 			break;
 		case 0x0f:
-			recvcount[ GetX0fResponse(values) ]++;
+			srcount[ GetX0fResponse(values) ]++;
 			break;
 		case 0x10:
-			recvcount[ GetX10Response(values) ]++;
+			srcount[ GetX10Response(values) ]++;
 			break;
 		default:
 			return false;
@@ -242,7 +250,7 @@ unsigned ModbusService::GetX01Response(list<VarOperator>& idlist)
 		idlist.push_back(r);
 	}
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, count).GetKey();
 }
 unsigned ModbusService::GetX02Response(list<VarOperator>& idlist)
 {
@@ -260,7 +268,7 @@ unsigned ModbusService::GetX02Response(list<VarOperator>& idlist)
 		idlist.push_back(r);
 	}
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, count).GetKey();
 }
 unsigned ModbusService::GetX03Response(list<VarOperator>& idlist)
 {
@@ -307,7 +315,7 @@ unsigned ModbusService::GetX05Response(list<VarOperator>& idlist)
 
 	idlist.clear();
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, 1).GetKey();
 }
 unsigned ModbusService::GetX06Response(list<VarOperator>& idlist)
 {
@@ -319,7 +327,7 @@ unsigned ModbusService::GetX06Response(list<VarOperator>& idlist)
 
 	idlist.clear();
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, 1).GetKey();
 }
 unsigned ModbusService::GetX0fResponse(list<VarOperator>& idlist)
 {
@@ -327,11 +335,12 @@ unsigned ModbusService::GetX0fResponse(list<VarOperator>& idlist)
 	int slave = x.GetSlave();
 	int fcode = x.GetFcode();
 	int offset = x.GetOffset();
+	int count = x.GetCount();
 	int bcount = x.GetBcount();
 
 	idlist.clear();
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, count).GetKey();
 }
 unsigned ModbusService::GetX10Response(list<VarOperator>& idlist)
 {
@@ -339,13 +348,42 @@ unsigned ModbusService::GetX10Response(list<VarOperator>& idlist)
 	int slave = x.GetSlave();
 	int fcode = x.GetFcode();
 	int offset = x.GetOffset();
+	int count = x.GetCount();
 	int bcount = x.GetBcount();
 
 	idlist.clear();
 
-	return (idlist.begin() != idlist.end());
+	return VarOperator(slave, fcode, offset, count).GetKey();
 }
 map<unsigned,unsigned>& ModbusService::GetVarConfig(void)
 {
 	return requestmap;
+}
+map<unsigned,SendRecvCount> ModbusService::GetCount(void)
+{
+	map<unsigned,SendRecvCount> countmap;
+	map<unsigned,unsigned>::iterator i;
+
+	for(i = requestmap.begin(); i != requestmap.end(); i++)
+	{
+		VarOperator x(i->first, i->second);
+		SendRecvCount &c = countmap[i->first];
+		unsigned sendrecv = srcount[i->first];
+
+		c.slave = x.GetSlave();
+		c.fcode = x.GetFcode();
+		c.offset= x.GetOffset();
+		c.count = x.GetCount();
+		c.send = 0xffff & (sendrecv >> 16);
+		c.recv = 0xffff & (sendrecv >>  0);
+		if( c.send > 1000 || c.recv > 1000 )
+		{
+			//srcount[i->first] = 0;
+		}
+		if( c.send < c.recv )
+		{
+			c.recv = c.send = 0;
+		}
+	}
+	return countmap;
 }

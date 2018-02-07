@@ -11,7 +11,14 @@
 			margin: 50px auto;
 			width:500px;
 		}
-		#td-name,#td-comid,#td-slave,#td-fcode,#td-offset,#td-value,#td-cost
+		#app1varid,#app1comid,#app1slave,#app1fcode,
+		#app1offset,#app1value,#app1update,
+		#app2comid,#app2slave,#app2fcode,#app2offset,
+		#app2count,#app2sendcount,#app2recvcount
+		{
+			background-color:#fafafa;
+		}
+		#td-name,#td-comid,#td-slave,#td-fcode,#td-offset,#td-value,#td-update
 		{
 			padding:5px;
 			margin:0px;
@@ -50,12 +57,12 @@
 		<div id="setcom-div">
 			<table>
 				<tr>
-					<th>串口名</th>
+					<th>串口号</th>
 					<th>波特率</th>
-					<th>校验</th>
-					<th>字长</th>
+					<th>校验码</th>
+					<th>字长度</th>
 					<th>停止位</th>
-					<th>操作</th>
+					<th>操 作</th>
 				</tr>
 				<tr>
 					<td><input type="text" id="setcom-com" name="comid" value="1"></td>
@@ -71,50 +78,78 @@
 		<div id="addvar-div">
 			<table>
 				<tr>
-					<th>串口名</th>
-					<th>从地址</th>
+					<th>串口号</th>
+					<th>设备地址</th>
 					<th>功能码</th>
-					<th>地址</th>
-					<th>长度</th>
-					<th>value</th>
+					<th>变量地址</th>
+					<th>变量个数</th>
+					<th>设置值</th>
 					<!--<th>超时</th>-->
-					<th>操作</th>
+					<th>操 作</th>
 				</tr>
 				<tr>
-					<td><input type="text" name="comid" value="1"></td>
-					<td><input type="text" name="slave" value="1"></td>
-					<td><input type="text" name="fcode" value="3"></td>
-					<td><input type="text" name="offset" value="0"></td>
-					<td><input type="text" name="count" value="1"></td>
-					<td><input type="text" name="value" value="0"></td>
+					<td><input type="text" name="comid" id="addvar-comid" value="1"></td>
+					<td><input type="text" name="slave" id="addvar-slave" value="1"></td>
+					<td><input type="text" name="fcode" id="addvar-fcode" value="3"></td>
+					<td><input type="text" name="offset" id="addvar-offset" value="0"></td>
+					<td><input type="text" name="count" id="addvar-count" value="1"></td>
+					<td><input type="text" name="value" id="addvar-value" value="0"></td>
 					<!--<td><input type="text" name="interval" value="80"></td>-->
 					<td><button onclick="addvar(this)">添加</button></td>
 				</tr>
 			</table>
 		</div>
-		<div id="app">
+		<div id="app2">
+			<table>
+				<tr>
+					<th>串口号</th>
+					<th>设备号</th>
+					<th>功能码</th>
+					<th>变量地址</th>
+					<th>变量个数</th>
+					<th>发送帧数</th>
+					<th>接收帧数</th>
+					<th>操 作</th>
+				</tr>
+				<ul>
+				<tr v-for="i in message" v-if="i.comid">
+					<td name="app2comid"  id="app2comid">{{i.comid}}</td>
+					<td name="app2slave" id="app2slave">{{i.slave}}</td>
+					<td name="app2fcode" id="app2fcode">{{i.fcode}}</td>
+					<td name="app2offset" id="app2offset">{{i.offset}}</td>
+					<td name="app2count" id="app2count">{{i.count}}</td>
+					<td name="app2sendcount" id="app2sendcount">{{i.sendcount}}</td>
+					<td name="app2recvcount" id="app2recvcount">{{i.recvcount}}</td>
+					<td name="app2access" id="app2access" >
+						<button onclick="app2delvar(this)">删除</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="app1">
 			<table>
 				<tr>
 					<th>变量名</th>
-					<th>comid</th>
-					<th>slave</th>
-					<th>fcode</th>
-					<th>offset</th>
-					<th>实时值</th>
-					<th>update</th>
+					<th>串口号</th>
+					<th>设备号</th>
+					<th>功能码</th>
+					<th>变量号</th>
+					<th>变量值</th>
+					<th>更新时长</th>
 					<th>操作</th>
 				</tr>
 				<ul>
 				<tr v-for="i in message" v-if="i.comid">
-					<td name="name"  id="td-name" onclick="clickvarname(this)">{{i.varid}}</td>
-					<td name="comid" id="td-comid">{{i.comid}}</td>
-					<td name="slave" id="td-slave">{{i.slave}}</td>
-					<td name="fcode" id="td-fcode">{{i.fcode}}</td>
-					<td name="offset" id="td-offset">{{i.offset}}</td>
-					<td name="value" id="td-value">{{i.value}}</td>
-					<td name="cost"  id="td-cost">{{i.cost}}</td>
-					<td name="access" id="td-access" >
-						<button onclick="delvar(this)">删除</button>
+					<td id="app1varid">{{i.varid}}</td>
+					<td id="app1comid">{{i.comid}}</td>
+					<td id="app1slave">{{i.slave}}</td>
+					<td id="app1fcode">{{i.fcode}}</td>
+					<td id="app1offset">{{i.offset}}</td>
+					<td id="app1value">{{i.value}}</td>
+					<td id="app1update">{{i.update}}</td>
+					<td id="app1access" >
+						<button onclick="app1delvar(this)">删除</button>
 					</td>
 				</tr>
 			</table>
@@ -123,8 +158,14 @@
 		</div>	
 	</body>
 	<script>
-		var app = new Vue({
-			el:"#app",
+		var app1 = new Vue({
+			el:"#app1",
+			data:{
+				message:""
+			}
+		});
+		var app2 = new Vue({
+			el:"#app2",
 			data:{
 				message:""
 			}
@@ -158,35 +199,27 @@
 		}
 		function addvar(node)
 		{
-			var t = $(node).parents("tr").children("td");
-			var input0 = t.eq(0).children("input");
-			var input1 = t.eq(1).children("input");
-			var input2 = t.eq(2).children("input");
-			var input3 = t.eq(3).children("input");
-			var input4 = t.eq(4).children("input");
-			var input5 = t.eq(5).children("input");
-			var input6 = t.eq(6).children("input");
-			var command = "addvar";
-			switch(input2.val())
+			var cmd = "addvar";
+			var fcode = $("#addvar-fcode").val();
+			switch(fcode)
 			{
 				case 5:
 				case 6:
 				case 15:
 				case 16:
-					command = "setvar";
+					cmd = "setvar";
 					break;
 			}
 			var url	= "http://"
 				+ window.location.host
 				+ "/data.cgi?"
-				+ input0.attr("name") + "=" + input0.val() + "&" 
-				+ input1.attr("name") + "=" + input1.val() + "&"
-				+ input2.attr("name") + "=" + input2.val() + "&"
-				+ input3.attr("name") + "=" + input3.val() + "&"
-				+ input4.attr("name") + "=" + input4.val() + "&"
-				+ input5.attr("name") + "=" + input5.val() + "&"
-				+ input6.attr("name") + "=" + input6.val() + "&"
-				+ "cmd=" + command; 
+				+ "comid=" + $("#addvar-comid").val() + "&"
+				+ "slave=" + $("#addvar-slave").val() + "&"
+				+ "fcode=" + $("#addvar-fcode").val() + "&"
+				+ "offset=" + $("#addvar-offset").val() + "&"
+				+ "count=" + $("#addvar-count").val() + "&"
+				+ "value=" + $("#addvar-value").val() + "&"
+				+ "cmd=" + cmd; 
 			$("#status").html('<p id="fadeout">' + url + '</p>'); 
 			axios.get(url)
 				.then(function(r){
@@ -197,15 +230,23 @@
 				});
 			$("#fadeout").fadeOut(8000);
 		}
-		function delvar(node)
+		function app1delvar(node)
 		{
 			var t = $(node).parents("tr").children("td");
+			var comid = t.eq(1).html();
+			var slave = t.eq(2).html();
+			var fcode = t.eq(3).html();
+			var offset= t.eq(4).html();
+
 			var url	= "http://"
 				+ window.location.host
-					+ "/data.cgi"  + "?"
-					+ "comid=" + t.eq(1).text() + "&"
-					+ "varid=" + t.eq(0).text()  + "&"
-					+ "cmd=delvar";
+				+ "/data.cgi?"
+				+ "comid=" + comid + "&"
+				+ "slave=" + slave + "&"
+				+ "fcode=" + fcode + "&"
+				+ "offset=" + offset + "&"
+				+ "count=1" + "&"
+				+ "cmd=delvar";
 			$("#status").html('<p id="fadeout">' + url + '</p>');
 			axios.get(url)
 				.then(function(r){
@@ -216,23 +257,69 @@
 				});
 			$("#fadeout").fadeOut(5000);
 		}
-		function getdata()
+		function app2delvar(node)
 		{
-			axios.get("/var/allcom.json?id=" + Date.now())
+			var t = $(node).parents("tr").children("td");
+			var comid = t.eq(0).html();
+			var slave = t.eq(1).html();
+			var fcode = t.eq(2).html();
+			var offset= t.eq(3).html();
+			var count = t.eq(4).html();
+
+			var url	= "http://"
+				+ window.location.host
+				+ "/data.cgi?"
+				+ "comid=" + comid + "&"
+				+ "slave=" + slave + "&"
+				+ "fcode=" + fcode + "&"
+				+ "offset=" + offset + "&"
+				+ "count=" + count + "&"
+				+ "cmd=delvar"; 
+
+			$("#status").html('<p id="fadeout">' + url + '</p>'); 
+			axios.get(url)
 				.then(function(r){
-					if( r.data.length > 1 )
+					$("#status").css("color", "green");
+				})
+				.catch(function(e){
+					$("#status").css("color", "red");
+				});
+			$("#fadeout").fadeOut(8000);
+		}
+		function getcount()
+		{
+			var url	= "http://" 
+				+ window.location.host 
+				+ "/data.cgi?cmd=getcount";
+			axios.get(url + "&id=" + Date.now())
+				.then(function(r){
+					if( r.data.list.length > 1 )
 					{
-						app.message = r.data;
+						app2.message = r.data.list;
 					}
 				})
 				.catch(function(e){
 					console.dir(e);
 				});
 		}
-		function clickvarname(node)
+		setInterval("getcount()", 2000);
+		function getdata()
 		{
-			$(node).html();
+			var url	= "http://" 
+				+ window.location.host 
+				+ "/data.cgi?cmd=getdata";
+			axios.get(url + "&id=" + Date.now())
+				.then(function(r){
+					if( r.data.list.length > 1 )
+					{
+						app1.message = r.data.list;
+					}
+				})
+				.catch(function(e){
+					console.dir(e);
+				});
 		}
+		setInterval("getdata()", 1000);
 		function initconfig()
 		{
 			$("input[name='comid']").css("width", "6em");
@@ -248,7 +335,6 @@
 			$("input[name='value']").css("width", "4em");
 			$("input[name='interval']").css("width", "4em");
 		}
-		setInterval("getdata()", 1000);
 		initconfig();
 	</script>
 </ tml>

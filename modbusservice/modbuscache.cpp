@@ -19,9 +19,12 @@ void ModbusCache::SetValue(unsigned comid, unsigned varid, unsigned value)
 	v.SetVarId( varid );
 	v.SetValue( value );
 }
-void ModbusCache::DelValue(unsigned comid, unsigned varid)
+void ModbusCache::DelValue(unsigned comid, unsigned varid, unsigned count)
 {
-	valuemap[ comid ].erase( varid );
+	for(int i = 0; i < count; i++)
+	{
+		valuemap[ comid ].erase( varid + i );
+	}
 }
 void ModbusCache::ShowValue(void)
 {

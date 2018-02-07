@@ -44,11 +44,10 @@ int main(void)
 			}
 		}
 		manager.RunLoop();
-		if( ftimer.mdiff() > 1017 )
+		if( ftimer.mdiff() > 1137 )
 		{
-			map<unsigned,map<unsigned,ModbusValue> > mmv;
-			manager.GetValue(mmv);
-			valuefile.MakeFile(mmv);
+			manager.StoreValue("var/data");
+			manager.StoreCount("var/count");
 			ftimer.init();
 		}
 		usleep(100);

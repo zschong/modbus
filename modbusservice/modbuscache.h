@@ -12,9 +12,9 @@ protected:
 	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator CVIterator;
 public:
 	bool GetValue(map<unsigned,map<unsigned,ModbusValue> >&);
-	void SetVarName(unsigned cid, unsigned vid, const string& vname) ;
-	void SetValue(unsigned cid, unsigned vid, unsigned value);
-	void DelValue(unsigned cid, unsigned vid);
+	void SetVarName(unsigned comid, unsigned varid, const string&);
+	void SetValue(unsigned comid, unsigned varid, unsigned value);
+	void DelValue(unsigned comid, unsigned varid, unsigned count);
 public:
 	void ShowValue(map<unsigned,map<unsigned,ModbusValue> >&);
 	void ShowValue(void);

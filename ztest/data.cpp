@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "modbusconfig.h"
+#include "countfile.h"
 #include "service.h"
 #include "cgi.h"
 
@@ -79,7 +80,7 @@ int setvar(Cgi& cgi)
 	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
 	return 0;
 }
-int getvar(Cgi& cgi)
+int getdata(Cgi& cgi)
 {
 	Service service;
 	ModbusConfig mconfig;
@@ -87,43 +88,84 @@ int getvar(Cgi& cgi)
 	int comid = cgi["comid"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
+	map<unsigned,map<unsigned,VarOperator> > m;
+	map<unsigned,map<unsigned,VarOperator> >::iterator A;
+	map<unsigned,VarOperator>::iterator B;
 
 	char buf[128];
-	FILE *fp = NULL;
+	FILE *fp = fopen("var/data", "r");
 
-	if( comid == 0 )
+	if( NULL == fp )
 	{
-		snprintf(buf, sizeof(buf), "var/allcom.json");
-		fp = fopen(buf, "r");
-	}
-	else if( slave == 0 )
-	{
-		snprintf(buf, sizeof(buf), "var/COM%d.json", comid);
-		fp = fopen(buf, "r");
-	}
-	else
-	{
-		snprintf(buf, sizeof(buf), "var/COM%d.%d.json", comid, slave);
-		fp = fopen(buf, "r");
-	}
-	if( fp )
-	{
-		printf("{\"success\":true,\"list\":");
-	}
-	while(fp)
-	{
-		char data[1025] = {0};
-		int len = fread(data, 1, 1024, fp);
-		if( len > 0 )
-		{
-			data[len] = 0;
-			printf("%s", data);
-			continue;
-		}
-		printf("}");
+		printf("{\"success\":false}");
 		return 0;
 	}
-	printf("{\"success\":false}");
+	while( fgets(buf, sizeof(buf)-1, fp) )
+	{
+		unsigned varid = 0;
+		unsigned comid = 0;
+		unsigned slave = 0;
+		unsigned fcode = 0;
+		unsigned offset= 0;
+		unsigned value = 0;
+		unsigned update = 0;
+		sscanf(buf, "%u,%u,%u,%u,%u,%u,%u",
+				&comid,
+				&varid,
+				&slave,
+				&fcode,
+				&offset,
+				&value,
+				&update
+			  );
+		VarOperator x(slave, fcode, offset, value, update);
+		m[comid][x.GetKey()] = x;
+	}
+	fclose(fp);
+
+	printf("{\"\":\"\",\"list\":[");
+	for(A = m.begin(); A != m.end(); A++)
+	{
+		if( 0 != comid && A->first != comid )
+		{
+			continue;
+		}
+		for(B = A->second.begin(); B != A->second.end(); B++)
+		{
+			if( 0 != slave && slave != B->second.GetSlave() )
+			{
+				continue;
+			}
+			if( 0 != fcode && fcode != B->second.GetFcode() )
+			{
+				continue;
+			}
+			printf("{"
+					"\"comid\":\"%u\""
+					","
+					"\"varid\":\"%08X\""
+					","
+					"\"slave\":\"%u\""
+					","
+					"\"fcode\":\"%u\""
+					","
+					"\"offset\":\"%05u\""
+					","
+					"\"value\":\"%u\""
+					","
+					"\"update\":\"%u\""
+					"},",
+					A->first,
+					B->second.GetKey(),
+					B->second.GetSlave(),
+					B->second.GetFcode(),
+					B->second.GetOffset(),
+					B->second.GetCount(),
+					B->second.GetInterval()
+					);
+		}
+	}
+	printf("{}]}");
 
 	return -1;
 }
@@ -133,10 +175,14 @@ int delvar(Cgi& cgi)
 	ModbusConfig mconfig;
 
 	int comid = cgi["comid"].toint();
-	VarOperator var(cgi["varid"].xtoint(), 1 << 16);
+	int slave = cgi["slave"].toint();
+	int fcode = cgi["fcode"].toint();
+	int offset= cgi["offset"].toint();
+	int count = cgi["count"].toint();
+	VarOperator x(slave, fcode, offset, count);
 
 	mconfig.SetType( VAR_CONFIG );
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, var);
+	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, x);
 
 	if( service.StartServer(clientpath) == false )
 	{
@@ -187,6 +233,101 @@ int getconfig(Cgi& cgi)
 
 	return 0;
 }
+int getcount(Cgi& cgi)
+{
+	Service service;
+	ModbusConfig mconfig;
+
+	int comid = cgi["comid"].toint();
+	int slave = cgi["slave"].toint();
+	int fcode = cgi["fcode"].toint();
+	map<unsigned,map<unsigned,SendRecvCount> > m;
+	map<unsigned,map<unsigned,SendRecvCount> >::iterator A;
+	map<unsigned,SendRecvCount>::iterator B;
+
+	char buf[128];
+	FILE *fp = fopen("var/count", "r");
+
+	if( NULL == fp )
+	{
+		printf("{\"success\":false}");
+		return 0;
+	}
+	while( fgets(buf, sizeof(buf)-1, fp) )
+	{
+		unsigned comid = 0;
+		unsigned slave = 0;
+		unsigned fcode = 0;
+		unsigned offset= 0;
+		unsigned count = 0;
+		unsigned send = 0;
+		unsigned recv = 0;
+		sscanf(buf, "%u,%u,%u,%u,%u,%u,%u",
+				&comid,
+				&slave,
+				&fcode,
+				&offset,
+				&count,
+				&send,
+				&recv
+			  );
+		VarOperator x(slave, fcode, offset, count);
+		SendRecvCount &c = m[comid][x.GetKey()];
+		c.slave = slave;
+		c.fcode = fcode;
+		c.offset= offset;
+		c.count = count;
+		c.send  = send;
+		c.recv  = recv;
+	}
+	fclose(fp);
+
+	printf("{\"\":\"\",\"list\":[");
+	for(A = m.begin(); A != m.end(); A++)
+	{
+		if( 0 != comid && A->first != comid )
+		{
+			continue;
+		}
+		for(B = A->second.begin(); B != A->second.end(); B++)
+		{
+			if( 0 != slave && slave != B->second.slave )
+			{
+				continue;
+			}
+			if( 0 != fcode && fcode != B->second.fcode )
+			{
+				continue;
+			}
+			printf("{"
+					"\"comid\":\"%u\""
+					","
+					"\"slave\":\"%u\""
+					","
+					"\"fcode\":\"%u\""
+					","
+					"\"offset\":\"%u\""
+					","
+					"\"count\":\"%u\""
+					","
+					"\"sendcount\":\"%u\""
+					","
+					"\"recvcount\":\"%u\""
+					"},",
+					A->first,
+					B->second.slave,
+					B->second.fcode,
+					B->second.offset,
+					B->second.count,
+					B->second.send,
+					B->second.recv
+					);
+		}
+	}
+	printf("{}]}");
+
+	return -1;
+}
 
 int main(void)
 {
@@ -204,6 +345,8 @@ int main(void)
 	cmdmap["delvar"] = delvar;
 	cmdmap["namevar"] = namevar;
 	cmdmap["config"] = getconfig;
+	cmdmap["getcount"] = getcount;
+	cmdmap["getdata"] = getdata;
 
 	map<string,int(*)(Cgi&)>::iterator i = cmdmap.find(cmd);
 

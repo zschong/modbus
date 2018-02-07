@@ -5,11 +5,11 @@
 #include <string>
 #include "modbus.h"
 #include "varname.h"
+#include "countfile.h"
 #include "varconfig.h"
 #include "varoperator.h"
 #include "timeoperator.h"
 using namespace std;
-
 
 class ModbusService
 {
@@ -18,9 +18,8 @@ protected:
 	unsigned timeout;
 	TimeOperator timer;
 	list<VarOperator> requestlist;
-	map<unsigned,unsigned> recvcount;
-	map<unsigned,unsigned> sendcount;
 	map<unsigned,unsigned> requestmap;
+	map<unsigned,unsigned> srcount;
 public:
 	ModbusService(void);
 public:
@@ -50,5 +49,6 @@ public:
 	unsigned GetX10Response(list<VarOperator>&);
 public:
 	map<unsigned,unsigned>& GetVarConfig(void);
+	map<unsigned,SendRecvCount> GetCount(void);
 };
 #endif//__MODBUS_SERVICE_H__
