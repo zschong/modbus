@@ -45,18 +45,17 @@ bool ModbusManager::SetVarConfig(const VarConfig& var)
 			break;
 		case VarCmdAdd:
 			modbus->second.AddVarConfig(x);
+			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
+			varcfg.Store();
 			break;
 		case VarCmdDel:
 			modbus->second.DelVarConfig(x);
+			varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
+			cache.DelValue(comid, x.GetKey(), x.GetCount());
+			varcfg.Store();
 			break;
 		default:
 			return false;
-	}
-	if( VarCmdAdd == cmd || VarCmdDel == cmd )
-	{
-		varcfg.SetVarConfig(comid, modbus->second.GetVarConfig());
-		cache.DelValue(comid, x.GetKey(), x.GetCount());
-		varcfg.Store();
 	}
 	return true;
 }

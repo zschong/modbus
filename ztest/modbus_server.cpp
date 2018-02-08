@@ -23,7 +23,6 @@ int main(void)
 	manager.LoadComId(".com.id");
 	manager.LoadComConfig(".com.config");
 	manager.LoadVarConfig(".var.config");
-	valuefile.SetFileName("var/allcom.json");
 
 	while(1)
 	{

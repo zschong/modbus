@@ -293,10 +293,7 @@
 				+ "/data.cgi?cmd=getcount";
 			axios.get(url + "&id=" + Date.now())
 				.then(function(r){
-					if( r.data.list.length > 1 )
-					{
-						app2.message = r.data.list;
-					}
+					app2.message = r.data.list;
 				})
 				.catch(function(e){
 					console.dir(e);
@@ -310,10 +307,7 @@
 				+ "/data.cgi?cmd=getdata";
 			axios.get(url + "&id=" + Date.now())
 				.then(function(r){
-					if( r.data.list.length > 1 )
-					{
-						app1.message = r.data.list;
-					}
+					app1.message = r.data.list;
 				})
 				.catch(function(e){
 					console.dir(e);

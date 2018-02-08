@@ -2,14 +2,13 @@
 #define __MODBUS_CACHE_H__
 #include <map>
 #include "modbusvalue.h"
-
+#include "timeoperator.h"
 
 class ModbusCache
 {
 protected:
+	map<unsigned,map<unsigned,TimeOperator> > delmap;
 	map<unsigned,map<unsigned,ModbusValue> > valuemap;
-	typedef map<unsigned,ModbusValue>::iterator VIterator;
-	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator CVIterator;
 public:
 	bool GetValue(map<unsigned,map<unsigned,ModbusValue> >&);
 	void SetVarName(unsigned comid, unsigned varid, const string&);
@@ -18,6 +17,10 @@ public:
 public:
 	void ShowValue(map<unsigned,map<unsigned,ModbusValue> >&);
 	void ShowValue(void);
+	void DelByTime(void);
+public:
+	typedef map<unsigned,ModbusValue>::iterator BIterator;
+	typedef map<unsigned,map<unsigned,ModbusValue> >::iterator AIterator;
 };
 
 #endif//__MODBUS_CACHE_H__

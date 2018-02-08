@@ -4,6 +4,18 @@
 #include "service.h"
 #include "cgi.h"
 
+class TmpNode 
+{
+public:
+	unsigned slave;
+	unsigned fcode;
+	unsigned offset;
+	unsigned value;
+	unsigned update;
+	TmpNode(void):slave(0),fcode(0),offset(0),value(0),update(0){}
+};
+
+
 string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
 
@@ -88,9 +100,9 @@ int getdata(Cgi& cgi)
 	int comid = cgi["comid"].toint();
 	int slave = cgi["slave"].toint();
 	int fcode = cgi["fcode"].toint();
-	map<unsigned,map<unsigned,VarOperator> > m;
-	map<unsigned,map<unsigned,VarOperator> >::iterator A;
-	map<unsigned,VarOperator>::iterator B;
+	map<unsigned,map<unsigned,TmpNode> > m;
+	map<unsigned,map<unsigned,TmpNode> >::iterator A;
+	map<unsigned,TmpNode>::iterator B;
 
 	char buf[128];
 	FILE *fp = fopen("var/data", "r");
@@ -118,8 +130,12 @@ int getdata(Cgi& cgi)
 				&value,
 				&update
 			  );
-		VarOperator x(slave, fcode, offset, value, update);
-		m[comid][x.GetKey()] = x;
+		TmpNode &data = m[comid][varid];
+		data.slave = slave;
+		data.fcode = fcode;
+		data.offset= offset;
+		data.value = value;
+		data.update= update;
 	}
 	fclose(fp);
 
@@ -132,11 +148,11 @@ int getdata(Cgi& cgi)
 		}
 		for(B = A->second.begin(); B != A->second.end(); B++)
 		{
-			if( 0 != slave && slave != B->second.GetSlave() )
+			if( 0 != slave && slave != B->second.slave )
 			{
 				continue;
 			}
-			if( 0 != fcode && fcode != B->second.GetFcode() )
+			if( 0 != fcode && fcode != B->second.fcode )
 			{
 				continue;
 			}
@@ -156,12 +172,12 @@ int getdata(Cgi& cgi)
 					"\"update\":\"%u\""
 					"},",
 					A->first,
-					B->second.GetKey(),
-					B->second.GetSlave(),
-					B->second.GetFcode(),
-					B->second.GetOffset(),
-					B->second.GetCount(),
-					B->second.GetInterval()
+					B->first,
+					B->second.slave,
+					B->second.fcode,
+					B->second.offset,
+					B->second.value,
+					B->second.update
 					);
 		}
 	}
