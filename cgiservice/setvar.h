@@ -1,14 +1,13 @@
 #ifndef __SETVAR_H__
 #define __SETVAR_H__
+#include "modbusconfig.h"
+#include "service.h"
 #include "cgi.h"
 
 class SetVar
 {
 public:
-	SetVar(void);
-	SetVar(Cgi& cgi);
-public:
-	bool Service(Cgi& cgi);
+	SetVar(Cgi&, const string&, const string&);
 };
 
 #endif//__SETVAR_H__

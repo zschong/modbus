@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" type="text/css" href="editor.css" />
+	</head>
+	<body>
+		<div id="mainpage">
+			<div id="nav_head">
+				<H8>智能控制系统</H8>
+			</div>
+			<div id="nav_side">
+				<h3>导航栏</h3>
+
+				<hr>
+				<a href="index.html">返回主页</a></li>
+
+				<hr>
+				<a href="comconfig.html">串口配置</a></li>
+
+				<hr>
+				<a href="basiclist.html">控制脚本</a></li>
+
+				<hr>
+				<a href="inputlist.html">输入变量</a></li>
+				
+				<hr>
+				<a href="outputlist.html">输出变量</a></li>
+				
+				<hr>
+				<a href="variablelist.html">数据变量</a></li>
+			</div>
+			<div id="content">
+
+				<div id="editor-out">
+					<div id="editor"></div>
+					<div id="statusBar"></div>
+					<div id="submit-buttom">
+						<button onclick="submitscrtip()">提交</button>
+					</div>
+				</div>
+	
+			</div>
+		</div>
+	</body>
+		<script src="vue.min.js"></script>
+		<script src="axios.min.js"></script>
+		<script src="ace/ace.js"></script>
+		<script src="ace/ext-settings_menu.js"></script>
+		<script src="ace/ext-statusbar.js"></script>
+		<script src="editor.js"></script>
+</html>

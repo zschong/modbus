@@ -1,0 +1,31 @@
+body {
+	text-align:center;
+}
+#editor-out{ 
+	margin: auto;
+	width:600px;
+}
+#editor-out {
+	border:solid 1px gray;
+}
+#statusBar {
+	width:100%;
+	margin:0;
+	padding:0;
+	float:left;
+	height: 20px;
+	background-color: rgb(245, 245, 245);
+	color: gray;
+}
+.ace_status-indicator {
+	margin:0;
+	padding:0;
+	float:right;
+	color: gray;
+	float:right;
+	border-left: 1px solid;
+}
+#submit-buttom {
+	float:center;
+	width:100%;
+}

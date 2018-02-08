@@ -1,20 +1,12 @@
 #include <stdio.h>
-#include "modbusconfig.h"
-#include "countfile.h"
-#include "service.h"
-#include "cgi.h"
-
-class TmpNode 
-{
-public:
-	unsigned slave;
-	unsigned fcode;
-	unsigned offset;
-	unsigned value;
-	unsigned update;
-	TmpNode(void):slave(0),fcode(0),offset(0),value(0),update(0){}
-};
-
+#include "getconfig.h"
+#include "getcount.h"
+#include "getdata.h"
+#include "setname.h"
+#include "setcom.h"
+#include "setvar.h"
+#include "addvar.h"
+#include "delvar.h"
 
 string serverpath = "/home/user/var/.modbus.service";
 string clientpath = "/home/user/var/.modbus.varconfig";
@@ -26,323 +18,35 @@ int login(Cgi& cgi)
 }
 int setcom(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-	int comid = cgi["comid"].toint();
-	int baud = cgi["baud"].toint();
-	int parity = cgi["parity"].toint();
-	int bsize = cgi["bsize"].toint();
-	int stop = cgi["stop"].toint();
-
-	mconfig.SetType( COM_CONFIG );
-	mconfig.GetComConfig() = ComConfig(comid, baud, parity, bsize, stop);
-
-	if( service.StartServer(clientpath) == false )
-	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
-	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	SetCom x(cgi, serverpath, clientpath);
 }
 int addvar(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	int offset = cgi["offset"].toint();
-	int count = cgi["count"].toint();
-
-	mconfig.SetType( VAR_CONFIG );
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdAdd, slave, fcode, offset, count);
-
-	if( service.StartServer(clientpath) == false )
-	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
-	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	AddVar x(cgi, serverpath, clientpath);
 }
 int setvar(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	int offset = cgi["offset"].toint();
-	int value = cgi["value"].toint();
-
-	mconfig.SetType( VAR_CONFIG );
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdSet, slave, fcode, offset, value);
-
-	if( service.StartServer(clientpath) == false )
-	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
-	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	SetVar x(cgi, serverpath, clientpath);
 }
 int getdata(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	map<unsigned,map<unsigned,TmpNode> > m;
-	map<unsigned,map<unsigned,TmpNode> >::iterator A;
-	map<unsigned,TmpNode>::iterator B;
-
-	char buf[128];
-	FILE *fp = fopen("var/data", "r");
-
-	if( NULL == fp )
-	{
-		printf("{\"success\":false}");
-		return 0;
-	}
-	while( fgets(buf, sizeof(buf)-1, fp) )
-	{
-		unsigned varid = 0;
-		unsigned comid = 0;
-		unsigned slave = 0;
-		unsigned fcode = 0;
-		unsigned offset= 0;
-		unsigned value = 0;
-		unsigned update = 0;
-		sscanf(buf, "%u,%u,%u,%u,%u,%u,%u",
-				&comid,
-				&varid,
-				&slave,
-				&fcode,
-				&offset,
-				&value,
-				&update
-			  );
-		TmpNode &data = m[comid][varid];
-		data.slave = slave;
-		data.fcode = fcode;
-		data.offset= offset;
-		data.value = value;
-		data.update= update;
-	}
-	fclose(fp);
-
-	printf("{\"\":\"\",\"list\":[");
-	for(A = m.begin(); A != m.end(); A++)
-	{
-		if( 0 != comid && A->first != comid )
-		{
-			continue;
-		}
-		for(B = A->second.begin(); B != A->second.end(); B++)
-		{
-			if( 0 != slave && slave != B->second.slave )
-			{
-				continue;
-			}
-			if( 0 != fcode && fcode != B->second.fcode )
-			{
-				continue;
-			}
-			printf("{"
-					"\"comid\":\"%u\""
-					","
-					"\"varid\":\"%08X\""
-					","
-					"\"slave\":\"%u\""
-					","
-					"\"fcode\":\"%u\""
-					","
-					"\"offset\":\"%05u\""
-					","
-					"\"value\":\"%u\""
-					","
-					"\"update\":\"%u\""
-					"},",
-					A->first,
-					B->first,
-					B->second.slave,
-					B->second.fcode,
-					B->second.offset,
-					B->second.value,
-					B->second.update
-					);
-		}
-	}
-	printf("{}]}");
-
-	return -1;
+	GetData x(cgi, serverpath, clientpath);
 }
 int delvar(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	int offset= cgi["offset"].toint();
-	int count = cgi["count"].toint();
-	VarOperator x(slave, fcode, offset, count);
-
-	mconfig.SetType( VAR_CONFIG );
-	mconfig.GetVarConfig() = VarConfig(comid, VarCmdDel, x);
-
-	if( service.StartServer(clientpath) == false )
-	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
-	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	DelVar x(cgi, serverpath, clientpath);
 }
 int namevar(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	int offset = cgi["offset"].toint();
-	string name = cgi["name"];
-
-	mconfig.SetType( VAR_NAME );
-	mconfig.GetVarName() = VarName(comid, slave, fcode, offset, name);
-
-	if( service.StartServer(clientpath) == false )
-	{
-		printf("{\"success\":\"false\",\"msg\":\"connection failed\"}");
-		return -1;
-	}
-	service.SendPacket(serverpath, mconfig.data(), mconfig.length());
-	printf("{\"success\":\"true\",\"msg\":\"ok\"}");
-	return 0;
+	SetName x(cgi, serverpath, clientpath);
 }
 int getconfig(Cgi& cgi)
 {
-	char buf[4096] = {0};
-	FILE *fp = fopen("com.config", "r");
-
-	if( NULL == fp )
-	{
-		return -1;
-	}
-	if( fread(buf, 1, sizeof(buf), fp) < 1 )
-	{
-		return -2;
-	}
-	buf[sizeof(buf)-1] = 0;
-	printf("%s", buf);
-
-	return 0;
+	GetConfig x(cgi, serverpath, clientpath);
 }
 int getcount(Cgi& cgi)
 {
-	Service service;
-	ModbusConfig mconfig;
-
-	int comid = cgi["comid"].toint();
-	int slave = cgi["slave"].toint();
-	int fcode = cgi["fcode"].toint();
-	map<unsigned,map<unsigned,SendRecvCount> > m;
-	map<unsigned,map<unsigned,SendRecvCount> >::iterator A;
-	map<unsigned,SendRecvCount>::iterator B;
-
-	char buf[128];
-	FILE *fp = fopen("var/count", "r");
-
-	if( NULL == fp )
-	{
-		printf("{\"success\":false}");
-		return 0;
-	}
-	while( fgets(buf, sizeof(buf)-1, fp) )
-	{
-		unsigned comid = 0;
-		unsigned slave = 0;
-		unsigned fcode = 0;
-		unsigned offset= 0;
-		unsigned count = 0;
-		unsigned send = 0;
-		unsigned recv = 0;
-		sscanf(buf, "%u,%u,%u,%u,%u,%u,%u",
-				&comid,
-				&slave,
-				&fcode,
-				&offset,
-				&count,
-				&send,
-				&recv
-			  );
-		VarOperator x(slave, fcode, offset, count);
-		SendRecvCount &c = m[comid][x.GetKey()];
-		c.slave = slave;
-		c.fcode = fcode;
-		c.offset= offset;
-		c.count = count;
-		c.send  = send;
-		c.recv  = recv;
-	}
-	fclose(fp);
-
-	printf("{\"\":\"\",\"list\":[");
-	for(A = m.begin(); A != m.end(); A++)
-	{
-		if( 0 != comid && A->first != comid )
-		{
-			continue;
-		}
-		for(B = A->second.begin(); B != A->second.end(); B++)
-		{
-			if( 0 != slave && slave != B->second.slave )
-			{
-				continue;
-			}
-			if( 0 != fcode && fcode != B->second.fcode )
-			{
-				continue;
-			}
-			printf("{"
-					"\"comid\":\"%u\""
-					","
-					"\"slave\":\"%u\""
-					","
-					"\"fcode\":\"%u\""
-					","
-					"\"offset\":\"%u\""
-					","
-					"\"count\":\"%u\""
-					","
-					"\"sendcount\":\"%u\""
-					","
-					"\"recvcount\":\"%u\""
-					"},",
-					A->first,
-					B->second.slave,
-					B->second.fcode,
-					B->second.offset,
-					B->second.count,
-					B->second.send,
-					B->second.recv
-					);
-		}
-	}
-	printf("{}]}");
-
-	return -1;
+	GetCount x(cgi, serverpath, clientpath);
 }
 
 int main(void)

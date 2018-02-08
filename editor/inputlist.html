@@ -1,0 +1,81 @@
+<html>
+	<head>
+		<script src="vue.min.js"></script>
+		<script src="axios.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+	<body>
+		<div id="mainpage">
+			<div id="nav_head">
+				<H8>智能控制系统</H8>
+			</div>
+			<div id="nav_side">
+				<h3>导航栏</h3>
+
+				<hr>
+				<a href="index.html">返回主页</a></li>
+
+				<hr>
+				<a href="comconfig.html">串口配置</a></li>
+
+				<hr>
+				<a href="basiclist.html">控制脚本</a></li>
+
+				<hr>
+				<a href="inputlist.html">输入变量</a></li>
+				
+				<hr>
+				<a href="outputlist.html">输出变量</a></li>
+				
+				<hr>
+				<a href="variablelist.html">数据变量</a></li>
+			</div>
+			<div id="content">
+				<table id="list">
+					<thead>
+						<th>变量名</th>
+						<th>初始化</th>
+						<th>手自动</th>
+						<th>运行时</th>
+						<th>停止时</th>
+						<th>总运行</th>
+						<th>阀 值</th>
+						<th>实时值</th>
+					</thead>
+					<tbody>
+						<tr v-for="r in msg" v-if="r.comid">
+							<td>{{ r.varid}}</td>
+							<td>{{ r.comid}}</td>
+							<td>{{ r.slave}}</td>
+							<td>{{ r.fcode}}</td>
+							<td>{{ r.offset}}</td>
+							<td>{{ r.value}}</td>
+							<td>{{ r.update}}</td>
+							<td>{{ r.update}}</td>
+						</tr>
+					</tbody>
+			</table>
+			</div>
+		</div>
+	</body>
+	<script>
+		var app1 = new Vue({
+			el: '#list',
+			data: {
+				msg: "test"
+			}
+		})
+		function getdata()
+		{
+			var url = "http://" + location.host + "/data.cgi?cmd=getdata";
+			axios.get(url + "&id=" + Date.now())
+				.then( function (r) {
+					app1.msg = r.data.list;
+				})
+				.catch( function (e) {
+				});
+		}
+		getdata();
+		setInterval("getdata()", 1000);
+	</script>
+</html>

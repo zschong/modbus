@@ -1,0 +1,125 @@
+<html>
+	<head>
+		<script src="vue.min.js"></script>
+		<script src="axios.min.js"></script>
+		<script src="jquery.min.js"></script>
+		<style>
+			table{margin:auto;width:97%;}
+			th{background-color: #aaaaaa;}
+			td{background-color: #cccccc;}
+		</style>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+	<body>
+		<div id="mainpage">
+			<div id="nav_head">
+				<H8>智能控制系统</H8>
+			</div>
+			<div id="nav_side">
+				<h3>导航栏</h3>
+				<hr>
+
+				<a href="index.html">返回主页</a>
+				<hr>
+
+				<a href="comconfig.html">串口配置</a>
+				<hr>
+
+				<a href="basiclist.html">控制脚本</a>
+				<hr>
+
+				<a href="inputlist.html">输入变量</a>
+				<hr>
+				
+				<a href="outputlist.html">输出变量</a>
+				<hr>
+				
+				<a href="variablelist.html">数据变量</a>
+				<hr>
+			</div>
+			<div id="content">
+				<table id="list">
+					<thead>
+						<th>变量名</th>
+						<th>初始化</th>
+						<th>手自动</th>
+						<th>运行时</th>
+						<th>停止时</th>
+						<th>总运行</th>
+						<th>阀 值</th>
+						<th>实时值</th>
+					</thead>
+					<tbody>
+						<tr v-for="r in datarows" v-if="r.comid">
+							<td name="name" v-text="r.varid" onclick="gettd(this)">
+							</td>
+							<td name="init" v-text="r.comid" onclick="gettd(this)">
+							</td>
+							<td name="manual" v-text="r.slave" onclick="gettd(this)">
+							</td>
+							<td name="ontime" v-text="r.fcode" onclick="gettd(this)">
+							</td>
+							<td name="offtime" v-text="r.offset" onclick="gettd(this)">
+							</td>
+							<td name="runtime" v-text="r.value" onclick="gettd(this)">
+							</td>
+							<td name="threshold" v-text="r.update" onclick="gettd(this)">
+							</td>
+							<td name="value" v-text="r.update" onclick="gettd(this)">
+							</td>
+						</tr>
+					</tbody>
+			</table>
+			</div>
+		</div>
+	</body>
+	<script>
+		var app1 = new Vue({
+			el: '#list',
+			data: {
+				datarows: "test"
+			}
+		})
+		function getdata()
+		{
+			var url = "http://" + location.host + "/data.cgi?cmd=getdata";
+			axios.get(url + "&id=" + Date.now())
+				.then( function (r) {
+					app1.datarows = r.data.list;
+				})
+				.catch( function (e) {
+				});
+		}
+		getdata();
+		var timer = setInterval("getdata()", 1000);
+		function gettd(x)
+		{
+			if( $(x).find("input").length == 0 )
+			{
+				clearInterval(timer);
+				var name = $(x).attr("name");
+				$(x).append('<input type="input" name="'+ name +'" style="float:right;width:40px;" onkeydown="keydown(this)" onblur="xblur(this)">').find("input").focus();
+			}
+		}
+		function xblur(x)
+		{
+			if( $(x).val() == 0 )
+			{
+				$(x).remove();
+			}
+			else if( confirm("确认提交吗?") )
+			{
+				$(x).remove();
+			}
+			timer = setInterval("getdata()", 1000);
+		}
+		function keydown(x)
+		{
+			$(x).width($(x).val().length+40);
+			if( event.which == 13 )
+			{
+				$(x).remove();
+			}
+		}
+	</script>
+</html>
