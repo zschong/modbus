@@ -84,6 +84,12 @@ bool ModbusService::SendRequest(void)
 }
 void ModbusService::DelVarConfig(VarOperator& x)
 {
+	map<unsigned,unsigned>::iterator i = srcount.find(x.GetKey());
+
+	if( srcount.end() != i )
+	{
+		i->second = 0;
+	}
 	x.Del(requestmap, x.GetKey(), x.GetValue());
 }
 bool ModbusService::SendX01Request(VarOperator& x)
@@ -192,6 +198,16 @@ bool ModbusService::SendX10Request(VarOperator& x)
 }
 bool ModbusService::SetValue(VarOperator& x)
 {
+	printf("%s.comid(%d).slave(%d).fcode(%d).offset(%d).count(%d).interval(%d)\n",
+			__func__, 
+			x.GetComId(), 
+			x.GetSlave(), 
+			x.GetFcode(), 
+			x.GetOffset(),
+			x.GetCount(),
+			x.GetInterval()
+			);
+
 	requestlist.push_back(x);
 }
 unsigned ModbusService::GetValue(list<VarOperator>& values)

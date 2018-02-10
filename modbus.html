@@ -199,27 +199,17 @@
 		}
 		function addvar(node)
 		{
-			var cmd = "addvar";
 			var fcode = $("#addvar-fcode").val();
-			switch(fcode)
-			{
-				case 5:
-				case 6:
-				case 15:
-				case 16:
-					cmd = "setvar";
-					break;
-			}
 			var url	= "http://"
 				+ window.location.host
-				+ "/data.cgi?"
-				+ "comid=" + $("#addvar-comid").val() + "&"
-				+ "slave=" + $("#addvar-slave").val() + "&"
-				+ "fcode=" + $("#addvar-fcode").val() + "&"
-				+ "offset=" + $("#addvar-offset").val() + "&"
-				+ "count=" + $("#addvar-count").val() + "&"
-				+ "value=" + $("#addvar-value").val() + "&"
-				+ "cmd=" + cmd; 
+				+ "/data.cgi?cmd=addvar"
+				+ "&comid=" + $("#addvar-comid").val()
+				+ "&slave=" + $("#addvar-slave").val()
+				+ "&fcode=" + $("#addvar-fcode").val()
+				+ "&offset=" + $("#addvar-offset").val()
+				+ "&count=" + $("#addvar-count").val()
+				+ "&value=" + $("#addvar-value").val();
+
 			$("#status").html('<p id="fadeout">' + url + '</p>'); 
 			axios.get(url)
 				.then(function(r){
@@ -239,14 +229,13 @@
 			var offset= t.eq(4).html();
 
 			var url	= "http://"
-				+ window.location.host
-				+ "/data.cgi?"
-				+ "comid=" + comid + "&"
-				+ "slave=" + slave + "&"
-				+ "fcode=" + fcode + "&"
-				+ "offset=" + offset + "&"
-				+ "count=1" + "&"
-				+ "cmd=delvar";
+					+ window.location.host
+					+ "/data.cgi?cmd=delvar"
+					+ "&comid=" + comid
+					+ "&slave=" + slave
+					+ "&fcode=" + fcode
+					+ "&offset=" + offset
+					+ "&count=1";
 			$("#status").html('<p id="fadeout">' + url + '</p>');
 			axios.get(url)
 				.then(function(r){
@@ -268,13 +257,12 @@
 
 			var url	= "http://"
 				+ window.location.host
-				+ "/data.cgi?"
-				+ "comid=" + comid + "&"
-				+ "slave=" + slave + "&"
-				+ "fcode=" + fcode + "&"
-				+ "offset=" + offset + "&"
-				+ "count=" + count + "&"
-				+ "cmd=delvar"; 
+				+ "/data.cgi?cmd=delvar"
+				+ "&comid=" + comid
+				+ "&slave=" + slave
+				+ "&fcode=" + fcode
+				+ "&offset=" + offset
+				+ "&count=" + count;
 
 			$("#status").html('<p id="fadeout">' + url + '</p>'); 
 			axios.get(url)
