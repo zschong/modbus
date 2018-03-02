@@ -19,11 +19,12 @@ fast_make:
 	make -f makefile all -j8 
 
 all: $(EXE_TARGET)
-	@echo -n "\033[33;4m"
-	@echo "$(STRIP) {$+}"
-	@echo -n "\33[0m\033[32m"
+	@echo -n "\33[33m"
+	@echo "$(STRIP) $(EXE_TARGET)"
+	@echo -n "\33[0m"
+	@echo -n "\33[32m"
 	@ls -1sh $+ $(LIB_TARGET)
-	@echo -n "\033[0m"
+	@echo -n "\33[0m"
 
 service_server.exe: ztest/service_server.cpp $(LIB_TARGET)
 	@echo "$(CC) ztest/service_server.cpp => $@"

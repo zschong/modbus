@@ -79,7 +79,7 @@ GetData::GetData(Cgi& cgi, const string& serverpath, const string& clientpath)
 			printf("{"
 					"\"comid\":\"%u\""
 					","
-					"\"varid\":\"%08X\""
+					"\"varid\":\"%02X%08X\""
 					","
 					"\"slave\":\"%u\""
 					","
@@ -91,6 +91,7 @@ GetData::GetData(Cgi& cgi, const string& serverpath, const string& clientpath)
 					","
 					"\"update\":\"%u\""
 					"},",
+					A->first,
 					A->first,
 					B->first,
 					B->second.slave,
