@@ -20,9 +20,9 @@ int main(void)
 		printf("StartServer(%s) failed\n", server_path.data());
 		return -1;
 	}
-	manager.LoadComId(".com.id");
-	manager.LoadComConfig(".com.config");
-	manager.LoadVarConfig(".var.config");
+	manager.LoadComId("var/.com.id");
+	manager.LoadComConfig("var/.com.config");
+	manager.LoadVarConfig("var/.var.config");
 
 	while(1)
 	{
